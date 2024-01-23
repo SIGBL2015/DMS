@@ -1,0 +1,75 @@
+{% load static %} 
+<div class="main-sidebar">
+    <aside id="sidebar-wrapper">
+      <div class="sidebar-brand">
+        <a href="{% url 'dashboard' %}">DMSYSTEM</a>
+      </div>
+      <div class="sidebar-user">
+        <div class="sidebar-user-picture">
+          <img alt="image" src="{% static 'dist/img/avatar/avatar-1.jpeg' %}">
+        </div>
+        <div class="sidebar-user-details">
+          <div class="user-name">
+            {% if user.is_authenticated %}
+              {{user.username|title }}
+            {% endif %}
+          </div>
+          <div class="user-role">
+            Administrator
+          </div>
+        </div>
+      </div>
+      <ul class="sidebar-menu">
+        <li class="menu-header">Dashboard</li>
+        <li class="active">
+          <a href="{% url 'dashboard' %}"><i class="ion ion-speedometer"></i><span>Dashboard</span></a>
+        </li>
+
+        <li class="menu-header">Components</li>
+        <li>
+          <a href="{% url 'show_emp' %}"><i class="ion ion-clipboard"></i><span>Employee</span></a>
+        </li>
+        <li>
+          <a href="{% url 'show_depart' %}"><i class="ion ion-clipboard"></i><span>Department</span></a>
+        </li>
+        <li>
+          <a href="{% url 'show_design' %}"><i class="ion ion-clipboard"></i><span>Designation</span></a>
+        </li>
+        <li>
+          <a href="{% url 'show_region' %}"><i class="ion ion-clipboard"></i><span>Region</span></a>
+        </li>
+        <li>
+          <a href="{% url 'show_education' %}"><i class="ion ion-clipboard"></i><span>Education</span></a>
+        </li>
+        <li>
+          <a href="{% url 'show_employement_record' %}"><i class="ion ion-clipboard"></i><span>Employement_Record</span></a>
+        </li>
+        <li>
+          <a href="{% url 'show_certification' %}"><i class="ion ion-clipboard"></i><span>Certifications</span></a>
+        </li>
+        <li>
+          <a href="{% url 'show_skill' %}"><i class="ion ion-clipboard"></i><span>Skills</span></a>
+        </li>
+        <li>
+          <a href="#" class="has-dropdown"><i class="ion ion-ios-nutrition"></i> Click Me</a>
+          <ul class="menu-dropdown">
+            <li><a href="#"><i class="ion ion-ios-circle-outline"></i> Menu 1</a></li>
+            <li><a href="#" class="has-dropdown"><i class="ion ion-ios-circle-outline"></i> Menu 2</a>
+              <ul class="menu-dropdown">
+                <li><a href="#"><i class="ion ion-ios-circle-outline"></i> Child Menu 1</a></li>
+                <li><a href="#"><i class="ion ion-ios-circle-outline"></i> Child Menu 2</a></li>
+                <li><a href="#" class="has-dropdown"><i class="ion ion-ios-circle-outline"></i> Child Menu 3</a>
+                  <ul class="menu-dropdown">
+                    <li><a href="#"><i class="ion ion-ios-circle-outline"></i> Child Menu 1</a></li>
+                    <li><a href="#"><i class="ion ion-ios-circle-outline"></i> Child Menu 2</a></li>
+                    <li><a href="#"><i class="ion ion-ios-circle-outline"></i> Child Menu 3</a></li>
+                  </ul>
+                </li>
+                <li><a href="#"><i class="ion ion-ios-circle-outline"></i> Child Menu 4</a></li>
+              </ul>
+            </li>
+          </ul>
+        </li>         
+      </ul>
+    </aside>
+  </div>

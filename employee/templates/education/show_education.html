@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+  {% load static %} 
+  {% include 'layout/style.html' %}
+
+<body>
+  <div id="app">
+    <div class="main-wrapper">
+      {% include 'layout/header.html' %}
+      {% include 'layout/sidebar.html' %}
+      <div class="main-content">
+        <section class="section">
+          <h1 class="section-header">
+            <div>Educations</div>
+          </h1>
+          <div class="section-body">
+            <div class="row mt-5">
+              <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                      <h3 class="card-title">Education Details</h3>
+                    </div>
+                    <!-- /.card-header -->
+                    <div class="card-body">
+                      <table id="example1" class="table table-bordered table-striped">
+                        <thead>
+                        <tr>
+                          <th>S.No</th>
+                          <th>Employee</th>
+                          <th>Degree</th>
+                          <th>Institute</th>
+                          <th>Country</th>
+                          <th>From Date</th>
+                          <th>To Date</th>
+                          <th>Grade</th>
+                          <th>Status</th>
+                          <th>Action</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                            {% for education in educations %}  
+                                <tr>  
+                                    <td>{{ forloop.counter }}</td>  
+                                    <td>{{ education.emp_id }}</td>
+                                    <td>{{ education.degree_name }}</td> 
+                                    <td>{{ education.institute }}</td> 
+                                    <td>{{ education.country }}</td> 
+                                    <td>{{ education.from_date }}</td> 
+                                    <td>{{ education.to_date }}</td> 
+                                    <td>{{ education.grade }}</td>    
+                                    <td>{{ education.status }}</td>  
+                                    <td>  
+                                        <a href="/employee/edit/{{ education.id }}"><span class="ion-ios-compose" ></span></a>  
+                                        <a href="/employee/delete/{{ education.id }}"><span class="ion-ios-trash" ></span></a>  
+                                    </td>  
+                                </tr>  
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                        <tr>
+                            <th>S.No</th>
+                            <th>Employee</th>
+                            <th>Degree</th>
+                            <th>Institute</th>
+                            <th>Country</th>
+                            <th>From Date</th>
+                            <th>To Date</th>
+                            <th>Grade</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                        </tfoot>
+                      </table>
+                    </div>
+                    <!-- /.card-body -->
+                  </div>
+                  <!-- /.card -->
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+      {% include 'layout/footer.html' %}
+    </div>
+  </div>
+
+  {% include 'layout/script.html' %}
+</body>
+</html>

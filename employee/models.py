@@ -78,3 +78,56 @@ class Skills(models.Model):
     status = models.IntegerField(default=1) 
     class Meta:  
         db_table = "skills"
+
+
+class Company(models.Model):  
+    comp_name = models.CharField(max_length=100)  
+    status = models.IntegerField(default=1) 
+    class Meta:  
+        db_table = "company"
+
+class Module(models.Model):
+    module_name = models.CharField(max_length=100)  
+    status = models.IntegerField(default=1) 
+    class Meta:  
+        db_table = "module"
+
+class Mainmenu(models.Model):
+    module_id = models.IntegerField()  
+    mainmenu_name = models.CharField(max_length=100) 
+    mainmenu_link = models.CharField(max_length=100) 
+    mainmenu_seq = models.CharField(max_length=100)  
+    status = models.IntegerField(default=1) 
+    class Meta:  
+        db_table = "mainmenu"
+
+class Submenu(models.Model):
+    mainmenu_id = models.IntegerField()  
+    submenu_name = models.CharField(max_length=100) 
+    submenu_link = models.CharField(max_length=100) 
+    submenu_seq = models.CharField(max_length=100)  
+    status = models.IntegerField(default=1) 
+    class Meta:  
+        db_table = "submenu"
+
+class Role(models.Model):
+    role_name = models.CharField(max_length=100)  
+    status = models.IntegerField(default=1) 
+    class Meta:  
+        db_table = "role"
+
+class Company_module(models.Model):
+    company_id = models.IntegerField() 
+    module_id = models.IntegerField()   
+    status = models.IntegerField(default=1) 
+    class Meta:  
+        db_table = "company_module"
+
+class Role_permission(models.Model):
+    module_id = models.IntegerField() 
+    mainmenu_id = models.IntegerField()
+    submenu_id = models.IntegerField()
+    role_id = models.IntegerField()
+    status = models.IntegerField(default=1) 
+    class Meta:  
+        db_table = "role_permission"

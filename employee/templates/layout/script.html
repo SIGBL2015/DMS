@@ -1,0 +1,85 @@
+{% load static %}
+<script src="{% static 'dist/modules/jquery.min.js' %}"></script>
+<script src="{% static 'dist/modules/popper.js' %}"></script>
+<script src="{% static 'dist/modules/tooltip.js' %}"></script>
+<script src="{% static 'dist/modules/bootstrap/js/bootstrap.min.js' %}"></script>
+<script src="{% static 'dist/modules/nicescroll/jquery.nicescroll.min.js' %}"></script>
+<script src="{% static 'dist/modules/scroll-up-bar/dist/scroll-up-bar.min.js' %}"></script>
+<script src="{% static 'dist/js/sa-functions.js' %}"></script>
+<script src="{% static 'dist/modules/moment.min.js' %}"></script>
+<script src="{% static 'dist/modules/chart.min.js' %}"></script>
+<script src="{% static 'dist/modules/summernote/summernote-lite.js' %}"></script>
+
+<script>
+var ctx = document.getElementById("myChart").getContext('2d');
+var myChart = new Chart(ctx, {
+  type: 'line',
+  data: {
+    labels: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+    datasets: [{
+      label: 'Statistics',
+      data: [460, 458, 330, 502, 430, 610, 488],
+      borderWidth: 2,
+      backgroundColor: 'rgb(87,75,144)',
+      borderColor: 'rgb(87,75,144)',
+      borderWidth: 2.5,
+      pointBackgroundColor: '#ffffff',
+      pointRadius: 4
+    }]
+  },
+  options: {
+    legend: {
+      display: false
+    },
+    scales: {
+      yAxes: [{
+        ticks: {
+          beginAtZero: true,
+          stepSize: 150
+        }
+      }],
+      xAxes: [{
+        gridLines: {
+          display: false
+        }
+      }]
+    },
+  }
+});
+</script>
+<script src="{% static 'dist/js/scripts.js' %}"></script>
+<script src="{% static 'dist/js/custom.js' %}"></script>
+<script src="{% static 'dist/js/demo.js' %}"></script>
+
+
+<!-- DataTables  & Plugins -->
+<script src="{% static 'dist/plugins/datatables/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'dist/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js' %}"></script>
+<script src="{% static 'dist/plugins/datatables-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'dist/plugins/datatables-responsive/js/responsive.bootstrap4.min.js' %}"></script>
+<script src="{% static 'dist/plugins/datatables-buttons/js/dataTables.buttons.min.js' %}"></script>
+<script src="{% static 'dist/plugins/datatables-buttons/js/buttons.bootstrap4.min.js' %}"></script>
+<script src="{% static 'dist/plugins/jszip/jszip.min.js' %}"></script>
+<script src="{% static 'dist/plugins/pdfmake/pdfmake.min.js' %}"></script>
+<script src="{% static 'dist/plugins/pdfmake/vfs_fonts.js' %}"></script>
+<script src="{% static 'dist/plugins/datatables-buttons/js/buttons.html5.min.js' %}"></script>
+<script src="{% static 'dist/plugins/datatables-buttons/js/buttons.print.min.js' %}"></script>
+<script src="{% static 'dist/plugins/datatables-buttons/js/buttons.colVis.min.js' %}"></script>
+
+<script>
+  $(function () {
+    $("#example1").DataTable({
+      "responsive": true, "lengthChange": false, "autoWidth": false,
+      "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
+    }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+    $('#example2').DataTable({
+      "paging": true,
+      "lengthChange": false,
+      "searching": false,
+      "ordering": true,
+      "info": true,
+      "autoWidth": false,
+      "responsive": true,
+    });
+  });
+</script>
