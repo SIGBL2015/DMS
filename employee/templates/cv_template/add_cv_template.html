@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  {% load static %} 
+  {% include 'layout/style.html' %}
+
+<body>
+  <div id="app">
+    <div class="main-wrapper">
+      {% include 'layout/header.html' %}
+      {% include 'layout/sidebar.html' %}
+      <div class="main-content">
+        <section class="section">
+          <h1 class="section-header">
+            <div>Add CV Template</div>
+          </h1>
+          <div class="card card-primary">
+            <div class="card-header"><h4>Add</h4></div>
+
+            <div class="card-body">
+              <form method="POST" action="save_cv_template">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="form-group col-6">
+                        <label for="email">Tendor Name</label>
+                        <input id="tendor" type="text" class="form-control" name="tendor">
+                    </div>
+                    <div class="form-group col-6">
+                        <label for="email">title</label>
+                        <input id="title" type="text" class="form-control" name="title">
+                    </div>
+                </div>
+                <div class="row">
+                    
+                    <div class="form-group col-12">
+                        <label for="email">Template</label>
+                        <!-- <input id="templete_code" type="text" class="form-control" name="templete_code"> -->
+                        <textarea name="template_code" id="template_code"  class="form-control" rows="10" cols="80">
+                            
+                        </textarea>
+                        
+                    </div>
+                </div>
+
+                <div class="form-group">
+                  <button type="submit" class="btn btn-primary">
+                    Save
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </section>
+      </div>
+      {% include 'layout/footer.html' %}
+    </div>
+  </div>
+
+  {% include 'layout/script.html' %}
+</body>
+</html>

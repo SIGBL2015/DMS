@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+  {% load static %} 
+  {% include 'layout/style.html' %}
+
+<body>
+  <div id="app">
+    <div class="main-wrapper">
+      {% include 'layout/header.html' %}
+      {% include 'layout/sidebar.html' %}
+      <div class="main-content">
+        <section class="section">
+          <h1 class="section-header">
+            <div>Add Education</div>
+          </h1>
+          <div class="card card-primary">
+            <div class="card-header"><h4>Add</h4></div>
+
+            <div class="card-body">
+              <form method="POST" action="save_education">
+                {% csrf_token %}
+                <div class="row">
+                  <div class="form-group col-6">
+                    <label for="frist_name">Employee Name</label>
+                    <select class="form-control" id="employee" name="employee">
+                        <option value="">-- Select Employee --</option>
+                        {% for employee in employees %}
+                            <option value="{{ employee.id }}">{{ employee.ename }}</option>
+                        {% endfor %}
+                      </select>
+                  </div>
+                  <div class="form-group col-6">
+                    <label for="email">Degree Name</label>
+                    <input id="degree_name" type="text" class="form-control" name="degree_name">
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="form-group col-6">
+                    <label for="frist_name">Institute</label>
+                    <input id="institute" type="text" class="form-control" name="institute">
+                  </div>
+                  <div class="form-group col-6">
+                    <label>Country</label>
+                    <select class="form-control" id="country" name="country">
+                      <option value="">-- Select Country --</option>
+                        <option value="Pakistan">Pakistan</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="row">
+                    <div class="form-group col-6">
+                        <label>From Date</label>
+                        <input id="from_date" type="date" class="form-control" name="from_date">
+                    </div>
+                    <div class="form-group col-6">
+                        <label>To Date</label>
+                        <input id="to_date" type="date" class="form-control" name="to_date">
+                    </div>
+                </div>
+
+                <div class="row">
+                  <div class="form-group col-6">
+                    <label>Grade</label>
+                    <input id="grade" type="text" class="form-control" name="grade">
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <button type="submit" class="btn btn-primary">
+                    Save
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </section>
+      </div>
+      {% include 'layout/footer.html' %}
+    </div>
+  </div>
+
+  {% include 'layout/script.html' %}
+</body>
+</html>

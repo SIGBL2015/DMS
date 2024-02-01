@@ -11,26 +11,26 @@
       <div class="main-content">
         <section class="section">
           <h1 class="section-header">
-            <div>Add Department</div>
+            <div>Edit Designation</div>
           </h1>
           <div class="col-md-6 col-md-offset-4 mx-auto">
             <div class="card card-primary">
-                <div class="card-header"><h4>Add</h4></div>
+                <div class="card-header"><h4>Edit</h4></div>
                 
                 <div class="card-body">
     
-                  <form method="POST" action="save_depart">
+                  <form method="POST" action="/employee/u_design/{{designation.id}}">
                     {% csrf_token %}
                     <div class="row">
                       <div class="form-group col-md-12">
-                        <label for="frist_name">Department Name</label>
-                        <input id="depart_name" type="text" class="form-control" name="depart_name" autofocus>
+                        <label for="frist_name">Designation Name</label>
+                        <input id="design_name" type="text" class="form-control" name="design_name" value="{{ designation.design_name }}" autofocus>
                       </div>
                     </div>
     
                     <div class="form-group">
                       <button type="submit" class="btn btn-primary">
-                        Save
+                        Update
                       </button>
                     </div>
                   </form>

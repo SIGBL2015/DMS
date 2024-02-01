@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+  {% load static %} 
+  {% include 'layout/style.html' %}
+
+<body>
+  <div id="app">
+    <div class="main-wrapper">
+      {% include 'layout/header.html' %}
+      {% include 'layout/sidebar.html' %}
+      <div class="main-content">
+        <section class="section">
+          <h1 class="section-header">
+            <div>Edit Employement Record</div>
+          </h1>
+          <div class="card card-primary">
+            <div class="card-header"><h4>Edit</h4></div>
+
+            <div class="card-body">
+              <form method="POST" action="/employee/u_employement_record/{{employement_Record.id}}">
+                {% csrf_token %}
+                <div class="row">
+                  <div class="form-group col-6">
+                    <label for="frist_name">Employee Name</label>
+                    <select class="form-control" id="employee" name="employee">
+                        <option value=""> Select Employee </option>
+                        {% for employee in employees %}
+                          {% if employement_Record.employee.id == employee.id %}                         
+                            <option value="{{ employee.id }}" selected>{{ employee.ename }}</option>
+                          {% else %}
+                            <option value="{{ employee.id }}">{{ employee.ename }}</option>
+                          {% endif %}
+                        {% endfor %}
+                    </select>
+                  </div>
+                  <div class="form-group col-6">
+                    <label for="email">Organization Name</label>
+                    <input id="organization_name" type="text" class="form-control" name="organization_name" value="{{ employement_Record.organization_name }}">
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="form-group col-6">
+                    <label for="frist_name">Position</label>
+                    <input id="position" type="text" class="form-control" name="position" value="{{ employement_Record.position }}">
+                  </div>
+                  <div class="form-group col-6">
+                    <label>Country</label>
+                    <select class="form-control" id="country" name="country">
+                      <option value="{{ employement_Record.country }}">{{ employement_Record.country }}</option>
+                        <option value="Pakistan">Pakistan</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="row">
+                    <div class="form-group col-6">
+                        <label>From Date</label>
+                        <input id="from_date" type="date" class="form-control" name="from_date" value="{{employement_Record.from_date|date:'Y-m-d'}}">
+                    </div>
+                    <div class="form-group col-6">
+                        <label>To Date</label>
+                        <input id="to_date" type="date" class="form-control" name="to_date" value="{{employement_Record.to_date|date:'Y-m-d'}}">
+                    </div>
+                </div>
+
+                <div class="row">
+                  <div class="form-group col-6">
+                    <label>Salary</label>
+                    <input id="salary" type="text" class="form-control" name="salary" value="{{ employement_Record.salary }}">
+                  </div>
+                  <div class="form-group col-6">
+                    <label>Reference name</label>
+                    <input id="ref_name" type="text" class="form-control" name="ref_name"  value="{{ employement_Record.ref_name }}">
+                  </div>
+                </div>
+
+                <div class="row">
+                    <div class="form-group col-6">
+                      <label>Reference email</label>
+                      <input id="ref_email" type="text" class="form-control" name="ref_email"  value="{{ employement_Record.ref_email }}">
+                    </div>
+                    <div class="form-group col-6">
+                      <label>Reference contact</label>
+                      <input id="ref_contact" type="text" class="form-control" name="ref_contact"  value="{{ employement_Record.ref_contact }}">
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="form-group col-12">
+                      <label>Activites</label>
+                      <textarea id="activites" name="activites" class="form-control" rows="4" cols="50">{{ employement_Record.activites }}</textarea>
+                    </div>
+                </div>
+  
+
+                <div class="form-group">
+                  <button type="submit" class="btn btn-primary">
+                    Update
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </section>
+      </div>
+      {% include 'layout/footer.html' %}
+    </div>
+  </div>
+
+  {% include 'layout/script.html' %}
+</body>
+</html>

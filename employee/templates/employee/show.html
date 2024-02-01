@@ -12,6 +12,7 @@
         <section class="section">
           <h1 class="section-header">
             <div>Employee</div>
+            <div style="float: right;"><a href="/employee/save_emp" class="btn btn-sm btn-danger">Add</a></div>
           </h1>
           <div class="section-body">
             <div class="row mt-5">
@@ -44,8 +45,8 @@
                                     <td>{{ employee.ename }}</td> 
                                     <td>{{ employee.eemail }}</td>  
                                     <td>{{ employee.econtact }}</td> 
-                                    <td>{{ employee.depart_id }}</td>  
-                                    <td>{{ employee.designation_id }}</td>  
+                                    <td>{{ employee.department.depart_name}}</td>  
+                                    <td>{{ employee.designation.design_name }}</td>  
                                     <td>{{ employee.status }}</td>   
                                     <td>  
                                         <a href="/employee/edit/{{ employee.id }}"><span class="ion-ios-compose" ></span></a>  

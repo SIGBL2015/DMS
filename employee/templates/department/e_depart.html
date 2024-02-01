@@ -1,36 +1,49 @@
-<!DOCTYPE html>  
-<html lang="en">  
-<head>  
-    <meta charset="UTF-8">  
-    <title>Index</title>  
-    {% load static %}  
-    <link rel="stylesheet" href="{% static 'css/style.css' %}"/>  
-</head>  
-<body>  
-<form method="POST" class="post-form" action="/employee/u_depart/{{department.id}}">  
-        {% csrf_token %}  
-    <div class="container">  
-<br>  
-    <div class="form-group row">  
-    <label class="col-sm-1 col-form-label"></label>  
-    <div class="col-sm-4">  
-    <h3>Update Details</h3>  
-    </div>  
-  </div>  
-   
-  <div class="form-group row">  
-    <label class="col-sm-2 col-form-label">Department Name:</label>  
-    <div class="col-sm-4">  
-        <input type="text" name="depart_name" id="id_depart_name" required maxlength="100" value="{{ department.depart_name }}" />  
-    </div>  
-  </div>  
-  <div class="form-group row">  
-    <label class="col-sm-1 col-form-label"></label>  
-    <div class="col-sm-4">  
-    <button type="submit" class="btn btn-success">Update</button>  
-    </div>  
-  </div>  
-    </div>  
-</form>  
-</body>  
-</html>  
+<!DOCTYPE html>
+<html lang="en">
+  {% load static %} 
+  {% include 'layout/style.html' %}
+
+<body>
+  <div id="app">
+    <div class="main-wrapper">
+      {% include 'layout/header.html' %}
+      {% include 'layout/sidebar.html' %}
+      <div class="main-content">
+        <section class="section">
+          <h1 class="section-header">
+            <div>Edit Department</div>
+          </h1>
+          <div class="col-md-6 col-md-offset-4 mx-auto">
+            <div class="card card-primary">
+                <div class="card-header"><h4>Edit</h4></div>
+                
+                <div class="card-body">
+    
+                  <form method="POST" action="/employee/u_depart/{{department.id}}">
+                    {% csrf_token %}
+                    <div class="row">
+                      <div class="form-group col-md-12">
+                        <label for="frist_name">Department Name</label>
+                        <input id="depart_name" type="text" class="form-control" name="depart_name" value="{{ department.depart_name }}" autofocus>
+                      </div>
+                    </div>
+    
+                    <div class="form-group">
+                      <button type="submit" class="btn btn-primary">
+                        Update
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          
+        </section>
+      </div>
+      {% include 'layout/footer.html' %}
+    </div>
+  </div>
+
+  {% include 'layout/script.html' %}
+</body>
+</html>

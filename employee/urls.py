@@ -3,7 +3,7 @@ from . import views
 
 
 urlpatterns = [
-    path('dashboard', views.emp, name="dashboard"),
+    path('dashboard', views.dashboard, name="dashboard"),
     #employee
     path('save_emp', views.emp, name="save_emp"),  
     path('show_emp',views.show, name="show_emp"),  
@@ -59,4 +59,11 @@ urlpatterns = [
     path('e_skill/<int:id>', views.e_skill, name="e_skill"),  
     path('u_skill/<int:id>', views.u_skill, name="u_skill"),  
     path('d_skill/<int:id>', views.d_skill, name="d_skill"), 
+
+    #CV_template
+    path('save_cv_template', views.add_cv_template, name="save_cv_template"),  
+    path('show_cv_template',views.show_cv_template, name="show_cv_template"),  
+    path('e_cv_template/<int:id>', views.e_cv_template, name="e_cv_template"),  
+    path('u_cv_template/<int:id>', views.u_cv_template, name="u_cv_template"),  
+    path('d_cv_template/<int:id>', views.d_cv_template, name="d_cv_template"),
 ]

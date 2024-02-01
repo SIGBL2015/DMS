@@ -1,34 +1,46 @@
 from django.shortcuts import render, redirect  
-from employee.forms import EmployeeForm, DepartmentForm, DesignationForm, RegionForm, EducationForm, Employement_RecordForm, CertificationsForm, SkillsForm, CompanyForm, ModuleForm, MainmenuForm, SubmenuForm, RoleForm, Company_moduleForm, Role_permissionForm
-from employee.models import Employee, Department, Designation, Region, Education, Employement_Record, Certifications, Skills, Company, Module, Mainmenu, Submenu, Role, Company_module, Role_permission
+from employee.forms import EmployeeForm, DepartmentForm, DesignationForm, RegionForm, EducationForm, Employement_RecordForm, CertificationsForm, SkillsForm, CompanyForm, ModuleForm, MainmenuForm, SubmenuForm, RoleForm, Company_moduleForm, Role_permissionForm, CV_templateForm
+from employee.models import Employee, Department, Designation, Region, Education, Employement_Record, Certifications, Skills, Company, Module, Mainmenu, Submenu, Role, Company_module, Role_permission, CV_template
 from django.contrib.auth.decorators import login_required
 
 # Create your views here. 
+@login_required    
+def dashboard(request):   
+    return render(request,"dashboard.html") 
+
 # Employee
 @login_required 
-def emp(request):  
+def emp(request):
     if request.method == "POST":  
-        form = EmployeeForm(request.POST)  
-        if form.is_valid():  
-            try:  
-                form.save()  
-                return redirect('show')  
-            except Exception as e:  
-                print(e)    
-                pass  
+        form = EmployeeForm(request.POST)
+        print(form)  
+        # if form.is_valid(): 
+        try:  
+            form.save()  
+            return redirect('show_emp')  
+        except Exception as e:  
+            print(e)    
+            pass  
     else:  
-        form = EmployeeForm()  
-    return render(request,'employee/index.html',{'form':form})  
+        print("else")
+        # form = EmployeeForm()
+        departs = Department.objects.filter(status=1).values('id','depart_name')
+        designs = Designation.objects.filter(status=1).values('id','design_name')
+        regions = Region.objects.filter(status=1).values('id','region_name')
 
+    return render(request,'employee/index.html',{'departs':departs,'designs':designs,'regions':regions})  
 @login_required    
 def show(request):  
-    employees = Employee.objects.all()  
+    employees = Employee.objects.all()
     return render(request,"employee/show.html",{'employees':employees})  
 
 @login_required  
 def edit(request, id):  
+    departs = Department.objects.filter(status=1).values('id','depart_name')
+    designs = Designation.objects.filter(status=1).values('id','design_name')
+    regions = Region.objects.filter(status=1).values('id','region_name')
     employee = Employee.objects.get(id=id)  
-    return render(request,'employee/edit.html', {'employee':employee})  
+    return render(request,'employee/edit.html', {'employee':employee,'departs':departs,'designs':designs,'regions':regions})  
 
 @login_required  
 def update(request, id):  
@@ -36,14 +48,14 @@ def update(request, id):
     form = EmployeeForm(request.POST, instance = employee)  
     if form.is_valid():  
         form.save()  
-        return redirect("show")  
+        return redirect("show_emp")  
     return render(request, 'employee/edit.html', {'employee': employee})  
 
 @login_required  
 def destroy(request, id):  
     employee = Employee.objects.get(id=id)  
     employee.delete()  
-    return redirect("show")  
+    return redirect("show_emp")  
 
 
 # Department
@@ -186,7 +198,8 @@ def add_education(request):
                 pass  
     else:  
         form = EducationForm()  
-    return render(request,'education/add_education.html',{'form':form})  
+        employees = Employee.objects.filter(status=1).values('id','ename')
+    return render(request,'education/add_education.html',{'form':form,'employees':employees})  
 
 @login_required    
 def show_education(request):  
@@ -195,8 +208,9 @@ def show_education(request):
 
 @login_required  
 def e_education(request, id):  
-    education = Education.objects.get(id=id)  
-    return render(request,'education/e_education.html', {'education':education})  
+    education = Education.objects.get(id=id) 
+    employees = Employee.objects.filter(status=1).values('id','ename')
+    return render(request,'education/e_education.html', {'education':education,'employees':employees})  
 
 @login_required  
 def u_education(request, id):  
@@ -222,23 +236,25 @@ def add_employement_Record(request):
         if form.is_valid():
             try:  
                 form.save()  
-                return redirect('show_employement_Record')  
+                return redirect('show_employement_record')  
             except Exception as e:  
                 print(e)  
                 pass  
     else:  
-        form = Employement_RecordForm()  
-    return render(request,'employement_Record/add_employement_Record.html',{'form':form})  
+        form = Employement_RecordForm()
+        employees = Employee.objects.filter(status=1).values('id','ename')  
+    return render(request,'employement_record/add_employement_record.html',{'form':form,'employees':employees})  
 
 @login_required    
 def show_employement_Record(request):  
     employement_Records = Employement_Record.objects.all()  
-    return render(request,"employement_Record/show_employement_Record.html",{'employement_Records':employement_Records})  
+    return render(request,"employement_record/show_employement_record.html",{'employement_Records':employement_Records})  
 
 @login_required  
 def e_employement_Record(request, id):  
-    employement_Record = Employement_Record.objects.get(id=id)  
-    return render(request,'employement_Record/e_employement_Record.html', {'employement_Record':employement_Record})  
+    employement_Record = Employement_Record.objects.get(id=id) 
+    employees = Employee.objects.filter(status=1).values('id','ename') 
+    return render(request,'employement_record/e_employement_record.html', {'employement_Record':employement_Record,'employees':employees})  
 
 @login_required  
 def u_employement_Record(request, id):  
@@ -246,14 +262,14 @@ def u_employement_Record(request, id):
     form = Employement_RecordForm(request.POST, instance = employement_Record)  
     if form.is_valid():  
         form.save()  
-        return redirect("show_employement_Record")  
-    return render(request, 'employement_Record/e_employement_Record.html', {'employement_Record': employement_Record})  
+        return redirect("show_employement_record")  
+    return render(request, 'employement_record/e_employement_record.html', {'employement_Record': employement_Record})  
 
 @login_required  
 def d_employement_Record(request, id):  
     employement_Record = Employement_Record.objects.get(id=id)  
     employement_Record.delete()  
-    return redirect("show_employement_Record") 
+    return redirect("show_employement_record") 
 
  
 # Certifications
@@ -270,7 +286,8 @@ def add_certification(request):
                 pass  
     else:  
         form = CertificationsForm()  
-    return render(request,'certification/add_certification.html',{'form':form})  
+        employees = Employee.objects.filter(status=1).values('id','ename')
+    return render(request,'certification/add_certification.html',{'form':form,'employees':employees})  
 
 @login_required    
 def show_certification(request):  
@@ -280,7 +297,8 @@ def show_certification(request):
 @login_required  
 def e_certification(request, id):  
     certification = Certifications.objects.get(id=id)  
-    return render(request,'certification/e_certification.html', {'certification':certification})  
+    employees = Employee.objects.filter(status=1).values('id','ename')
+    return render(request,'certification/e_certification.html', {'certification':certification,'employees':employees})  
 
 @login_required  
 def u_certification(request, id):  
@@ -312,7 +330,8 @@ def add_skill(request):
                 pass  
     else:  
         form = SkillsForm()  
-    return render(request,'skill/add_skill.html',{'form':form})  
+        employees = Employee.objects.filter(status=1).values('id','ename')
+    return render(request,'skill/add_skill.html',{'form':form,'employees':employees})  
 
 @login_required    
 def show_skill(request):  
@@ -322,7 +341,8 @@ def show_skill(request):
 @login_required  
 def e_skill(request, id):  
     skill = Skills.objects.get(id=id)  
-    return render(request,'skill/e_skill.html', {'skill':skill})  
+    employees = Employee.objects.filter(status=1).values('id','ename')
+    return render(request,'skill/e_skill.html', {'skill':skill,'employees':employees})  
 
 @login_required  
 def u_skill(request, id):  
@@ -632,3 +652,45 @@ def d_role_permission(request, id):
     role_permission = Role_permission.objects.get(id=id)  
     role_permission.delete()  
     return redirect("show_role_permission") 
+
+
+# CV_template
+@login_required 
+def add_cv_template(request):  
+    if request.method == "POST":  
+        form = CV_templateForm(request.POST) 
+        if form.is_valid():
+            try:  
+                form.save()  
+                return redirect('show_cv_template')  
+            except Exception as e:  
+                print(e)  
+                pass  
+    else:  
+        form = CV_templateForm()  
+    return render(request,'cv_template/add_cv_template.html',{'form':form})  
+
+@login_required    
+def show_cv_template(request):  
+    cv_template = CV_template.objects.all()  
+    return render(request,"cv_template/show_cv_template.html",{'cv_template':cv_template})  
+
+@login_required  
+def e_cv_template(request, id):  
+    cv_template = CV_template.objects.get(id=id)  
+    return render(request,'cv_template/e_cv_template.html', {'cv_template':cv_template})  
+
+@login_required  
+def u_cv_template(request, id):  
+    cv_template = CV_template.objects.get(id=id)  
+    form = CV_templateForm(request.POST, instance = cv_template)  
+    if form.is_valid():  
+        form.save()  
+        return redirect("show_cv_template")  
+    return render(request, 'cv_template/e_cv_template.html', {'cv_template': cv_template})  
+
+@login_required  
+def d_cv_template(request, id):  
+    cv_template = CV_template.objects.get(id=id)  
+    cv_template.delete()  
+    return redirect("show_cv_template") 

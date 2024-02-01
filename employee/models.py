@@ -1,23 +1,6 @@
 from django.db import models
 
 # Create your models here. 
-class Employee(models.Model):  
-    eid = models.CharField(max_length=20)  
-    ename = models.CharField(max_length=100)  
-    eemail = models.EmailField()  
-    econtact = models.CharField(max_length=15)  
-    depart_id = models.IntegerField() 
-    designation_id = models.IntegerField() 
-    region_id = models.IntegerField() 
-    cnic = models.CharField(max_length=15)
-    date_of_joining = models.DateField() 
-    dob = models.DateField() 
-    qualification_id = models.IntegerField() 
-    deliverable_task = models.CharField(max_length=1000)
-    e_address = models.CharField(max_length=100)
-    status = models.IntegerField(default=1) 
-    class Meta:  
-        db_table = "employee"  
 
 class Department(models.Model):  
     depart_name = models.CharField(max_length=100)  
@@ -37,8 +20,27 @@ class Region(models.Model):
     class Meta:  
         db_table = "region"
 
+class Employee(models.Model):  
+    eid = models.CharField(max_length=20)  
+    ename = models.CharField(max_length=100)  
+    eemail = models.EmailField()  
+    econtact = models.CharField(max_length=15)  
+    department =models.ForeignKey(Department, on_delete=models.CASCADE)
+    designation =  models.ForeignKey(Designation, on_delete=models.CASCADE)
+    region =  models.ForeignKey(Region, on_delete=models.CASCADE)
+    cnic = models.CharField(max_length=15)
+    date_of_joining = models.DateField() 
+    dob = models.DateField() 
+    qualification_id = models.CharField(max_length=100)
+    deliverable_task = models.CharField(max_length=1000)
+    e_address = models.CharField(max_length=100)
+    status = models.IntegerField(default=1) 
+
+    class Meta:  
+        db_table = "employee"  
+
 class Education(models.Model):  
-    emp_id = models.IntegerField()  
+    employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
     degree_name = models.CharField(max_length=50)  
     institute = models.CharField(max_length=50)  
     country = models.CharField(max_length=50)  
@@ -50,7 +52,7 @@ class Education(models.Model):
         db_table = "education"
 
 class Employement_Record(models.Model):  
-    emp_id = models.IntegerField()  
+    employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
     organization_name = models.CharField(max_length=50)  
     position = models.CharField(max_length=50)  
     country = models.CharField(max_length=50)  
@@ -66,14 +68,14 @@ class Employement_Record(models.Model):
         db_table = "employement_record"
 
 class Certifications(models.Model):  
-    emp_id = models.IntegerField()  
+    employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
     certification_name = models.CharField(max_length=100)  
     status = models.IntegerField(default=1) 
     class Meta:  
         db_table = "certifications"
 
 class Skills(models.Model):  
-    emp_id = models.IntegerField()  
+    employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
     skill_name = models.CharField(max_length=100)  
     status = models.IntegerField(default=1) 
     class Meta:  
@@ -131,3 +133,11 @@ class Role_permission(models.Model):
     status = models.IntegerField(default=1) 
     class Meta:  
         db_table = "role_permission"
+
+class CV_template(models.Model): 
+    tendor = models.CharField(max_length=100, default = "")
+    title = models.CharField(max_length=100, default = "")
+    templete_code = models.CharField(max_length=2000, default = "")
+    status = models.IntegerField(default=1) 
+    class Meta:  
+        db_table = "cv_template"
