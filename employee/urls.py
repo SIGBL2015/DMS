@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 from . import views
 
 
@@ -6,7 +6,7 @@ urlpatterns = [
     path('dashboard', views.dashboard, name="dashboard"),
     #employee
     path('save_emp', views.emp, name="save_emp"),  
-    path('show_emp',views.show, name="show_emp"),  
+    path('view_employee',views.show, name="view_employee"),  
     path('edit/<int:id>', views.edit, name="edit"),  
     path('update/<int:id>', views.update, name="update"),  
     path('delete/<int:id>', views.destroy, name="delete"), 
@@ -66,4 +66,20 @@ urlpatterns = [
     path('e_cv_template/<int:id>', views.e_cv_template, name="e_cv_template"),  
     path('u_cv_template/<int:id>', views.u_cv_template, name="u_cv_template"),  
     path('d_cv_template/<int:id>', views.d_cv_template, name="d_cv_template"),
+    path('generate_cv',views.generate_cv, name="generate_cv"),
+    path('generate',views.generate, name="generate"),
+
+    #Company
+    path('save_company', views.add_company, name="save_company"),  
+    path('show_company',views.show_company, name="show_company"),  
+    path('e_company/<int:id>', views.e_company, name="e_company"),  
+    path('u_company/<int:id>', views.u_company, name="u_company"),  
+    path('d_company/<int:id>', views.d_company, name="d_company"),
+
+    #Module
+    path('save_module', views.add_module, name="save_module"),  
+    path('show_module',views.show_module, name="show_module"),  
+    path('e_module/<int:id>', views.e_module, name="e_module"),  
+    path('u_module/<int:id>', views.u_module, name="u_module"),  
+    path('d_module/<int:id>', views.d_module, name="d_module"),
 ]

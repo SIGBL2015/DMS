@@ -80,7 +80,7 @@ WSGI_APPLICATION = 'doc_management_system.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',  
-        'NAME': 'doc_management_db',  
+        'NAME': 'dms_db',  
         'USER':'root',  
         'PASSWORD':'',  
         'HOST':'localhost',  
@@ -136,3 +136,4 @@ LOGIN_URL = 'login_user'
 
 # SESSION AGE 5 Minutes
 SESSION_COOKIE_AGE = 50*60
+

@@ -1,15 +1,16 @@
 from django.shortcuts import render, redirect  
-from employee.forms import EmployeeForm, DepartmentForm, DesignationForm, RegionForm, EducationForm, Employement_RecordForm, CertificationsForm, SkillsForm, CompanyForm, ModuleForm, MainmenuForm, SubmenuForm, RoleForm, Company_moduleForm, Role_permissionForm, CV_templateForm
-from employee.models import Employee, Department, Designation, Region, Education, Employement_Record, Certifications, Skills, Company, Module, Mainmenu, Submenu, Role, Company_module, Role_permission, CV_template
-from django.contrib.auth.decorators import login_required
-
+from employee.forms import EmployeeForm, DepartmentForm, DesignationForm, RegionForm, EducationForm, Employement_RecordForm, CertificationsForm, SkillsForm, CompanyForm, ModuleForm, MainmenuForm, SubmenuForm, RoleForm, Company_moduleForm, Role_permissionForm, CV_templateForm, Template_columnForm
+from employee.models import Employee, Department, Designation, Region, Education, Employement_Record, Certifications, Skills, Company, Module, Mainmenu, Submenu, Role, Company_module, Role_permission, CV_template, Template_column
+from django.contrib.auth.decorators import login_required, permission_required
+import re
 # Create your views here. 
 @login_required    
 def dashboard(request):   
     return render(request,"dashboard.html") 
 
 # Employee
-@login_required 
+@login_required
+@permission_required('employee.add_employee', raise_exception=True)  
 def emp(request):
     if request.method == "POST":  
         form = EmployeeForm(request.POST)
@@ -17,7 +18,7 @@ def emp(request):
         # if form.is_valid(): 
         try:  
             form.save()  
-            return redirect('show_emp')  
+            return redirect('view_employee')  
         except Exception as e:  
             print(e)    
             pass  
@@ -29,12 +30,14 @@ def emp(request):
         regions = Region.objects.filter(status=1).values('id','region_name')
 
     return render(request,'employee/index.html',{'departs':departs,'designs':designs,'regions':regions})  
-@login_required    
+@login_required  
+@permission_required('employee.view_employee', raise_exception=True)  
 def show(request):  
     employees = Employee.objects.all()
     return render(request,"employee/show.html",{'employees':employees})  
 
 @login_required  
+@permission_required('employee.change_employee', raise_exception=True)  
 def edit(request, id):  
     departs = Department.objects.filter(status=1).values('id','depart_name')
     designs = Designation.objects.filter(status=1).values('id','design_name')
@@ -48,18 +51,20 @@ def update(request, id):
     form = EmployeeForm(request.POST, instance = employee)  
     if form.is_valid():  
         form.save()  
-        return redirect("show_emp")  
+        return redirect("view_employee")  
     return render(request, 'employee/edit.html', {'employee': employee})  
 
 @login_required  
+@permission_required('employee.delete_employee', raise_exception=True)  
 def destroy(request, id):  
     employee = Employee.objects.get(id=id)  
     employee.delete()  
-    return redirect("show_emp")  
+    return redirect("view_employee")  
 
 
 # Department
 @login_required 
+@permission_required('employee.add_department', raise_exception=True)  
 def add_depart(request):  
     if request.method == "POST":  
         form = DepartmentForm(request.POST) 
@@ -74,12 +79,14 @@ def add_depart(request):
         form = DepartmentForm()  
     return render(request,'department/add_depart.html',{'form':form})  
 
-@login_required    
+@login_required  
+@permission_required('employee.view_department', raise_exception=True)   
 def show_depart(request):  
     departments = Department.objects.all()  
     return render(request,"department/show_depart.html",{'departments':departments})  
 
 @login_required  
+@permission_required('employee.change_department', raise_exception=True) 
 def e_depart(request, id):  
     department = Department.objects.get(id=id)  
     return render(request,'department/e_depart.html', {'department':department})  
@@ -94,6 +101,7 @@ def u_depart(request, id):
     return render(request, 'department/e_depart.html', {'department': department})  
 
 @login_required  
+@permission_required('employee.delete_department', raise_exception=True) 
 def d_depart(request, id):  
     department = Department.objects.get(id=id)  
     department.delete()  
@@ -102,6 +110,7 @@ def d_depart(request, id):
 
 # Designation
 @login_required 
+@permission_required('employee.add_designation', raise_exception=True) 
 def add_design(request):  
     if request.method == "POST":  
         form = DesignationForm(request.POST) 
@@ -116,12 +125,14 @@ def add_design(request):
         form = DesignationForm()  
     return render(request,'designation/add_design.html',{'form':form})  
 
-@login_required    
+@login_required  
+@permission_required('employee.view_designation', raise_exception=True)   
 def show_design(request):  
     designations = Designation.objects.all()  
     return render(request,"designation/show_design.html",{'designations':designations})  
 
 @login_required  
+@permission_required('employee.change_designation', raise_exception=True) 
 def e_design(request, id):  
     designation = Designation.objects.get(id=id)  
     return render(request,'designation/e_design.html', {'designation':designation})  
@@ -136,6 +147,7 @@ def u_design(request, id):
     return render(request, 'designation/e_design.html', {'designation': designation})  
 
 @login_required  
+@permission_required('employee.delete_designation', raise_exception=True) 
 def d_design(request, id):  
     designation = Designation.objects.get(id=id)  
     designation.delete()  
@@ -144,6 +156,7 @@ def d_design(request, id):
 
 # Region
 @login_required 
+@permission_required('employee.add_region', raise_exception=True) 
 def add_region(request):  
     if request.method == "POST":  
         form = RegionForm(request.POST) 
@@ -159,11 +172,13 @@ def add_region(request):
     return render(request,'region/add_region.html',{'form':form})  
 
 @login_required    
+@permission_required('employee.view_region', raise_exception=True)
 def show_region(request):  
     regions = Region.objects.all()  
     return render(request,"region/show_region.html",{'regions':regions})  
 
-@login_required  
+@login_required 
+@permission_required('employee.change_region', raise_exception=True) 
 def e_region(request, id):  
     region = Region.objects.get(id=id)  
     return render(request,'region/e_region.html', {'region':region})  
@@ -178,6 +193,7 @@ def u_region(request, id):
     return render(request, 'region/e_region.html', {'region': region})  
 
 @login_required  
+@permission_required('employee.delete_region', raise_exception=True)
 def d_region(request, id):  
     region = Region.objects.get(id=id)  
     region.delete()  
@@ -186,6 +202,7 @@ def d_region(request, id):
 
 # Education
 @login_required 
+@permission_required('employee.add_education', raise_exception=True)
 def add_education(request):  
     if request.method == "POST":  
         form = EducationForm(request.POST) 
@@ -202,11 +219,13 @@ def add_education(request):
     return render(request,'education/add_education.html',{'form':form,'employees':employees})  
 
 @login_required    
+@permission_required('employee.view_education', raise_exception=True)
 def show_education(request):  
     educations = Education.objects.all()  
     return render(request,"education/show_education.html",{'educations':educations})  
 
 @login_required  
+@permission_required('employee.change_education', raise_exception=True)
 def e_education(request, id):  
     education = Education.objects.get(id=id) 
     employees = Employee.objects.filter(status=1).values('id','ename')
@@ -222,6 +241,7 @@ def u_education(request, id):
     return render(request, 'education/e_education.html', {'education': education})  
 
 @login_required  
+@permission_required('employee.delete_education', raise_exception=True)
 def d_education(request, id):  
     education = Education.objects.get(id=id)  
     education.delete()  
@@ -230,6 +250,7 @@ def d_education(request, id):
 
 # Employement_Record
 @login_required 
+@permission_required('employee.add_employement_record', raise_exception=True)
 def add_employement_Record(request):  
     if request.method == "POST":  
         form = Employement_RecordForm(request.POST) 
@@ -245,12 +266,14 @@ def add_employement_Record(request):
         employees = Employee.objects.filter(status=1).values('id','ename')  
     return render(request,'employement_record/add_employement_record.html',{'form':form,'employees':employees})  
 
-@login_required    
+@login_required 
+@permission_required('employee.view_employement_record', raise_exception=True)   
 def show_employement_Record(request):  
     employement_Records = Employement_Record.objects.all()  
     return render(request,"employement_record/show_employement_record.html",{'employement_Records':employement_Records})  
 
 @login_required  
+@permission_required('employee.change_employement_record', raise_exception=True)
 def e_employement_Record(request, id):  
     employement_Record = Employement_Record.objects.get(id=id) 
     employees = Employee.objects.filter(status=1).values('id','ename') 
@@ -266,6 +289,7 @@ def u_employement_Record(request, id):
     return render(request, 'employement_record/e_employement_record.html', {'employement_Record': employement_Record})  
 
 @login_required  
+@permission_required('employee.delete_employement_record', raise_exception=True)
 def d_employement_Record(request, id):  
     employement_Record = Employement_Record.objects.get(id=id)  
     employement_Record.delete()  
@@ -274,6 +298,7 @@ def d_employement_Record(request, id):
  
 # Certifications
 @login_required 
+@permission_required('employee.add_certification', raise_exception=True)
 def add_certification(request):  
     if request.method == "POST":  
         form = CertificationsForm(request.POST) 
@@ -289,12 +314,14 @@ def add_certification(request):
         employees = Employee.objects.filter(status=1).values('id','ename')
     return render(request,'certification/add_certification.html',{'form':form,'employees':employees})  
 
-@login_required    
+@login_required  
+@permission_required('employee.view_certification', raise_exception=True)  
 def show_certification(request):  
     certifications = Certifications.objects.all()  
     return render(request,"certification/show_certification.html",{'certifications':certifications})  
 
 @login_required  
+@permission_required('employee.change_certification', raise_exception=True)
 def e_certification(request, id):  
     certification = Certifications.objects.get(id=id)  
     employees = Employee.objects.filter(status=1).values('id','ename')
@@ -309,7 +336,8 @@ def u_certification(request, id):
         return redirect("show_certification")  
     return render(request, 'certification/e_certification.html', {'certification': certification})  
 
-@login_required  
+@login_required 
+@permission_required('employee.delete_certification', raise_exception=True) 
 def d_certification(request, id):  
     certification = Certifications.objects.get(id=id)  
     certification.delete()  
@@ -318,6 +346,7 @@ def d_certification(request, id):
 
 # Skills
 @login_required 
+@permission_required('employee.add_skill', raise_exception=True)
 def add_skill(request):  
     if request.method == "POST":  
         form = SkillsForm(request.POST) 
@@ -333,12 +362,14 @@ def add_skill(request):
         employees = Employee.objects.filter(status=1).values('id','ename')
     return render(request,'skill/add_skill.html',{'form':form,'employees':employees})  
 
-@login_required    
+@login_required  
+@permission_required('employee.view_skill', raise_exception=True)  
 def show_skill(request):  
     skills = Skills.objects.all()  
     return render(request,"skill/show_skill.html",{'skills':skills})  
 
 @login_required  
+@permission_required('employee.change_skill', raise_exception=True)
 def e_skill(request, id):  
     skill = Skills.objects.get(id=id)  
     employees = Employee.objects.filter(status=1).values('id','ename')
@@ -354,6 +385,7 @@ def u_skill(request, id):
     return render(request, 'skill/e_skill.html', {'skill': skill})  
 
 @login_required  
+@permission_required('employee.delete_skill', raise_exception=True)
 def d_skill(request, id):  
     skill = Skills.objects.get(id=id)  
     skill.delete()  
@@ -420,8 +452,8 @@ def add_module(request):
 
 @login_required    
 def show_module(request):  
-    module = Module.objects.all()  
-    return render(request,"module/show_module.html",{'module':module})  
+    modules = Module.objects.all()  
+    return render(request,"module/show_module.html",{'modules':modules})  
 
 @login_required  
 def e_module(request, id):  
@@ -462,8 +494,8 @@ def add_mainmenu(request):
 
 @login_required    
 def show_mainmenu(request):  
-    mainmenu = Mainmenu.objects.all()  
-    return render(request,"mainmenu/show_mainmenu.html",{'mainmenu':mainmenu})  
+    mainmenus = Mainmenu.objects.all()  
+    return render(request,"mainmenu/show_mainmenu.html",{'mainmenus':mainmenus})  
 
 @login_required  
 def e_mainmenu(request, id):  
@@ -504,8 +536,8 @@ def add_submenu(request):
 
 @login_required    
 def show_submenu(request):  
-    submenu = Submenu.objects.all()  
-    return render(request,"submenu/show_submenu.html",{'submenu':submenu})  
+    submenus = Submenu.objects.all()  
+    return render(request,"submenu/show_submenu.html",{'submenus':submenus})  
 
 @login_required  
 def e_submenu(request, id):  
@@ -546,8 +578,8 @@ def add_role(request):
 
 @login_required    
 def show_role(request):  
-    role = Role.objects.all()  
-    return render(request,"role/show_role.html",{'role':role})  
+    roles = Role.objects.all()  
+    return render(request,"role/show_role.html",{'roles':roles})  
 
 @login_required  
 def e_role(request, id):  
@@ -588,8 +620,8 @@ def add_company_module(request):
 
 @login_required    
 def show_company_module(request):  
-    company_module = Company_module.objects.all()  
-    return render(request,"company_module/show_company_module.html",{'company_module':company_module})  
+    company_modules = Company_module.objects.all()  
+    return render(request,"company_module/show_company_module.html",{'company_modules':company_modules})  
 
 @login_required  
 def e_company_module(request, id):  
@@ -630,8 +662,8 @@ def add_role_permission(request):
 
 @login_required    
 def show_role_permission(request):  
-    role_permission = Role_permission.objects.all()  
-    return render(request,"role_permission/show_role_permission.html",{'role_permission':role_permission})  
+    role_permissions = Role_permission.objects.all()  
+    return render(request,"role_permission/show_role_permission.html",{'role_permissions':role_permissions})  
 
 @login_required  
 def e_role_permission(request, id):  
@@ -659,6 +691,7 @@ def d_role_permission(request, id):
 def add_cv_template(request):  
     if request.method == "POST":  
         form = CV_templateForm(request.POST) 
+        print(form)
         if form.is_valid():
             try:  
                 form.save()  
@@ -667,13 +700,14 @@ def add_cv_template(request):
                 print(e)  
                 pass  
     else:  
-        form = CV_templateForm()  
-    return render(request,'cv_template/add_cv_template.html',{'form':form})  
+        form = CV_templateForm()
+        columns = Template_column.objects.filter(status=1).values('id','title','table_name','field_name')  
+    return render(request,'cv_template/add_cv_template.html',{'form':form,'columns':columns})  
 
 @login_required    
 def show_cv_template(request):  
-    cv_template = CV_template.objects.all()  
-    return render(request,"cv_template/show_cv_template.html",{'cv_template':cv_template})  
+    cv_templates = CV_template.objects.all()  
+    return render(request,"cv_template/show_cv_template.html",{'cv_templates':cv_templates})  
 
 @login_required  
 def e_cv_template(request, id):  
@@ -694,3 +728,155 @@ def d_cv_template(request, id):
     cv_template = CV_template.objects.get(id=id)  
     cv_template.delete()  
     return redirect("show_cv_template") 
+
+@login_required    
+def generate_cv(request):  
+    employees = Employee.objects.filter(status=1).values('id','ename')
+    templates = CV_template.objects.filter(status=1).values('id','title') 
+    return render(request,"cv_template/generate_cv.html",{'employees':employees,'templates':templates})
+
+@login_required    
+def generate(request):  
+    # print (request.POST.get('employee'))
+    employee = Employee.objects.get(id=request.POST.get('employee'))
+    template = CV_template.objects.get(id=request.POST.get('template'))
+    columns = Template_column.objects.all()  #.get(status=1).values('title','field_name')
+    _columns = {}
+    print(employee.ename)
+    for column in columns:
+        _columns[column.title] = column.field_name 
+    
+
+    fields = re.findall('{{(.+?)}}+',template.templete_code)
+    for field in fields:
+        template.templete_code = template.templete_code.replace('{{' + field + '}}',getattr(employee,_columns['{{' + field + '}}']))
+    
+
+    return render(request,"cv_template/cv.html",{'employee':employee,'template':template,'columns': columns})
+
+# Template_column
+@login_required 
+def add_template_column(request):  
+    if request.method == "POST":  
+        form = Template_columnForm(request.POST) 
+        print(form)
+        if form.is_valid():
+            try:  
+                form.save()  
+                return redirect('show_template_column')  
+            except Exception as e:  
+                print(e)  
+                pass  
+    else:  
+        form = Template_columnForm()  
+    return render(request,'template_column/add_template_column.html',{'form':form})  
+
+@login_required    
+def show_template_column(request):  
+    template_columns = Template_column.objects.all()  
+    return render(request,"template_column/show_template_column.html",{'template_columns':template_columns})  
+
+@login_required  
+def e_template_column(request, id):  
+    template_column = Template_column.objects.get(id=id)  
+    return render(request,'template_column/e_template_column.html', {'template_column':template_column})  
+
+@login_required  
+def u_template_column(request, id):  
+    template_column = Template_column.objects.get(id=id)  
+    form = Template_columnForm(request.POST, instance = template_column)  
+    if form.is_valid():  
+        form.save()  
+        return redirect("show_template_column")  
+    return render(request, 'template_column/e_template_column.html', {'template_column': template_column})  
+
+@login_required  
+def d_template_column(request, id):  
+    template_column = Template_column.objects.get(id=id)  
+    template_column.delete()  
+    return redirect("show_template_column") 
+
+
+# Company
+@login_required 
+def add_company(request):  
+    if request.method == "POST":  
+        form = CompanyForm(request.POST) 
+        print(form)
+        if form.is_valid():
+            try:  
+                form.save()  
+                return redirect('show_company')  
+            except Exception as e:  
+                print(e)  
+                pass  
+    else:  
+        form = CompanyForm()  
+    return render(request,'company/add_company.html',{'form':form})  
+
+@login_required    
+def show_company(request):  
+    company = Company.objects.all()  
+    return render(request,"company/show_company.html",{'company':company})  
+
+@login_required  
+def e_company(request, id):  
+    company = Company.objects.get(id=id)  
+    return render(request,'company/e_company.html', {'company':company})  
+
+@login_required  
+def u_company(request, id):  
+    company = Company.objects.get(id=id)  
+    form = CompanyForm(request.POST, instance = company)  
+    if form.is_valid():  
+        form.save()  
+        return redirect("show_company")  
+    return render(request, 'company/e_company.html', {'company': company})  
+
+@login_required  
+def d_company(request, id):  
+    company = Company.objects.get(id=id)  
+    company.delete()  
+    return redirect("show_company") 
+
+# Module
+@login_required 
+def add_module(request):  
+    if request.method == "POST":  
+        form = ModuleForm(request.POST) 
+        print(form)
+        if form.is_valid():
+            try:  
+                form.save()  
+                return redirect('show_module')  
+            except Exception as e:  
+                print(e)  
+                pass  
+    else:  
+        form = ModuleForm()  
+    return render(request,'module/add_module.html',{'form':form})  
+
+@login_required    
+def show_module(request):  
+    modules = Module.objects.all()  
+    return render(request,"module/show_module.html",{'modules':modules})  
+
+@login_required  
+def e_module(request, id):  
+    module = Module.objects.get(id=id)  
+    return render(request,'module/e_module.html', {'module':module})  
+
+@login_required  
+def u_module(request, id):  
+    module = Module.objects.get(id=id)  
+    form = ModuleForm(request.POST, instance = module)  
+    if form.is_valid():  
+        form.save()  
+        return redirect("show_module")  
+    return render(request, 'module/e_module.html', {'module': module})  
+
+@login_required  
+def d_module(request, id):  
+    module = Module.objects.get(id=id)  
+    module.delete()  
+    return redirect("show_module") 

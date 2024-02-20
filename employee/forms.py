@@ -1,5 +1,5 @@
 from django import forms  
-from employee.models import Employee, Department, Designation, Region, Education, Employement_Record, Certifications, Skills, Company, Module, Mainmenu, Submenu, Role, Company_module, Role_permission, CV_template
+from employee.models import Employee, Department, Designation, Region, Education, Employement_Record, Certifications, Skills, Company, Module, Mainmenu, Submenu, Role, Company_module, Role_permission, CV_template, Template_column
 
 class EmployeeForm(forms.ModelForm):  
     class Meta:  
@@ -44,12 +44,12 @@ class SkillsForm(forms.ModelForm):
 class CompanyForm(forms.ModelForm):  
     class Meta:  
         model = Company  
-        fields = "__all__"
+        fields = ('id','comp_name')
 
 class ModuleForm(forms.ModelForm):  
     class Meta:  
         model = Module  
-        fields = "__all__"
+        fields = ('id','module_name')
 
 class MainmenuForm(forms.ModelForm):  
     class Meta:  
@@ -80,3 +80,16 @@ class CV_templateForm(forms.ModelForm):
     class Meta:  
         model = CV_template  
         fields = ('id','tendor','title','templete_code')
+
+class Template_columnForm(forms.ModelForm):  
+    class Meta:  
+        model = Template_column  
+        fields = ('id','title','table_name','field_name')
+
+
+
+
+# SELECT table_name FROM information_schema.tables
+# WHERE table_schema = 'your_database_name';
+        
+# SELECT `COLUMN_NAME` FROM `INFORMATION_SCHEMA`.`COLUMNS` WHERE `TABLE_SCHEMA`='doc_management_db' AND `TABLE_NAME`='employee'

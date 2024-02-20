@@ -25,36 +25,36 @@
                     <div class="card-body">
                       <table id="example1" class="table table-bordered table-striped">
                         <thead>
-                        <tr>
-                          <th>S.No</th>
-                          <th>Employee</th>
-                          <th>Certification</th>
-                          <th>Status</th>
-                          <th>Action</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                            {% for certification in certifications %}  
-                                <tr>  
-                                    <td>{{ forloop.counter }}</td>  
-                                    <td>{{ certification.employee.ename}}</td>
-                                    <td>{{ certification.certification_name }}</td>    
-                                    <td>{{ certification.status }}</td>  
-                                    <td>  
-                                        <a href="/employee/e_certification/{{ certification.id }}"><span class="ion-ios-compose" ></span></a>  
-                                        <a href="/employee/d_certification/{{ certification.id }}"><span class="ion-ios-trash" ></span></a>  
-                                    </td>  
-                                </tr>  
-                            {% endfor %}
-                        </tbody>
-                        <tfoot>
-                        <tr>
+                          <tr>
                             <th>S.No</th>
                             <th>Employee</th>
                             <th>Certification</th>
                             <th>Status</th>
                             <th>Action</th>
-                        </tr>
+                          </tr>
+                        </thead>
+                        <tbody>
+                            {% for certification in certifications %}  
+                            <tr>  
+                                <td>{{ forloop.counter }}</td>  
+                                <td>{{ certification.employee.ename}}</td>
+                                <td>{{ certification.certification_name }}</td>    
+                                <td>{{ certification.status }}</td>  
+                                <td>  
+                                    <a href="/employee/e_certification/{{ certification.id }}"><span class="ion-ios-compose" ></span></a>  
+                                    <a href="/employee/d_certification/{{ certification.id }}"><span class="ion-ios-trash" ></span></a>  
+                                </td>  
+                            </tr>  
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                          <tr>
+                              <th>S.No</th>
+                              <th>Employee</th>
+                              <th>Certification</th>
+                              <th>Status</th>
+                              <th>Action</th>
+                          </tr>
                         </tfoot>
                       </table>
                     </div>

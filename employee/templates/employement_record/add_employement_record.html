@@ -21,13 +21,13 @@
                 {% csrf_token %}
                 <div class="row">
                   <div class="form-group col-6">
-                    <label for="frist_name">Employee Name</label>
+                    <label for="first_name">Employee Name</label>
                     <select class="form-control" id="employee" name="employee">
                         <option value="">-- Select Employee --</option>
                         {% for employee in employees %}
                             <option value="{{ employee.id }}">{{ employee.ename }}</option>
                         {% endfor %}
-                      </select>
+                    </select>
                   </div>
                   <div class="form-group col-6">
                     <label for="email">Organization Name</label>
@@ -44,20 +44,20 @@
                     <label>Country</label>
                     <select class="form-control" id="country" name="country">
                       <option value="">-- Select Country --</option>
-                        <option value="Pakistan">Pakistan</option>
+                      <option value="Pakistan">Pakistan</option>
                     </select>
                   </div>
                 </div>
 
                 <div class="row">
-                    <div class="form-group col-6">
-                        <label>From Date</label>
-                        <input id="from_date" type="date" class="form-control" name="from_date">
-                    </div>
-                    <div class="form-group col-6">
-                        <label>To Date</label>
-                        <input id="to_date" type="date" class="form-control" name="to_date">
-                    </div>
+                  <div class="form-group col-6">
+                      <label>From Date</label>
+                      <input id="from_date" type="date" class="form-control" name="from_date">
+                  </div>
+                  <div class="form-group col-6">
+                      <label>To Date</label>
+                      <input id="to_date" type="date" class="form-control" name="to_date">
+                  </div>
                 </div>
 
                 <div class="row">
@@ -72,23 +72,22 @@
                 </div>
 
                 <div class="row">
-                    <div class="form-group col-6">
-                      <label>Reference email</label>
-                      <input id="ref_email" type="text" class="form-control" name="ref_email">
-                    </div>
-                    <div class="form-group col-6">
-                      <label>Reference contact</label>
-                      <input id="ref_contact" type="text" class="form-control" name="ref_contact">
-                    </div>
+                  <div class="form-group col-6">
+                    <label>Reference email</label>
+                    <input id="ref_email" type="text" class="form-control" name="ref_email">
+                  </div>
+                  <div class="form-group col-6">
+                    <label>Reference contact</label>
+                    <input id="ref_contact" type="text" class="form-control" name="ref_contact">
+                  </div>
                 </div>
 
                 <div class="row">
-                    <div class="form-group col-12">
-                      <label>Activites</label>
-                      <textarea id="activites" name="activites" class="form-control" rows="4" cols="50"></textarea>
-                    </div>
+                  <div class="form-group col-12">
+                    <label>Activites</label>
+                    <textarea id="activites" name="activites" class="form-control" rows="4" cols="50"></textarea>
+                  </div>
                 </div>
-  
 
                 <div class="form-group">
                   <button type="submit" class="btn btn-primary">

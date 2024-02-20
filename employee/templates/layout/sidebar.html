@@ -27,7 +27,7 @@
 
         <li class="menu-header">Components</li>
         <li>
-          <a href="{% url 'show_emp' %}"><i class="ion ion-clipboard"></i><span>Employee</span></a>
+          <a href="{% url 'view_employee' %}"><i class="ion ion-clipboard"></i><span>Employee</span></a>
         </li>
         <li>
           <a href="{% url 'show_depart' %}"><i class="ion ion-clipboard"></i><span>Department</span></a>
@@ -52,6 +52,9 @@
         </li>
         <li>
           <a href="{% url 'show_cv_template' %}"><i class="ion ion-clipboard"></i><span>CV Templetes</span></a>
+        </li>
+        <li>
+          <a href="{% url 'generate_cv' %}"><i class="ion ion-clipboard"></i><span>Generate CV</span></a>
         </li>
         <!-- <li>
           <a href="#" class="has-dropdown"><i class="ion ion-ios-nutrition"></i> Click Me</a>

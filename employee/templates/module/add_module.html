@@ -11,7 +11,7 @@
       <div class="main-content">
         <section class="section">
           <h1 class="section-header">
-            <div>Add Designation</div>
+            <div>Add Module</div>
           </h1>
           <div class="col-md-6 col-md-offset-4 mx-auto">
             <div class="card card-primary">
@@ -19,12 +19,12 @@
                 
                 <div class="card-body">
     
-                  <form method="POST" action="save_design">
+                  <form method="POST" action="save_module">
                     {% csrf_token %}
                     <div class="row">
                       <div class="form-group col-md-12">
-                        <label for="frist_name">Designation Name</label>
-                        <input id="design_name" type="text" class="form-control" name="design_name" autofocus>
+                        <label for="frist_name">Module Name</label>
+                        <input id="module_name" type="text" class="form-control" name="module_name" autofocus>
                       </div>
                     </div>
     
