@@ -3,6 +3,12 @@ from employee.forms import EmployeeForm, DepartmentForm, DesignationForm, Region
 from employee.models import Employee, Department, Designation, Region, Education, Employement_Record, Certifications, Skills, Company, Module, Mainmenu, Submenu, Role, Company_module, Role_permission, CV_template, Template_column
 from django.contrib.auth.decorators import login_required, permission_required
 import re
+from django.db import connection
+from django.db.models.expressions import RawSQL
+from django.http import JsonResponse
+import json
+import pandas as pd
+import types
 # Create your views here. 
 @login_required    
 def dashboard(request):   
@@ -737,19 +743,108 @@ def generate_cv(request):
 
 @login_required    
 def generate(request):  
-    # print (request.POST.get('employee'))
-    employee = Employee.objects.get(id=request.POST.get('employee'))
+    cursor = connection.cursor()
+    cursor.execute('''select json_object(
+  'id',e.id 
+ ,'name',e.ename
+,'email',e.eemail 
+ ,'contact', e.econtact
+ ,'education',json_array(
+                     (select GROUP_CONCAT(
+                                 json_object('id',ed.id,'degree',ed.degree_name,'institue',ed.institute)
+                             )   
+                      from education ed 
+                      where ed.employee_id = e.id))
+ 
+
+,'skills',json_array(
+                     (select GROUP_CONCAT(
+                                 json_object('id',s.id,'skill',s.skill_name)
+                             )   
+                      from skills s 
+                      where s.employee_id = e.id))
+,'certifications',json_array(
+                     (select GROUP_CONCAT(
+                                 json_object('id',c.id,'certification',c.certification_name)
+                             )   
+                      from certifications c 
+                      where c.employee_id = e.id))   
+,'employment_record',json_array(
+                     (select GROUP_CONCAT(
+                                 json_object('id',er.id,'organization_name',er.organization_name,'position',er.position,'from',er.from_date,'to',er.to_date,'country',er.country)
+                             )   
+                      from employement_record er 
+                      where er.employee_id = e.id))  
+                   )                     
+ from employee e''')
+    rows = cursor.fetchall()
+    print(rows)
+    employee_dict = []
+
     template = CV_template.objects.get(id=request.POST.get('template'))
+    
+    json_rows = json.loads(json.dumps(rows))
+    print(len(json_rows))
+    # for x in json_rows:   
+        # print(x)     
+        # for xx in x:
+        #     print(xx)
+        #     employee_dict.append(json.loads(xx))
+    # print(type(employee_dict[0]['education'][0]))  
+    # print(employee_dict[0]['education'][0])
+    # (print)(type(employee_dict[0]['education'][0]))
+    
+    for employees in employee_dict:
+        for key in employees:
+            field = "{{" + str(key) + "}}"
+            # print(type(key))
+            if field in template.templete_code:
+                
+                if (type(key) is list):
+                    print(employee[key])
+                    # a = 1:
+                    # if(key=="education"):
+                    #     for degree in employee[key]
+                else:
+                    if key=="education":
+                        tbl = '''<table border=1 width="100%">
+                                <tr><td>S.No</td><td>Degree</td><td>Institute</td><td>Passing Year</td><td>GPA</td>                            
+                        '''        
+                        _list = employees[key]
+                        
+                        # for items in _list:
+                        #     print(items)
+                        #     for sub_item in items:
+                        #         # print(sub_item)
+                        #         a =1
+                        #         tbl += "<tr>"
+                        #         tbl += "<td>" + str(a) + "</td>"
+                        #         tbl += "<td>" + sub_item[0] + "</td>"
+                        #         tbl += "</tr>"
+                        #         a += 1
+                        # template.templete_code = template.templete_code.replace(field,tbl)
+                    else:
+                        # print("found : "+ field + "  value: " + str(employees[key]))
+                        template.templete_code = template.templete_code.replace(field,employees[key])
+            # print(key + " : " + str(employees[key]))             
+            # for field in fields:
+            #     template.templete_code = template.templete_code.replace('{{' + field + '}}',getattr(employee,_columns['{{' + field + '}}']))
+    
+    employee = Employee.objects.get(id=request.POST.get('employee'))
+    
     columns = Template_column.objects.all()  #.get(status=1).values('title','field_name')
     _columns = {}
-    print(employee.ename)
+
     for column in columns:
         _columns[column.title] = column.field_name 
     
 
-    fields = re.findall('{{(.+?)}}+',template.templete_code)
-    for field in fields:
-        template.templete_code = template.templete_code.replace('{{' + field + '}}',getattr(employee,_columns['{{' + field + '}}']))
+
+    # columns = [col[0] for col in cursor.description]
+    
+    # fields = re.findall('{{(.+?)}}+',template.templete_code)
+    # for field in fields:
+    #     template.templete_code = template.templete_code.replace('{{' + field + '}}',getattr(employee,_columns['{{' + field + '}}']))
     
 
     return render(request,"cv_template/cv.html",{'employee':employee,'template':template,'columns': columns})
@@ -880,3 +975,36 @@ def d_module(request, id):
     module = Module.objects.get(id=id)  
     module.delete()  
     return redirect("show_module") 
+
+
+#     select json_array(json_object(
+#   'id',e.id 
+#  ,'name',e.ename
+#  ,'education',json_array(
+#                      (select GROUP_CONCAT(
+#                                  json_object('id',ed.id,'degree',ed.degree_name,'institue',ed.institute)
+#                              )   
+#                       from education ed 
+#                       where ed.employee_id = e.id))
+ 
+
+# ,'skills',json_array(
+#                      (select GROUP_CONCAT(
+#                                  json_object('id',s.id,'skill',s.skill_name)
+#                              )   
+#                       from skills s 
+#                       where s.employee_id = e.id))
+# ,'certifications',json_array(
+#                      (select GROUP_CONCAT(
+#                                  json_object('id',c.id,'certification',c.certification_name)
+#                              )   
+#                       from certifications c 
+#                       where c.employee_id = e.id))   
+# ,'employment_record',json_array(
+#                      (select GROUP_CONCAT(
+#                                  json_object('id',er.id,'organization_name',er.organization_name,'position',er.position,'from',er.from_date,'to',er.to_date,'country',er.country)
+#                              )   
+#                       from employement_record er 
+#                       where er.employee_id = e.id))  
+#                    ))                       
+#  from employee e
