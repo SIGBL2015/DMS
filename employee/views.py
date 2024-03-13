@@ -9,6 +9,7 @@ from django.http import JsonResponse
 import json
 import pandas as pd
 import types
+import ast
 # Create your views here. 
 @login_required    
 def dashboard(request):   
@@ -735,83 +736,173 @@ def d_cv_template(request, id):
     cv_template.delete()  
     return redirect("show_cv_template") 
 
+
+
+
 @login_required    
 def generate_cv(request):  
     employees = Employee.objects.filter(status=1).values('id','ename')
     templates = CV_template.objects.filter(status=1).values('id','title') 
     return render(request,"cv_template/generate_cv.html",{'employees':employees,'templates':templates})
 
+def dictfetchall(cursor): 
+    "Returns all rows from a cursor as a dict" 
+    desc = cursor.description 
+    return [
+            dict(zip([col[0] for col in desc], row)) 
+            for row in cursor.fetchall() 
+    ]
+
 @login_required    
 def generate(request):  
     cursor = connection.cursor()
-    cursor.execute('''select json_object(
-  'id',e.id 
- ,'name',e.ename
-,'email',e.eemail 
- ,'contact', e.econtact
- ,'education',json_array(
-                     (select GROUP_CONCAT(
-                                 json_object('id',ed.id,'degree',ed.degree_name,'institue',ed.institute)
-                             )   
-                      from education ed 
-                      where ed.employee_id = e.id))
- 
-
-,'skills',json_array(
-                     (select GROUP_CONCAT(
-                                 json_object('id',s.id,'skill',s.skill_name)
-                             )   
-                      from skills s 
-                      where s.employee_id = e.id))
-,'certifications',json_array(
-                     (select GROUP_CONCAT(
-                                 json_object('id',c.id,'certification',c.certification_name)
-                             )   
-                      from certifications c 
-                      where c.employee_id = e.id))   
-,'employment_record',json_array(
-                     (select GROUP_CONCAT(
-                                 json_object('id',er.id,'organization_name',er.organization_name,'position',er.position,'from',er.from_date,'to',er.to_date,'country',er.country)
-                             )   
-                      from employement_record er 
-                      where er.employee_id = e.id))  
-                   )                     
+    cursor.execute('''select e.id 
+ ,e.ename
+,e.eemail 
+, e.econtact
+,(select GROUP_CONCAT(json_object('id',ed.id,'degree',ed.degree_name,'institue',ed.institute))  from education ed
+ where ed.employee_id=e.id) as education
+,(select GROUP_CONCAT(json_object('id',s.id,'skill',s.skill_name)) from skills s where s.employee_id = e.id) as skills
+,(select GROUP_CONCAT(json_object('id',c.id,'certification',c.certification_name)) from certifications c where c.employee_id = e.id) as certifications
+,(select GROUP_CONCAT(json_object('id',er.id,'organization_name',er.organization_name,'position',er.position,'from',er.from_date,'to',er.to_date,'country',er.country)) from employement_record er where er.employee_id = e.id) as employment_record
  from employee e''')
+#     cursor.execute('''select json_object(
+#   "id",e.id 
+#  ,"name",e.ename
+# ,"email",e.eemail 
+#  ,"contact", e.econtact
+#  ,"education",(select CONCAT('[',GROUP_CONCAT(json_object('id',ed.id,'degree',ed.degree_name,'institue',ed.institute)),']') from education ed)
+# ,"skills",json_array(
+#                      (select GROUP_CONCAT(
+#                                  json_object('id',s.id,'skill',s.skill_name)
+#                              )
+#                       from skills s 
+#                       where s.employee_id = e.id)
+# ,"certifications",json_array(
+#                      (select GROUP_CONCAT(
+#                                  json_object('id',c.id,'certification',c.certification_name)
+#                              )
+#                       from certifications c 
+#                       where c.employee_id = e.id))   
+# ,"employment_record",json_array(
+#                      (select GROUP_CONCAT(
+#                                  json_object('id',er.id,'organization_name',er.organization_name,'position',er.position,'from',er.from_date,'to',er.to_date,'country',er.country)
+#                              )
+#                       from employement_record er 
+#                       where er.employee_id = e.id))  
+#                    ) as json_obj                    
+#  from employee e''')
+    cols = [x[0]for x in cursor.description]
     rows = cursor.fetchall()
-    print(rows)
+    # rows = dictfetchall(cursor)
+    json_objs = []
+    
+    
+    i = 0
+    for row in rows:
+        json_obj = {}
+        i = 0
+        for rec in row:
+            print(len(cols[i]),cols[i],type(cols[i]),"education")
+            
+            if(rec is not None and ( cols[i]=="education" or cols[i]=="skills" or cols[i]=="certifications" or cols[i]=="employment_record")):
+                print("education",type(rec))
+                _splits = rec.split("},")
+                # output = "},".join(map(str,_splits))
+                # print("output: ",output)
+                t=""
+                for _split in _splits[:-1]:
+                    _u = _split + "}"
+                    # print(_u)
+                    _uu = ast.literal_eval(json.loads(json.dumps(_u)))    
+                json_obj[cols[i]] = [_uu]
+                _y = json_obj[cols[i]]
+                # print(_y[0]['degree'])
+                # print(json_obj[cols[i]])
+            else:    
+                json_obj[cols[i]] = rec
+            i+=1
+        # print(json_obj)
+        json_objs.append(json_obj)
+        for obj in json_objs:
+            print(obj['education'][0]['degree'])
+        # _rows = ast.literal_eval(json.loads(json.dumps(json_objs)))
+        # print(_rows)
+    json_objj = json.dumps(rows)
+
+    
+    # print(json_objs[0])
+    
+    return
     employee_dict = []
 
     template = CV_template.objects.get(id=request.POST.get('template'))
     
-    json_rows = json.loads(json.dumps(rows))
-    print(len(json_rows))
-    # for x in json_rows:   
+    # json_rows = json.loads(rows)
+    # print("json rows: ",json_rows)
+    
+    
+    r = [dict((cursor.description [i][0], value) for i,value in enumerate(row)) for row in cursor.fetchall()]
+    print(r)
+    return
+    rs = []
+    # for row in rows:
+    #     r = {}
+    #     for prop, val in zip(cols,row):
+    #         # print(prop)
+    #         if prop == "education":
+    #             print("education....")
+    #             my_list = [item for item in json.loads(val)]
+    #             r[prop] = my_list
+    #         else:
+    #             r[prop] = json.loads(val)
+    #     rs.append(r)
+    # #rs_json = json.dumps(rs)
+    # q = rs[0]['json_obj']['education'][0]
+    # p = q
+
+    # print(p)
+
+
+    for x in json_rows:   
         # print(x)     
-        # for xx in x:
-        #     print(xx)
-        #     employee_dict.append(json.loads(xx))
-    # print(type(employee_dict[0]['education'][0]))  
-    # print(employee_dict[0]['education'][0])
-    # (print)(type(employee_dict[0]['education'][0]))
+        for xx in x:                    
+            employee_dict.append(json.loads(xx))
+    
     
     for employees in employee_dict:
+        #print(type(employees),"employees")
         for key in employees:
+            #print(key,"key")
+            # data = json.loads(key)
             field = "{{" + str(key) + "}}"
-            # print(type(key))
+            #print(type(key),"----------->")
+            #print(field,"field")
+            #print(type(template.templete_code),"template.templete_code")
+            #print(template.templete_code,"templete_code")
             if field in template.templete_code:
                 
                 if (type(key) is list):
-                    print(employee[key])
+                    print("jj")
                     # a = 1:
                     # if(key=="education"):
                     #     for degree in employee[key]
                 else:
                     if key=="education":
+                        _list = employees[key]
+                        if type(_list) is list:
+                            for line in _list:
+                                _json = json.dumps(line)
+                                # _line = json.loads(line)
+                                
+                                print(json.loads(_json))
+                                print("line: ",json.dumps(line))
+                            
                         tbl = '''<table border=1 width="100%">
                                 <tr><td>S.No</td><td>Degree</td><td>Institute</td><td>Passing Year</td><td>GPA</td>                            
                         '''        
                         _list = employees[key]
-                        
+                        #print(type(_list),"----->")
                         # for items in _list:
                         #     print(items)
                         #     for sub_item in items:
