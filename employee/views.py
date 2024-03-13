@@ -757,169 +757,64 @@ def dictfetchall(cursor):
 def generate(request):  
     cursor = connection.cursor()
     cursor.execute('''select e.id 
- ,e.ename
-,e.eemail 
-, e.econtact
-,(select GROUP_CONCAT(json_object('id',ed.id,'degree',ed.degree_name,'institue',ed.institute))  from education ed
+ ,e.ename as name
+,e.eemail as email
+, e.econtact as contact
+,(select GROUP_CONCAT(json_object('id',ed.id,'degree',ed.degree_name,'institute',ed.institute))  from education ed
  where ed.employee_id=e.id) as education
 ,(select GROUP_CONCAT(json_object('id',s.id,'skill',s.skill_name)) from skills s where s.employee_id = e.id) as skills
 ,(select GROUP_CONCAT(json_object('id',c.id,'certification',c.certification_name)) from certifications c where c.employee_id = e.id) as certifications
 ,(select GROUP_CONCAT(json_object('id',er.id,'organization_name',er.organization_name,'position',er.position,'from',er.from_date,'to',er.to_date,'country',er.country)) from employement_record er where er.employee_id = e.id) as employment_record
  from employee e''')
-#     cursor.execute('''select json_object(
-#   "id",e.id 
-#  ,"name",e.ename
-# ,"email",e.eemail 
-#  ,"contact", e.econtact
-#  ,"education",(select CONCAT('[',GROUP_CONCAT(json_object('id',ed.id,'degree',ed.degree_name,'institue',ed.institute)),']') from education ed)
-# ,"skills",json_array(
-#                      (select GROUP_CONCAT(
-#                                  json_object('id',s.id,'skill',s.skill_name)
-#                              )
-#                       from skills s 
-#                       where s.employee_id = e.id)
-# ,"certifications",json_array(
-#                      (select GROUP_CONCAT(
-#                                  json_object('id',c.id,'certification',c.certification_name)
-#                              )
-#                       from certifications c 
-#                       where c.employee_id = e.id))   
-# ,"employment_record",json_array(
-#                      (select GROUP_CONCAT(
-#                                  json_object('id',er.id,'organization_name',er.organization_name,'position',er.position,'from',er.from_date,'to',er.to_date,'country',er.country)
-#                              )
-#                       from employement_record er 
-#                       where er.employee_id = e.id))  
-#                    ) as json_obj                    
-#  from employee e''')
     cols = [x[0]for x in cursor.description]
     rows = cursor.fetchall()
-    # rows = dictfetchall(cursor)
     json_objs = []
-    
-    
     i = 0
     for row in rows:
         json_obj = {}
         i = 0
         for rec in row:
-            print(len(cols[i]),cols[i],type(cols[i]),"education")
-            
-            if(rec is not None and ( cols[i]=="education" or cols[i]=="skills" or cols[i]=="certifications" or cols[i]=="employment_record")):
-                print("education",type(rec))
+            if(rec is not None and ( cols[i]=="education" or cols[i]=="skills" or cols[i]=="certifications" or cols[i]=="employment_record")):                
                 _splits = rec.split("},")
-                # output = "},".join(map(str,_splits))
-                # print("output: ",output)
-                t=""
-                for _split in _splits[:-1]:
-                    _u = _split + "}"
-                    # print(_u)
-                    _uu = ast.literal_eval(json.loads(json.dumps(_u)))    
-                json_obj[cols[i]] = [_uu]
-                _y = json_obj[cols[i]]
-                # print(_y[0]['degree'])
-                # print(json_obj[cols[i]])
+                json_arr = []
+                for index, _split in enumerate(_splits):
+                    if(index<len(_splits)-1):
+                        _u = _split + "}"
+                    else:
+                        _u = _split
+                    _uu = ast.literal_eval(json.loads(json.dumps(_u)))
+                    json_arr.append(_uu)
+                json_obj[cols[i]] = json_arr
             else:    
                 json_obj[cols[i]] = rec
             i+=1
-        # print(json_obj)
         json_objs.append(json_obj)
-        for obj in json_objs:
-            print(obj['education'][0]['degree'])
-        # _rows = ast.literal_eval(json.loads(json.dumps(json_objs)))
-        # print(_rows)
-    json_objj = json.dumps(rows)
-
-    
-    # print(json_objs[0])
-    
-    return
+        
     employee_dict = []
 
     template = CV_template.objects.get(id=request.POST.get('template'))
     
-    # json_rows = json.loads(rows)
-    # print("json rows: ",json_rows)
-    
-    
-    r = [dict((cursor.description [i][0], value) for i,value in enumerate(row)) for row in cursor.fetchall()]
-    print(r)
-    return
-    rs = []
-    # for row in rows:
-    #     r = {}
-    #     for prop, val in zip(cols,row):
-    #         # print(prop)
-    #         if prop == "education":
-    #             print("education....")
-    #             my_list = [item for item in json.loads(val)]
-    #             r[prop] = my_list
-    #         else:
-    #             r[prop] = json.loads(val)
-    #     rs.append(r)
-    # #rs_json = json.dumps(rs)
-    # q = rs[0]['json_obj']['education'][0]
-    # p = q
-
-    # print(p)
-
-
-    for x in json_rows:   
-        # print(x)     
-        for xx in x:                    
-            employee_dict.append(json.loads(xx))
-    
-    
-    for employees in employee_dict:
-        #print(type(employees),"employees")
+    for employees in json_objs:
         for key in employees:
-            #print(key,"key")
-            # data = json.loads(key)
             field = "{{" + str(key) + "}}"
-            #print(type(key),"----------->")
-            #print(field,"field")
-            #print(type(template.templete_code),"template.templete_code")
-            #print(template.templete_code,"templete_code")
-            if field in template.templete_code:
-                
+            if field in template.templete_code:                
                 if (type(key) is list):
                     print("jj")
-                    # a = 1:
-                    # if(key=="education"):
-                    #     for degree in employee[key]
                 else:
                     if key=="education":
                         _list = employees[key]
-                        if type(_list) is list:
-                            for line in _list:
-                                _json = json.dumps(line)
-                                # _line = json.loads(line)
-                                
-                                print(json.loads(_json))
-                                print("line: ",json.dumps(line))
-                            
                         tbl = '''<table border=1 width="100%">
                                 <tr><td>S.No</td><td>Degree</td><td>Institute</td><td>Passing Year</td><td>GPA</td>                            
                         '''        
                         _list = employees[key]
-                        #print(type(_list),"----->")
-                        # for items in _list:
-                        #     print(items)
-                        #     for sub_item in items:
-                        #         # print(sub_item)
-                        #         a =1
-                        #         tbl += "<tr>"
-                        #         tbl += "<td>" + str(a) + "</td>"
-                        #         tbl += "<td>" + sub_item[0] + "</td>"
-                        #         tbl += "</tr>"
-                        #         a += 1
-                        # template.templete_code = template.templete_code.replace(field,tbl)
+                        for items in _list:
+                            tbl += "<tr>"
+                            for sub_item in items:
+                                tbl += "<td>" + str(items[sub_item]) + "</td>"
+                            tbl += "</tr>"
+                        template.templete_code = template.templete_code.replace(field,tbl)
                     else:
-                        # print("found : "+ field + "  value: " + str(employees[key]))
                         template.templete_code = template.templete_code.replace(field,employees[key])
-            # print(key + " : " + str(employees[key]))             
-            # for field in fields:
-            #     template.templete_code = template.templete_code.replace('{{' + field + '}}',getattr(employee,_columns['{{' + field + '}}']))
     
     employee = Employee.objects.get(id=request.POST.get('employee'))
     
@@ -929,15 +824,6 @@ def generate(request):
     for column in columns:
         _columns[column.title] = column.field_name 
     
-
-
-    # columns = [col[0] for col in cursor.description]
-    
-    # fields = re.findall('{{(.+?)}}+',template.templete_code)
-    # for field in fields:
-    #     template.templete_code = template.templete_code.replace('{{' + field + '}}',getattr(employee,_columns['{{' + field + '}}']))
-    
-
     return render(request,"cv_template/cv.html",{'employee':employee,'template':template,'columns': columns})
 
 # Template_column
