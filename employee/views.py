@@ -1,15 +1,19 @@
-from django.shortcuts import render, redirect  
-from employee.forms import EmployeeForm, DepartmentForm, DesignationForm, RegionForm, EducationForm, Employement_RecordForm, CertificationsForm, SkillsForm, CompanyForm, ModuleForm, MainmenuForm, SubmenuForm, RoleForm, Company_moduleForm, Role_permissionForm, CV_templateForm, Template_columnForm
-from employee.models import Employee, Department, Designation, Region, Education, Employement_Record, Certifications, Skills, Company, Module, Mainmenu, Submenu, Role, Company_module, Role_permission, CV_template, Template_column
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404, render, redirect  
+from employee.forms import EmployeeForm, DepartmentForm, DesignationForm, RegionForm, EducationForm, Employment_RecordForm, CertificationsForm, SkillsForm, CompanyForm, ModuleForm, MainmenuForm, SubmenuForm, RoleForm, Company_moduleForm, Role_permissionForm, CV_templateForm, Template_columnForm
+from employee.models import Employee, Department, Designation, Region, Education, Employment_Record, Certifications, Skills, Company, Module, Mainmenu, Submenu, Role, Company_module, Role_permission, CV_template, Template_column
 from django.contrib.auth.decorators import login_required, permission_required
 import re
 from django.db import connection
-from django.db.models.expressions import RawSQL
-from django.http import JsonResponse
 import json
-import pandas as pd
-import types
+import re
 import ast
+from xhtml2pdf import pisa
+import io as BytesIO
+
+from django.template.loader import get_template
+from django.template import Context
+
 # Create your views here. 
 @login_required    
 def dashboard(request):   
@@ -260,7 +264,7 @@ def d_education(request, id):
 @permission_required('employee.add_employement_record', raise_exception=True)
 def add_employement_Record(request):  
     if request.method == "POST":  
-        form = Employement_RecordForm(request.POST) 
+        form = Employment_RecordForm(request.POST) 
         if form.is_valid():
             try:  
                 form.save()  
@@ -269,27 +273,27 @@ def add_employement_Record(request):
                 print(e)  
                 pass  
     else:  
-        form = Employement_RecordForm()
+        form = Employment_RecordForm()
         employees = Employee.objects.filter(status=1).values('id','ename')  
     return render(request,'employement_record/add_employement_record.html',{'form':form,'employees':employees})  
 
 @login_required 
 @permission_required('employee.view_employement_record', raise_exception=True)   
 def show_employement_Record(request):  
-    employement_Records = Employement_Record.objects.all()  
+    employement_Records = Employment_Record.objects.all()  
     return render(request,"employement_record/show_employement_record.html",{'employement_Records':employement_Records})  
 
 @login_required  
 @permission_required('employee.change_employement_record', raise_exception=True)
 def e_employement_Record(request, id):  
-    employement_Record = Employement_Record.objects.get(id=id) 
+    employement_Record = Employment_Record.objects.get(id=id) 
     employees = Employee.objects.filter(status=1).values('id','ename') 
     return render(request,'employement_record/e_employement_record.html', {'employement_Record':employement_Record,'employees':employees})  
 
 @login_required  
 def u_employement_Record(request, id):  
-    employement_Record = Employement_Record.objects.get(id=id)  
-    form = Employement_RecordForm(request.POST, instance = employement_Record)  
+    employement_Record = Employment_Record.objects.get(id=id)  
+    form = Employment_RecordForm(request.POST, instance = employement_Record)  
     if form.is_valid():  
         form.save()  
         return redirect("show_employement_record")  
@@ -298,7 +302,7 @@ def u_employement_Record(request, id):
 @login_required  
 @permission_required('employee.delete_employement_record', raise_exception=True)
 def d_employement_Record(request, id):  
-    employement_Record = Employement_Record.objects.get(id=id)  
+    employement_Record = Employment_Record.objects.get(id=id)  
     employement_Record.delete()  
     return redirect("show_employement_record") 
 
@@ -755,19 +759,45 @@ def dictfetchall(cursor):
 
 @login_required    
 def generate(request):  
+    template = CV_template.objects.get(id=request.POST.get('template'))
+    findcol = re.findall(r'<td>\{{(.*?)\}}</td>', template.templete_code)
+    
+    stg_col = "'" + "','".join(findcol) + "'"
+    cursor1 = connection.cursor()
+    cursor1.execute('''SELECT group_concat(concat("'",field_name,"'")),table_name FROM `template_column` WHERE title_without_braces in ({cols}) GROUP BY table_name'''.format(
+        cols=stg_col
+    ))
+    rows2 = cursor1.fetchall()
+    # print(rows2)
+    stg_query = ''
+    for i, j in enumerate(rows2): 
+        items = j[0].split(",")
+        json_fields = ""
+        for item in items:
+            if json_fields == "":
+                json_fields = item + "," + item.replace("'","")
+            else:
+                json_fields += "," + item + "," + item.replace("'","")
+
+        if stg_query == "":
+            stg_query ='''(select GROUP_CONCAT(json_object('''+ json_fields +'''))  from '''+j[1]+'''
+        where employee_id=e.id) as '''+j[1] 
+        else:
+            stg_query+=''',(select GROUP_CONCAT(json_object('''+ json_fields +'''))  from '''+j[1]+'''
+        where employee_id=e.id) as '''+j[1]  
+       
+    # print(stg_query)
+    if stg_query!= "":
+        stg_query = "select e.id ,e.ename as name,e.eemail as email,e.econtact as contact," + stg_query + " from employee e"
+    else:
+        stg_query = "select e.id ,e.ename as name,e.eemail as email,e.econtact as contact from employee e"
+    
     cursor = connection.cursor()
-    cursor.execute('''select e.id 
- ,e.ename as name
-,e.eemail as email
-, e.econtact as contact
-,(select GROUP_CONCAT(json_object('id',ed.id,'degree',ed.degree_name,'institute',ed.institute))  from education ed
- where ed.employee_id=e.id) as education
-,(select GROUP_CONCAT(json_object('id',s.id,'skill',s.skill_name)) from skills s where s.employee_id = e.id) as skills
-,(select GROUP_CONCAT(json_object('id',c.id,'certification',c.certification_name)) from certifications c where c.employee_id = e.id) as certifications
-,(select GROUP_CONCAT(json_object('id',er.id,'organization_name',er.organization_name,'position',er.position,'from',er.from_date,'to',er.to_date,'country',er.country)) from employement_record er where er.employee_id = e.id) as employment_record
- from employee e''')
+    cursor.execute(stg_query)
+    
     cols = [x[0]for x in cursor.description]
     rows = cursor.fetchall()
+    
     json_objs = []
     i = 0
     for row in rows:
@@ -789,42 +819,134 @@ def generate(request):
                 json_obj[cols[i]] = rec
             i+=1
         json_objs.append(json_obj)
-        
+    # print(json_objs)
+    final = []
+    stng =''
     employee_dict = []
-
-    template = CV_template.objects.get(id=request.POST.get('template'))
     
     for employees in json_objs:
+        _template = template.templete_code
+        # print(_template,'1st-----')
+        # field = "{{name}}"
+        # print(employees["name"])
+        
+        # _template = _template.replace(field,str(employees["name"])) 
+        # print(_template,'2nd---')
+        # _template=''
+        # print(_template,'last---')
+
+
+        # print(_template.templete_code)
+        # templates = [_template]
         for key in employees:
             field = "{{" + str(key) + "}}"
-            if field in template.templete_code:                
-                if (type(key) is list):
-                    print("jj")
-                else:
-                    if key=="education":
-                        _list = employees[key]
-                        tbl = '''<table border=1 width="100%">
-                                <tr><td>S.No</td><td>Degree</td><td>Institute</td><td>Passing Year</td><td>GPA</td>                            
-                        '''        
-                        _list = employees[key]
+            if key=="education":
+                _list = employees[key]
+                if _list is not None:
+                    keysList = [key for key in _list[0]]
+                    for _key in keysList:
+                        _field = "{{" + str(_key) + "}}"       
+                        tbl = ""
                         for items in _list:
                             tbl += "<tr>"
                             for sub_item in items:
                                 tbl += "<td>" + str(items[sub_item]) + "</td>"
                             tbl += "</tr>"
-                        template.templete_code = template.templete_code.replace(field,tbl)
-                    else:
-                        template.templete_code = template.templete_code.replace(field,employees[key])
+                        tbl += "</table>"
+                    _template = _template.replace(_field,tbl)
+            elif key=="skills":
+                _list = employees[key]
+                tbl = ""        
+                _list = employees[key]
+                if _list is not None:
+                    for items in _list:
+                        tbl += "<tr>"
+                        for sub_item in items:
+                            tbl += "<td>" + str(items[sub_item]) + "</td>"
+                        tbl += "</tr>"
+                    tbl += "</table>"
+                    _template = _template.replace(field,tbl)
+            elif key=="certifications":
+                _list = employees[key]
+                tbl = ""        
+                _list = employees[key]
+                if _list is not None:
+                    for items in _list:
+                        tbl += "<tr>"
+                        for sub_item in items:
+                            tbl += "<td>" + str(items[sub_item]) + "</td>"
+                        tbl += "</tr>"
+                    tbl += "</table>"
+                    _template = _template.replace(field,tbl)
+            elif key=="employment_record":                
+                # tbl = ""        
+                # print(field)
+                # _list = employees[key]
+                # if _list is not None:
+                #     for items in _list:
+                #         tbl += "<tr>"
+                #         for sub_item in items:
+                #             tbl += "<td>" + str(items[sub_item]) + "</td>"
+                #         tbl += "</tr>"
+                #     tbl += "</table>"
+                #     _template = _template.replace(field,tbl)
+                _list = employees[key]
+                if _list is not None:
+                    keysList = [key for key in _list[0]]
+                    # print(keysList)
+                    for _key in keysList:
+                        _field = "{{" + str(_key) + "}}"
+                        # print(_field)    
+                        tbl = ""
+                        for items in _list:
+                            # print(items)
+                            tbl += "<tr>"
+                            for sub_item in items:
+                                tbl += "<td>" + str(items[sub_item]) + "</td>"
+                            tbl += "</tr>"
+                        tbl += "</table>"
+                    _template = _template.replace(_field,tbl)
+            else:
+                _template = _template.replace(field,str(employees[key])) 
+        stng+=_template
+    print(stng)
+      
     
+    
+
     employee = Employee.objects.get(id=request.POST.get('employee'))
-    
-    columns = Template_column.objects.all()  #.get(status=1).values('title','field_name')
+    columns = Template_column.objects.all()  
     _columns = {}
 
     for column in columns:
         _columns[column.title] = column.field_name 
+
+
+        
+        template = get_template("cv_template/cv.html")
+        context = {"template": stng}
+        html = template.render(context).encode("ISO-8859-1")
+        result = BytesIO.BytesIO()
+        pdf = pisa.pisaDocument(BytesIO.BytesIO(html), dest=result)   
+        
+        if not pdf.err:
+            return HttpResponse(result.getvalue(), content_type="application/pdf")
+        else:
+            return HttpResponse("Errors")
+    # return render(request,"cv_template/cv.html",{'employee':employee,'template':stng,'columns': columns})
+
+ 
+def print(request):
+    template = get_template("cv_template/cv.html")
+    context = {"pagesize": "A4"}
+    html = template.render(context).encode("ISO-8859-1")
+    result = BytesIO.BytesIO()
+    pdf = pisa.pisaDocument(BytesIO.BytesIO(html), dest=result)   
     
-    return render(request,"cv_template/cv.html",{'employee':employee,'template':template,'columns': columns})
+    if not pdf.err:
+        return HttpResponse(result.getvalue(), content_type="application/pdf")
+    else:
+        return HttpResponse("Errors")
 
 # Template_column
 @login_required 
@@ -985,3 +1107,17 @@ def d_module(request, id):
 #                       where er.employee_id = e.id))  
 #                    ))                       
 #  from employee e
+
+
+
+
+# select e.id 
+#     ,e.ename as name
+#     ,e.eemail as email
+#     , e.econtact as contact
+#     ,(select GROUP_CONCAT(json_object('id',ed.id,'degree',ed.degree_name,'institute',ed.institute))  from education ed
+#     where ed.employee_id=e.id) as education
+#     ,(select GROUP_CONCAT(json_object('id',s.id,'skill',s.skill_name)) from skills s where s.employee_id = e.id) as skills
+#     ,(select GROUP_CONCAT(json_object('id',c.id,'certification',c.certification_name)) from certifications c where c.employee_id = e.id) as certifications
+#     ,(select GROUP_CONCAT(json_object('id',er.id,'organization_name',er.organization_name,'position',er.position,'from',er.from_date,'to',er.to_date,'country',er.country)) from employement_record er where er.employee_id = e.id) as employment_record
+#     from employee e

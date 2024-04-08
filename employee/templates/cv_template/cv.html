@@ -1,34 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
-  {% load static %} 
-  {% include 'layout/style.html' %}
 
 <body>
   <div id="app">
     <div class="main-wrapper">
-      {% include 'layout/header.html' %}
-      {% include 'layout/sidebar.html' %}
+
       <div class="main-content">
         <section class="section">
             <div class="card card-primary">
-                <div class="card-header"><h4>Add</h4></div>
-    
+                <!-- <div class="card-header">
+                  <div style="float: right;"><a href="/employee/print" class="btn btn-sm btn-danger">Print</a></div>
+                </div> -->
+
                 <div class="card-body">
-                    {{ template.templete_code |safe }}
+                   
+                  {{template | safe}}
+                      <!-- {% for tem in template %}
+                        {{tem | safe}}
+                      {% endfor %} -->
+                         
+                    
                 </div>
             </div>
         </section>
       </div>
-      {% include 'layout/footer.html' %}
+     
     </div>
   </div>
-
-  {% include 'layout/script.html' %}
 </body>
-<script>
-  $("#column").on('mouseup',function(e){
-    //console.log();
-    CKEDITOR.instances['templete_code'].insertText($(this).val());
-  });
-</script>
 </html>

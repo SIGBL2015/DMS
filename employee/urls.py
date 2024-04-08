@@ -68,6 +68,7 @@ urlpatterns = [
     path('d_cv_template/<int:id>', views.d_cv_template, name="d_cv_template"),
     path('generate_cv',views.generate_cv, name="generate_cv"),
     path('generate',views.generate, name="generate"),
+    path('print',views.print, name="print"),
 
     #Company
     path('save_company', views.add_company, name="save_company"),  

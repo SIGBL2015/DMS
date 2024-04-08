@@ -51,7 +51,7 @@ class Education(models.Model):
     class Meta:  
         db_table = "education"
 
-class Employement_Record(models.Model):  
+class Employment_Record(models.Model):  
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE,null=True)
     organization_name = models.CharField(max_length=50,null=True)  
     position = models.CharField(max_length=50,null=True)  
@@ -65,7 +65,7 @@ class Employement_Record(models.Model):
     ref_contact = models.CharField(max_length=15,null=True) 
     status = models.IntegerField(default=1) 
     class Meta:  
-        db_table = "employement_record"
+        db_table = "employment_record"
 
 class Certifications(models.Model):  
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE,null=True)

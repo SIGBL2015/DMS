@@ -1,5 +1,5 @@
 from django import forms  
-from employee.models import Employee, Department, Designation, Region, Education, Employement_Record, Certifications, Skills, Company, Module, Mainmenu, Submenu, Role, Company_module, Role_permission, CV_template, Template_column
+from employee.models import Employee, Department, Designation, Region, Education, Employment_Record, Certifications, Skills, Company, Module, Mainmenu, Submenu, Role, Company_module, Role_permission, CV_template, Template_column
 
 class EmployeeForm(forms.ModelForm):  
     class Meta:  
@@ -26,9 +26,9 @@ class EducationForm(forms.ModelForm):
         model = Education  
         fields = ('id','employee','degree_name','institute','country','from_date','to_date','grade') 
 
-class Employement_RecordForm(forms.ModelForm):  
+class Employment_RecordForm(forms.ModelForm):  
     class Meta:  
-        model = Employement_Record  
+        model = Employment_Record  
         fields = ('id','employee','organization_name','position','country','from_date','to_date','salary','activites','ref_name','ref_email','ref_contact') 
 
 class CertificationsForm(forms.ModelForm):  
