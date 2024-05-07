@@ -1,10 +1,10 @@
 from django import forms  
-from employee.models import Employee, Department, Designation, Region, Education, Employment_Record, Certifications, Skills, Company, Module, Mainmenu, Submenu, Role, Company_module, Role_permission, CV_template, Template_column
+from employee.models import Employee, Department, Designation, Region, Education,Project, Employment_Record, Certifications, Skills, Company, Module, Mainmenu, Submenu, Role, Company_module, Role_permission, CV_template, Template_column, Project_type, Project, Bank, Bank_guaranty, Liquidity_damages, Insurance_type, Insurance_detail, Country, Zone, Area, Branch
 
 class EmployeeForm(forms.ModelForm):  
     class Meta:  
         model = Employee  
-        fields = ('id','eid','ename','eemail','econtact','department','designation','region','cnic','date_of_joining','dob','qualification_id','e_address','deliverable_task') 
+        fields = ('id','eid','ename','eemail','econtact','department','designation','branch','cnic','date_of_joining','dob','qualification_id','e_address','deliverable_task') 
 
 class DepartmentForm(forms.ModelForm):  
     class Meta:  
@@ -45,6 +45,61 @@ class CompanyForm(forms.ModelForm):
     class Meta:  
         model = Company  
         fields = ('id','comp_name')
+
+class Project_typeForm(forms.ModelForm):  
+    class Meta:  
+        model = Project_type  
+        fields = ('id','type_name')
+
+class ProjectForm(forms.ModelForm):  
+    class Meta:  
+        model = Project  
+        fields = ('id','branch','project_type','title','client_name','start_date','end_date','duration','amount','tax','total','advance_tax','advance_amount','earnest_money','em_instrument_no','em_expire_date','em_doc','pg_start_date','pg_end_date','pg_validity','pg_percentage','pg_amount','pg_instrument_no','keywords','pg_doc','project_doc','project_status')
+
+class BankForm(forms.ModelForm):  
+    class Meta:  
+        model = Bank  
+        fields = ('id','bank_name','branch_code','city','address')
+
+class Bank_guarantyForm(forms.ModelForm):  
+    class Meta:  
+        model = Bank_guaranty  
+        fields = ('id','project','bank','duration','instrument_no','bg_start_date','bg_end_date','bg_validity','bg_percentage','bg_amount','bg_doc','addendum')
+
+class Liquidity_damagesForm(forms.ModelForm):  
+    class Meta:  
+        model = Liquidity_damages  
+        fields = ('id','project','unit','percentage','max_percentage','ld_doc','addendum')
+
+class Insurance_typeForm(forms.ModelForm):  
+    class Meta:  
+        model = Insurance_type  
+        fields = ('id','type_name')
+
+class Insurance_detailForm(forms.ModelForm):  
+    class Meta:  
+        model = Insurance_detail  
+        fields = ('id','project','insurance_type','issued_date','expire_date','amount','vendor','instrument_no')
+
+class CountryForm(forms.ModelForm):  
+    class Meta:  
+        model = Country  
+        fields = ('id','country_name')
+
+class ZoneForm(forms.ModelForm):  
+    class Meta:  
+        model = Zone  
+        fields = ('id','zone_name')
+
+class AreaForm(forms.ModelForm):  
+    class Meta:  
+        model = Area  
+        fields = ('id','area_name')
+
+class BranchForm(forms.ModelForm):  
+    class Meta:  
+        model = Branch  
+        fields = ('id','company','country','zone','region','area','branch_name','branch_code','branch_address')
 
 class ModuleForm(forms.ModelForm):  
     class Meta:  

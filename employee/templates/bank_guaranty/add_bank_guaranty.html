@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+  {% load static %} 
+  {% include 'layout/style.html' %}
+
+<body>
+  <div id="app">
+    <div class="main-wrapper">
+      {% include 'layout/header.html' %}
+      {% include 'layout/sidebar.html' %}
+      <div class="main-content">
+        <section class="section">
+          <h1 class="section-header">
+            <div>Add Bank Guaranty</div>
+          </h1>
+          <div class="card card-primary">
+            <div class="card-header"><h4>Add</h4></div>
+
+            <div class="card-body">
+              <form method="POST" action="save_bank_guaranty">
+                {% csrf_token %}
+                <div class="row">
+                  <div class="form-group col-6">
+                    <label for="frist_name">Project</label>
+                    <select class="form-control" id="project" name="project">
+                        <option value="">-- Select Project --</option>
+                        {% for project in projects %}
+                            <option value="{{ project.id }}">{{ project.title }}</option>
+                        {% endfor %}
+                    </select>
+                  </div>
+                  <div class="form-group col-6">
+                    <label for="email">Bank</label>
+                    <select class="form-control" id="bank" name="bank">
+                        <option value="">-- Select Bank --</option>
+                        {% for bank in banks %}
+                            <option value="{{ bank.id }}">{{ bank.bank_name }}</option>
+                        {% endfor %}
+                    </select>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="form-group col-6">
+                    <label for="frist_name">Duration</label>
+                    <input id="duration" type="number" class="form-control" name="duration">
+                  </div>
+                  <div class="form-group col-6">
+                    <label for="frist_name">Instrument No</label>
+                    <input id="instrument_no" type="text" class="form-control" name="instrument_no">
+                  </div>
+                </div>
+
+                <div class="row">
+                    <div class="form-group col-6"> 
+                      <label for="email">Bank.G Start Date</label>
+                      <input id="bg_start_date" type="date" class="form-control" name="bg_start_date">
+                    </div>
+                    <div class="form-group col-6"> 
+                      <label for="email">Bank.G End Date</label>
+                      <input id="bg_end_date" type="date" class="form-control" name="bg_end_date">
+                    </div>
+                  </div>
+  
+                  <div class="row">
+                    <div class="form-group col-6"> 
+                      <label for="email">Bank.G Validity</label>
+                      <input id="bg_validity" type="text" class="form-control" name="bg_validity">
+                    </div>
+                    <div class="form-group col-6"> 
+                      <label for="email">Bank.G Percentage(%)</label>
+                      <input id="bg_percentage" type="number" class="form-control" name="bg_percentage">
+                    </div>
+                  </div>
+  
+                  <div class="row">
+                    <div class="form-group col-6"> 
+                      <label for="email">Bank.G Amount</label>
+                      <input id="bg_amount" type="number" class="form-control" name="bg_amount">
+                    </div>
+                    <div class="form-group col-6"> 
+                      <label for="email">Bank.G Document</label>
+                      <input id="bg_doc" type="file" class="form-control" name="bg_doc">
+                    </div>
+                  </div>
+
+                <div class="form-group">
+                  <button type="submit" class="btn btn-primary">
+                    Save
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </section>
+      </div>
+      {% include 'layout/footer.html' %}
+    </div>
+  </div>
+
+  {% include 'layout/script.html' %}
+</body>
+</html>

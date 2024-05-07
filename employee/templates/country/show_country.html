@@ -2,7 +2,6 @@
 <html lang="en">
   {% load static %} 
   {% include 'layout/style.html' %}
-
 <body>
   <div id="app">
     <div class="main-wrapper">
@@ -11,15 +10,15 @@
       <div class="main-content">
         <section class="section">
           <h1 class="section-header">
-            <div>CV Templates</div>
-            <div style="float: right;"><a href="/employee/save_cv_template" class="btn btn-sm btn-danger">Add</a></div>
+            <div>Country</div>
+            <div style="float: right;"><a href="/employee/save_country" class="btn btn-sm btn-danger">Add</a></div>
           </h1>
           <div class="section-body">
             <div class="row mt-5">
               <div class="col-12">
                 <div class="card">
                     <div class="card-header">
-                      <h3 class="card-title">CV Template Details</h3>
+                      <h3 class="card-title">Country Details</h3>
                     </div>
                     <!-- /.card-header -->
                     <div class="card-body">
@@ -27,36 +26,30 @@
                         <thead>
                         <tr>
                           <th>S.No</th>
-                          <th>Tendor</th>
-                          <th>Title</th>
-                          <th>Template_code</th>
+                          <th>Country</th>
                           <th>Status</th>
                           <th>Action</th>
                         </tr>
                         </thead>
                         <tbody>
-                            {% for cv_template in cv_templates %}  
+                            {% for country in countries %}  
                                 <tr>  
                                     <td>{{ forloop.counter }}</td>  
-                                    <td>{{ cv_template.tendor }}</td>  
-                                    <td>{{ cv_template.title }}</td>
-                                    <td>{{ cv_template.templete_code }}</td>
-                                    <td>{{ cv_template.status }}</td>  
+                                    <td>{{ country.country_name }}</td>  
+                                    <td>{{ country.status }}</td>  
                                     <td>  
-                                        <!-- <a href="/employee/e_cv_template/{{ cv_template.id }}"><span class="ion-ios-compose" ></span></a>   -->
-                                        <a href="/employee/d_cv_template/{{ cv_template.id }}"><span class="ion-ios-trash" ></span></a>  
+                                        <a href="/employee/e_country/{{ country.id }}"><span class="ion-ios-compose" ></span></a>  
+                                        <a href="/employee/d_country/{{ country.id }}"><span class="ion-ios-trash" ></span></a>  
                                     </td>  
                                 </tr>  
                             {% endfor %}
                         </tbody>
                         <tfoot>
                         <tr>
-                          <th>S.No</th>
-                          <th>Tendor</th>
-                          <th>Title</th>
-                          <th>Template_code</th>
-                          <th>Status</th>
-                          <th>Action</th>
+                            <th>S.No</th>
+                            <th>Country</th>
+                            <th>Status</th>
+                            <th>Action</th>
                         </tr>
                         </tfoot>
                       </table>
@@ -72,7 +65,6 @@
       {% include 'layout/footer.html' %}
     </div>
   </div>
-
   {% include 'layout/script.html' %}
 </body>
 </html>

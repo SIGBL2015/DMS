@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+  {% load static %} 
+  {% include 'layout/style.html' %}
+
+<body>
+  <div id="app">
+    <div class="main-wrapper">
+      {% include 'layout/header.html' %}
+      {% include 'layout/sidebar.html' %}
+      <div class="main-content">
+        <section class="section">
+          <h1 class="section-header">
+            <div>Edit Branch</div>
+          </h1>
+          <div class="card card-primary">
+            <div class="card-header"><h4>Edit</h4></div>
+
+            <div class="card-body">
+              <form method="POST" action="/employee/u_branch/{{branch.id}}">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="form-group col-6">
+                      <label for="frist_name">Company</label>
+                      <select class="form-control" id="company" name="company">
+                          <option value="">-- Select Company --</option>
+                          {% for company in companies %}
+                            {% if branch.company.id == company.id %}
+                              <option value="{{ company.id }}" selected>{{ company.comp_name }}</option>
+                            {% else %}
+                              <option value="{{ company.id }}">{{ company.comp_name }}</option>
+                            {% endif %}
+                          {% endfor %}
+                      </select>
+                    </div>
+                    <div class="form-group col-6">
+                      <label for="email">Country</label>
+                      <select class="form-control" id="country" name="country">
+                          <option value="">-- Select Country --</option>
+                          {% for country in countries %}
+                            {% if branch.country.id == country.id %}
+                              <option value="{{ country.id }}" selected>{{ country.country_name }}</option>
+                            {% else %}
+                              <option value="{{ country.id }}">{{ country.country_name }}</option>
+                            {% endif %}
+                          {% endfor %}
+                      </select>
+                    </div>
+                </div>
+
+                <div class="row">
+                      <div class="form-group col-6">
+                        <label for="frist_name">Zone</label>
+                        <select class="form-control" id="zone" name="zone">
+                            <option value="">-- Select Zone --</option>
+                            {% for zone in zones %}
+                                {% if branch.zone.id == zone.id %}
+                                    <option value="{{ zone.id }}" selected>{{ zone.zone_name }}</option>
+                                {% else %}
+                                    <option value="{{ zone.id }}">{{ zone.zone_name }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                      </div>
+                      <div class="form-group col-6">
+                        <label for="email">Region</label>
+                        <select class="form-control" id="region" name="region">
+                            <option value="">-- Select Region --</option>
+                            {% for region in regions %}
+                                {% if branch.region.id == region.id %}
+                                    <option value="{{ region.id }}" selected>{{ region.region_name }}</option>
+                                {% else %}
+                                    <option value="{{ region.id }}">{{ region.region_name }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                      </div>
+                </div>
+
+                <div class="row">
+                      <div class="form-group col-6">
+                        <label for="frist_name">Area</label>
+                        <select class="form-control" id="area" name="area">
+                            <option value="">-- Select Area --</option>
+                            {% for area in areas %}
+                                {% if branch.area.id == area.id %}
+                                    <option value="{{ area.id }}" selected>{{ area.area_name }}</option>
+                                {% else %}
+                                    <option value="{{ area.id }}">{{ area.area_name }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                      </div>
+                      <div class="form-group col-6">
+                          <label for="frist_name">Branch Name</label>
+                          <input id="branch_name" type="text" class="form-control" name="branch_name" value="{{ branch.branch_name }}">
+                      </div>
+                </div>
+
+                <div class="row">
+                    <div class="form-group col-6">
+                      <label for="frist_name">Branch Code</label>
+                      <input id="branch_code" type="text" class="form-control" name="branch_code" value="{{ branch.branch_code }}">
+                    </div>
+                    <div class="form-group col-6">
+                      <label for="frist_name">Branch Address</label>
+                      <input id="branch_address" type="text" class="form-control" name="branch_address" value="{{ branch.branch_address }}">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                  <button type="submit" class="btn btn-primary">
+                    Update
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </section>
+      </div>
+      {% include 'layout/footer.html' %}
+    </div>
+  </div>
+
+  {% include 'layout/script.html' %}
+</body>
+</html>

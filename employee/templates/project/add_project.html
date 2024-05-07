@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+  {% load static %} 
+  {% include 'layout/style.html' %}
+
+<body>
+  <div id="app">
+    <div class="main-wrapper">
+      {% include 'layout/header.html' %}
+      {% include 'layout/sidebar.html' %}
+      <div class="main-content">
+        <section class="section">
+          <h1 class="section-header">
+            <div>Add Project</div>
+          </h1>
+          <div class="card card-primary">
+            <div class="card-header"><h4>Add</h4></div>
+
+            <div class="card-body">
+              <form method="POST" action="save_project" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="row">
+                  <div class="form-group col-6">
+                    <label for="frist_name">Branch</label>
+                    <select class="form-control" id="branch" name="branch">
+                        <option value="">-- Select Branch --</option>
+                        {% for branch in branches %}
+                            <option value="{{ branch.id }}">{{ branch.branch_name }}</option>
+                        {% endfor %}
+                      </select>
+                  </div>
+
+                  <div class="form-group col-6">
+                    <label for="frist_name">Project Type</label>
+                    <select class="form-control" id="project_type" name="project_type">
+                        <option value="">-- Select Project Type --</option>
+                        {% for project_type in project_types %}
+                            <option value="{{ project_type.id }}">{{ project_type.type_name }}</option>
+                        {% endfor %}
+                      </select>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="form-group col-6"> 
+                    <label for="email">Project Name</label>
+                    <input id="title" type="text" class="form-control" name="title">
+                  </div>
+                  <div class="form-group col-6"> 
+                    <label for="email">Client Name</label>
+                    <input id="client_name" type="text" class="form-control" name="client_name">
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="form-group col-6"> 
+                    <label for="email">Start Date</label>
+                    <input id="start_date" type="date" class="form-control" name="start_date">
+                  </div>
+                  <div class="form-group col-6"> 
+                    <label for="email">End Date</label>
+                    <input id="end_date" type="date" class="form-control" name="end_date">
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="form-group col-6"> 
+                    <label for="email">Duration</label>
+                    <input id="duration" type="number" class="form-control" name="duration">
+                  </div>
+                  <div class="form-group col-6"> 
+                    <label for="email">Amount</label>
+                    <input id="amount" type="number" class="form-control" name="amount">
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="form-group col-6"> 
+                    <label for="email">Tax(%)</label>
+                    <input id="tax" type="number" class="form-control" name="tax">
+                  </div>
+                  <div class="form-group col-6"> 
+                    <label for="email">Advance Tax(%)</label>
+                    <input id="advance_tax" type="number" class="form-control" name="advance_tax">
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="form-group col-6"> 
+                    <label for="email">Advance Amount</label>
+                    <input id="advance_amount" type="number" class="form-control" name="advance_amount">
+                  </div>
+                  <div class="form-group col-6"> 
+                    <label for="email">Earnest Money</label>
+                    <input id="earnest_money" type="number" class="form-control" name="earnest_money">
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="form-group col-6"> 
+                    <label for="email">EM Instrument No</label>
+                    <input id="em_instrument_no" type="text" class="form-control" name="em_instrument_no">
+                  </div>
+                  <div class="form-group col-6"> 
+                    <label for="email">PG Instrument No</label>
+                    <input id="pg_instrument_no" type="text" class="form-control" name="pg_instrument_no">
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="form-group col-6"> 
+                    <label for="email">EM Expire Date</label>
+                    <input id="em_expire_date" type="date" class="form-control" name="em_expire_date">
+                  </div>
+                  <div class="form-group col-6"> 
+                    <label for="email">EM Document</label>
+                    <input id="em_doc" type="file" class="form-control" name="em_doc">
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="form-group col-6"> 
+                    <label for="email">Perf.G Start Date</label>
+                    <input id="pg_start_date" type="date" class="form-control" name="pg_start_date">
+                  </div>
+                  <div class="form-group col-6"> 
+                    <label for="email">Perf.G End Date</label>
+                    <input id="pg_end_date" type="date" class="form-control" name="pg_end_date">
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="form-group col-6"> 
+                    <label for="email">Perf.G Validity</label>
+                    <input id="pg_validity" type="text" class="form-control" name="pg_validity">
+                  </div>
+                  <div class="form-group col-6"> 
+                    <label for="email">Perf.G Percentage(%)</label>
+                    <input id="pg_percentage" type="number" class="form-control" name="pg_percentage">
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="form-group col-6"> 
+                    <label for="email">Perf.G Amount</label>
+                    <input id="pg_amount" type="number" class="form-control" name="pg_amount">
+                  </div>
+                  <div class="form-group col-6"> 
+                    <label for="email">Perf.G Document</label>
+                    <input id="pg_doc" type="file" class="form-control" name="pg_doc">
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="form-group col-6"> 
+                    <label for="email">Project Document</label>
+                    <input id="project_doc" type="file" class="form-control" name="project_doc">
+                  </div>
+                  <div class="form-group col-6"> 
+                    <label for="email">Project Status</label>
+                    <select class="form-control" id="project_status" name="project_status">
+                      <option value="">Select</option>                        
+                      <option value="In Progress">In Progress</option>
+                      <option value="Completed">Completed</option>
+                    </select>
+                  </div>
+                  <div class="form-group col-6">
+                    <label>Keywords</label>
+                    <textarea id="keywords" name="keywords" class="form-control" rows="4" cols="50"></textarea>
+                  </div>
+                </div>
+                
+                <div class="form-group">
+                  <button type="submit" class="btn btn-primary">
+                    Save
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </section>
+      </div>
+      {% include 'layout/footer.html' %}
+    </div>
+  </div>
+
+  {% include 'layout/script.html' %}
+</body>
+</html>

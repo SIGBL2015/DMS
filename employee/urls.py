@@ -77,6 +77,84 @@ urlpatterns = [
     path('u_company/<int:id>', views.u_company, name="u_company"),  
     path('d_company/<int:id>', views.d_company, name="d_company"),
 
+    #Country
+    path('save_country', views.add_country, name="save_country"),  
+    path('show_country',views.show_country, name="show_country"),  
+    path('e_country/<int:id>', views.e_country, name="e_country"),  
+    path('u_country/<int:id>', views.u_country, name="u_country"),  
+    path('d_country/<int:id>', views.d_country, name="d_country"),
+
+    #Zone
+    path('save_zone', views.add_zone, name="save_zone"),  
+    path('show_zone',views.show_zone, name="show_zone"),  
+    path('e_zone/<int:id>', views.e_zone, name="e_zone"),  
+    path('u_zone/<int:id>', views.u_zone, name="u_zone"),  
+    path('d_zone/<int:id>', views.d_zone, name="d_zone"),
+
+    #Area
+    path('save_area', views.add_area, name="save_area"),  
+    path('show_area',views.show_area, name="show_area"),  
+    path('e_area/<int:id>', views.e_area, name="e_area"),  
+    path('u_area/<int:id>', views.u_area, name="u_area"),  
+    path('d_area/<int:id>', views.d_area, name="d_area"),
+
+    #Branch
+    path('save_branch', views.add_branch, name="save_branch"),  
+    path('show_branch',views.show_branch, name="show_branch"),  
+    path('e_branch/<int:id>', views.e_branch, name="e_branch"),  
+    path('u_branch/<int:id>', views.u_branch, name="u_branch"),  
+    path('d_branch/<int:id>', views.d_branch, name="d_branch"),
+
+    #Project_type
+    path('save_project_type', views.add_project_type, name="save_project_type"),  
+    path('show_project_type',views.show_project_type, name="show_project_type"),  
+    path('e_project_type/<int:id>', views.e_project_type, name="e_project_type"),  
+    path('u_project_type/<int:id>', views.u_project_type, name="u_project_type"),  
+    path('d_project_type/<int:id>', views.d_project_type, name="d_project_type"),
+
+
+   #Project
+    path('save_project', views.add_project, name="save_project"),  
+    path('show_project',views.show_project, name="show_project"),  
+    path('e_project/<int:id>', views.e_project, name="e_project"),  
+    path('u_project/<int:id>', views.u_project, name="u_project"),  
+    path('d_project/<int:id>', views.d_project, name="d_project"),
+
+    #Bank
+    path('save_bank', views.add_bank, name="save_bank"),  
+    path('show_bank',views.show_bank, name="show_bank"),  
+    path('e_bank/<int:id>', views.e_bank, name="e_bank"),  
+    path('u_bank/<int:id>', views.u_bank, name="u_bank"),  
+    path('d_bank/<int:id>', views.d_bank, name="d_bank"),
+
+    #Bank_guaranty
+    path('save_bank_guaranty', views.add_bank_guaranty, name="save_bank_guaranty"),  
+    path('show_bank_guaranty',views.show_bank_guaranty, name="show_bank_guaranty"),  
+    path('e_bank_guaranty/<int:id>', views.e_bank_guaranty, name="e_bank_guaranty"),  
+    path('u_bank_guaranty/<int:id>', views.u_bank_guaranty, name="u_bank_guaranty"),  
+    path('d_bank_guaranty/<int:id>', views.d_bank_guaranty, name="d_bank_guaranty"),
+
+    #Liquidity_damages
+    path('save_liquidity_damages', views.add_liquidity_damages, name="save_liquidity_damages"),  
+    path('show_liquidity_damages',views.show_liquidity_damages, name="show_liquidity_damages"),  
+    path('e_liquidity_damages/<int:id>', views.e_liquidity_damages, name="e_liquidity_damages"),  
+    path('u_liquidity_damages/<int:id>', views.u_liquidity_damages, name="u_liquidity_damages"),  
+    path('d_liquidity_damages/<int:id>', views.d_liquidity_damages, name="d_liquidity_damages"),
+
+    #Insurance_type
+    path('save_insurance_type', views.add_insurance_type, name="save_insurance_type"),  
+    path('show_insurance_type',views.show_insurance_type, name="show_insurance_type"),  
+    path('e_insurance_type/<int:id>', views.e_insurance_type, name="e_insurance_type"),  
+    path('u_insurance_type/<int:id>', views.u_insurance_type, name="u_insurance_type"),  
+    path('d_insurance_type/<int:id>', views.d_insurance_type, name="d_insurance_type"),
+
+    #Insurance_detail
+    path('save_insurance_detail', views.add_insurance_detail, name="save_insurance_detail"),  
+    path('show_insurance_detail',views.show_insurance_detail, name="show_insurance_detail"),  
+    path('e_insurance_detail/<int:id>', views.e_insurance_detail, name="e_insurance_detail"),  
+    path('u_insurance_detail/<int:id>', views.u_insurance_detail, name="u_insurance_detail"),  
+    path('d_insurance_detail/<int:id>', views.d_insurance_detail, name="d_insurance_detail"),
+
     #Module
     path('save_module', views.add_module, name="save_module"),  
     path('show_module',views.show_module, name="show_module"),  

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+  {% load static %} 
+  {% include 'layout/style.html' %}
+
+<body>
+  <div id="app">
+    <div class="main-wrapper">
+      {% include 'layout/header.html' %}
+      {% include 'layout/sidebar.html' %}
+      <div class="main-content">
+        <section class="section">
+          <h1 class="section-header">
+            <div>Add Liquidity Damages</div>
+          </h1>
+          <div class="card card-primary">
+            <div class="card-header"><h4>Add</h4></div>
+
+            <div class="card-body">
+              <form method="POST" action="save_liquidity_damages">
+                {% csrf_token %}
+                <div class="row">
+                  <div class="form-group col-6">
+                    <label for="frist_name">Project</label>
+                    <select class="form-control" id="project" name="project">
+                        <option value="">-- Select Project --</option>
+                        {% for project in projects %}
+                            <option value="{{ project.id }}">{{ project.title }}</option>
+                        {% endfor %}
+                    </select>
+                  </div>
+                  <div class="form-group col-6">
+                    <label for="frist_name">Unit</label>
+                    <input id="unit" type="number" class="form-control" name="unit">
+                  </div>
+                </div>
+
+                  <div class="row">
+                    <div class="form-group col-6"> 
+                      <label for="email">Percentage(%)</label>
+                      <input id="percentage" type="number" class="form-control" name="percentage">
+                    </div>
+                    <div class="form-group col-6"> 
+                      <label for="email">Max Percentage(%)</label>
+                      <input id="max_percentage" type="number" class="form-control" name="max_percentage">
+                    </div>
+                  </div>
+  
+                  <div class="row">
+                    <div class="form-group col-6"> 
+                      <label for="email">Liquidity Damages Document</label>
+                      <input id="ld_doc" type="file" class="form-control" name="ld_doc">
+                    </div>
+                  </div>
+
+                <div class="form-group">
+                  <button type="submit" class="btn btn-primary">
+                    Save
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </section>
+      </div>
+      {% include 'layout/footer.html' %}
+    </div>
+  </div>
+
+  {% include 'layout/script.html' %}
+</body>
+</html>

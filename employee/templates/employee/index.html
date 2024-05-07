@@ -63,11 +63,11 @@
                     </select>
                   </div>
                   <div class="form-group col-6">
-                    <label>Region</label>
-                    <select class="form-control" id="region" name="region">
-                      <option value="">-- Select Region --</option>
-                      {% for region in regions %}
-                          <option value="{{ region.id }}">{{ region.region_name }}</option>
+                    <label>Branch</label>
+                    <select class="form-control" id="branch" name="branch">
+                      <option value="">-- Select Branch --</option>
+                      {% for branch in branches %}
+                          <option value="{{ branch.id }}">{{ branch.branch_name }}</option>
                       {% endfor %}
                     </select>
                   </div>

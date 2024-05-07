@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+  {% load static %} 
+  {% include 'layout/style.html' %}
+
+<body>
+  <div id="app">
+    <div class="main-wrapper">
+      {% include 'layout/header.html' %}
+      {% include 'layout/sidebar.html' %}
+      <div class="main-content">
+        <section class="section">
+          <h1 class="section-header">
+            <div>Add Insurance Detail</div>
+          </h1>
+          <div class="card card-primary">
+            <div class="card-header"><h4>Add</h4></div>
+
+            <div class="card-body">
+              <form method="POST" action="save_insurance_detail">
+                {% csrf_token %}
+                <div class="row">
+                  <div class="form-group col-6">
+                    <label for="frist_name">Project</label>
+                    <select class="form-control" id="project" name="project">
+                        <option value="">-- Select Project --</option>
+                        {% for project in projects %}
+                            <option value="{{ project.id }}">{{ project.title }}</option>
+                        {% endfor %}
+                    </select>
+                  </div>
+                  <div class="form-group col-6">
+                    <label for="email">Insurance Type</label>
+                    <select class="form-control" id="insurance_type" name="insurance_type">
+                        <option value="">-- Select Type --</option>
+                        {% for type in types %}
+                            <option value="{{ type.id }}">{{ type.type_name }}</option>
+                        {% endfor %}
+                    </select>
+                  </div>
+                </div>
+
+                <div class="row">
+                    <div class="form-group col-6"> 
+                      <label for="email">Issued Date</label>
+                      <input id="issued_date" type="date" class="form-control" name="issued_date">
+                    </div>
+                    <div class="form-group col-6"> 
+                      <label for="email">Expire Date</label>
+                      <input id="expire_date" type="date" class="form-control" name="expire_date">
+                    </div>
+                  </div>
+  
+                  <div class="row">
+                    <div class="form-group col-6"> 
+                      <label for="email">Amount</label>
+                      <input id="amount" type="number" class="form-control" name="amount">
+                    </div>
+                    <div class="form-group col-6"> 
+                      <label for="email">Vendor</label>
+                      <input id="vendor" type="text" class="form-control" name="vendor">
+                    </div>
+                  </div>
+  
+                  <div class="row">
+                    <div class="form-group col-6"> 
+                      <label for="email">Instrument No</label>
+                      <input id="instrument_no" type="text" class="form-control" name="instrument_no">
+                    </div>
+                  </div>
+
+                <div class="form-group">
+                  <button type="submit" class="btn btn-primary">
+                    Save
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </section>
+      </div>
+      {% include 'layout/footer.html' %}
+    </div>
+  </div>
+
+  {% include 'layout/script.html' %}
+</body>
+</html>
