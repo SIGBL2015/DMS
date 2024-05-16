@@ -3,14 +3,14 @@ from django.shortcuts import get_object_or_404, render, redirect
 from employee.forms import EmployeeForm, DepartmentForm, DesignationForm, RegionForm, EducationForm, Employment_RecordForm, CertificationsForm, SkillsForm, CompanyForm, Project_typeForm, ProjectForm, ModuleForm, MainmenuForm, SubmenuForm, RoleForm, Company_moduleForm, Role_permissionForm, CV_templateForm, Template_columnForm, BankForm, Bank_guarantyForm, Liquidity_damagesForm, Insurance_typeForm, Insurance_detailForm, CountryForm, ZoneForm, AreaForm, BranchForm
 from employee.models import Employee, Department, Designation, Region, Education, Employment_Record, Certifications, Skills, Company, Module, Mainmenu, Submenu, Role, Company_module, Role_permission, CV_template, Template_column, Project_type, Project, Bank, Bank_guaranty, Liquidity_damages, Insurance_type, Insurance_detail, Country, Zone, Area, Branch
 from django.contrib.auth.decorators import login_required, permission_required
-import re
 from django.db import connection
 import json
 import re
+import os
 import ast
 from xhtml2pdf import pisa
 import io as BytesIO
-
+from django.conf import settings
 from django.template.loader import get_template
 from django.template import Context
 
@@ -24,17 +24,14 @@ def dashboard(request):
 @permission_required('employee.add_employee', raise_exception=True)  
 def emp(request):
     if request.method == "POST":  
-        form = EmployeeForm(request.POST)
-        print(form)  
+        form = EmployeeForm(request.POST)  
         # if form.is_valid(): 
         try:  
             form.save()  
             return redirect('view_employee')  
-        except Exception as e:  
-            print(e)    
+        except Exception as e:      
             pass  
     else:  
-        print("else")
         # form = EmployeeForm()
         departs = Department.objects.filter(status=1).values('id','depart_name')
         designs = Designation.objects.filter(status=1).values('id','design_name')
@@ -84,7 +81,7 @@ def add_depart(request):
                 form.save()  
                 return redirect('show_depart')  
             except Exception as e:  
-                print(e)  
+  
                 pass  
     else:  
         form = DepartmentForm()  
@@ -130,7 +127,7 @@ def add_design(request):
                 form.save()  
                 return redirect('show_design')  
             except Exception as e:  
-                print(e)  
+  
                 pass  
     else:  
         form = DesignationForm()  
@@ -176,7 +173,7 @@ def add_region(request):
                 form.save()  
                 return redirect('show_region')  
             except Exception as e:  
-                print(e)  
+  
                 pass  
     else:  
         form = RegionForm()  
@@ -222,7 +219,7 @@ def add_education(request):
                 form.save()  
                 return redirect('show_education')  
             except Exception as e:  
-                print(e)  
+  
                 pass  
     else:  
         form = EducationForm()  
@@ -270,7 +267,7 @@ def add_employement_Record(request):
                 form.save()  
                 return redirect('show_employement_record')  
             except Exception as e:  
-                print(e)  
+  
                 pass  
     else:  
         form = Employment_RecordForm()
@@ -318,7 +315,7 @@ def add_certification(request):
                 form.save()  
                 return redirect('show_certification')  
             except Exception as e:  
-                print(e)  
+  
                 pass  
     else:  
         form = CertificationsForm()  
@@ -366,7 +363,7 @@ def add_skill(request):
                 form.save()  
                 return redirect('show_skill')  
             except Exception as e:  
-                print(e)  
+  
                 pass  
     else:  
         form = SkillsForm()  
@@ -413,7 +410,7 @@ def add_company(request):
                 form.save()  
                 return redirect('show_company')  
             except Exception as e:  
-                print(e)  
+  
                 pass  
     else:  
         form = CompanyForm()  
@@ -455,7 +452,7 @@ def add_module(request):
                 form.save()  
                 return redirect('show_module')  
             except Exception as e:  
-                print(e)  
+  
                 pass  
     else:  
         form = ModuleForm()  
@@ -497,7 +494,7 @@ def add_mainmenu(request):
                 form.save()  
                 return redirect('show_mainmenu')  
             except Exception as e:  
-                print(e)  
+  
                 pass  
     else:  
         form = MainmenuForm()  
@@ -539,7 +536,7 @@ def add_submenu(request):
                 form.save()  
                 return redirect('show_submenu')  
             except Exception as e:  
-                print(e)  
+  
                 pass  
     else:  
         form = SubmenuForm()  
@@ -581,7 +578,7 @@ def add_role(request):
                 form.save()  
                 return redirect('show_role')  
             except Exception as e:  
-                print(e)  
+  
                 pass  
     else:  
         form = RoleForm()  
@@ -623,7 +620,7 @@ def add_company_module(request):
                 form.save()  
                 return redirect('show_company_module')  
             except Exception as e:  
-                print(e)  
+  
                 pass  
     else:  
         form = Company_moduleForm()  
@@ -665,7 +662,7 @@ def add_role_permission(request):
                 form.save()  
                 return redirect('show_role_permission')  
             except Exception as e:  
-                print(e)  
+  
                 pass  
     else:  
         form = Role_permissionForm()  
@@ -702,13 +699,12 @@ def d_role_permission(request, id):
 def add_cv_template(request):  
     if request.method == "POST":  
         form = CV_templateForm(request.POST) 
-        print(form)
         if form.is_valid():
             try:  
                 form.save()  
                 return redirect('show_cv_template')  
             except Exception as e:  
-                print(e)  
+  
                 pass  
     else:  
         form = CV_templateForm()
@@ -768,7 +764,6 @@ def generate(request):
         cols=stg_col
     ))
     rows2 = cursor1.fetchall()
-    # print(rows2)
     stg_query = ''
     for i, j in enumerate(rows2): 
         items = j[0].split(",")
@@ -786,7 +781,6 @@ def generate(request):
             stg_query+=''',(select GROUP_CONCAT(json_object('''+ json_fields +'''))  from '''+j[1]+'''
         where employee_id=e.id) as '''+j[1]  
        
-    # print(stg_query)
     if stg_query!= "":
         stg_query = "select e.id ,e.ename as name,e.eemail as email,e.econtact as contact," + stg_query + " from employee e"
     else:
@@ -819,24 +813,18 @@ def generate(request):
                 json_obj[cols[i]] = rec
             i+=1
         json_objs.append(json_obj)
-    # print(json_objs)
     final = []
     stng =''
     employee_dict = []
     
     for employees in json_objs:
         _template = template.templete_code
-        # print(_template,'1st-----')
         # field = "{{name}}"
-        # print(employees["name"])
         
         # _template = _template.replace(field,str(employees["name"])) 
-        # print(_template,'2nd---')
         # _template=''
-        # print(_template,'last---')
 
 
-        # print(_template.templete_code)
         # templates = [_template]
         for key in employees:
             field = "{{" + str(key) + "}}"
@@ -880,7 +868,6 @@ def generate(request):
                     _template = _template.replace(field,tbl)
             elif key=="employment_record":                
                 # tbl = ""        
-                # print(field)
                 # _list = employees[key]
                 # if _list is not None:
                 #     for items in _list:
@@ -893,13 +880,12 @@ def generate(request):
                 _list = employees[key]
                 if _list is not None:
                     keysList = [key for key in _list[0]]
-                    # print(keysList)
                     for _key in keysList:
                         _field = "{{" + str(_key) + "}}"
-                        # print(_field)    
+                   
                         tbl = ""
                         for items in _list:
-                            # print(items)
+                
                             tbl += "<tr>"
                             for sub_item in items:
                                 tbl += "<td>" + str(items[sub_item]) + "</td>"
@@ -909,7 +895,7 @@ def generate(request):
             else:
                 _template = _template.replace(field,str(employees[key])) 
         stng+=_template
-    print(stng)
+
 
     employee = Employee.objects.get(id=request.POST.get('employee'))
     columns = Template_column.objects.all()  
@@ -933,7 +919,7 @@ def generate(request):
     # return render(request,"cv_template/cv.html",{'employee':employee,'template':stng,'columns': columns})
 
  
-def print(request):
+def print_pdf(request):
     template = get_template("cv_template/cv.html")
     context = {"pagesize": "A4"}
     html = template.render(context).encode("ISO-8859-1")
@@ -950,13 +936,12 @@ def print(request):
 def add_template_column(request):  
     if request.method == "POST":  
         form = Template_columnForm(request.POST) 
-        print(form)
         if form.is_valid():
             try:  
                 form.save()  
                 return redirect('show_template_column')  
             except Exception as e:  
-                print(e)  
+  
                 pass  
     else:  
         form = Template_columnForm()  
@@ -993,13 +978,12 @@ def d_template_column(request, id):
 def add_company(request):  
     if request.method == "POST":  
         form = CompanyForm(request.POST) 
-        print(form)
         if form.is_valid():
             try:  
                 form.save()  
                 return redirect('show_company')  
             except Exception as e:  
-                print(e)  
+  
                 pass  
     else:  
         form = CompanyForm()  
@@ -1035,13 +1019,13 @@ def d_company(request, id):
 def add_project_type(request):  
     if request.method == "POST":  
         form = Project_typeForm(request.POST) 
-        print(form)
+    
         if form.is_valid():
             try:  
                 form.save()  
                 return redirect('show_project_type')  
             except Exception as e:  
-                print(e)  
+          
                 pass  
     else:  
         form = Project_typeForm()  
@@ -1074,17 +1058,40 @@ def d_project_type(request, id):
 
 # Project
 @login_required 
-def add_project(request):  
+def add_project(request):
     if request.method == "POST":  
-        form = ProjectForm(request.POST) 
-        print(form)
+        form = ProjectForm(request.POST, request.FILES) 
         if form.is_valid():
             try:  
-                form.save()  
-                return redirect('show_project')  
+                file_instance = form.save(commit=False)
+                # file_instance.save()
+
+                # Loop through each file field in the form
+                for field_name, uploaded_file in request.FILES.items():
+                    if uploaded_file:
+                        # Generate folder path dynamically
+                        folder_name = file_instance.title
+                        folder_path = os.path.join(settings.MEDIA_ROOT,'project', folder_name)
+
+                        if not os.path.exists(folder_path):
+                            os.makedirs(folder_path)
+
+                        # Generate file path dynamically
+                        file_path = os.path.join(folder_path, uploaded_file.name)
+
+                        # Save file to the generated path
+                        with open(file_path, 'wb') as f:
+                            for chunk in uploaded_file.chunks():
+                                f.write(chunk)
+
+                        # Update the file field with the relative path to the file
+                        setattr(file_instance, field_name, os.path.relpath(file_path, settings.MEDIA_ROOT))
+                file_instance.save()
+                        
+                return redirect('show_project')
             except Exception as e:  
-                print(e)  
-                pass  
+                print(e)
+                pass 
     else:  
         form = ProjectForm()  
         branches = Branch.objects.filter(status=1).values('id','branch_name')
@@ -1093,7 +1100,7 @@ def add_project(request):
 
 @login_required    
 def show_project(request):  
-    projects = Project.objects.all()  
+    projects = Project.objects.all() 
     return render(request,"project/show_project.html",{'projects':projects})  
 
 @login_required  
@@ -1125,13 +1132,12 @@ def add_bank(request):
     print('in function.....') 
     if request.method == "POST":  
         form = BankForm(request.POST) 
-        print(form)
         if form.is_valid():
             try:  
                 form.save()  
                 return redirect('show_bank')  
             except Exception as e:  
-                print(e)  
+  
                 pass  
     else:  
         form = BankForm() 
@@ -1167,13 +1173,12 @@ def d_bank(request, id):
 def add_bank_guaranty(request):  
     if request.method == "POST":  
         form = Bank_guarantyForm(request.POST) 
-        print(form)
         if form.is_valid():
             try:  
                 form.save()  
                 return redirect('show_bank_guaranty')  
             except Exception as e:  
-                print(e)  
+  
                 pass  
     else:  
         form = Bank_guarantyForm()  
@@ -1213,13 +1218,12 @@ def d_bank_guaranty(request, id):
 def add_liquidity_damages(request):  
     if request.method == "POST":  
         form = Liquidity_damagesForm(request.POST) 
-        print(form)
         if form.is_valid():
             try:  
                 form.save()  
                 return redirect('show_liquidity_damages')  
             except Exception as e:  
-                print(e)  
+  
                 pass  
     else:  
         form = Liquidity_damagesForm()
@@ -1257,13 +1261,12 @@ def d_liquidity_damages(request, id):
 def add_insurance_type(request):  
     if request.method == "POST":  
         form = Insurance_typeForm(request.POST) 
-        print(form)
         if form.is_valid():
             try:  
                 form.save()  
                 return redirect('show_insurance_type')  
             except Exception as e:  
-                print(e)  
+  
                 pass  
     else:  
         form = Insurance_typeForm()  
@@ -1300,13 +1303,12 @@ def d_insurance_type(request, id):
 def add_insurance_detail(request):  
     if request.method == "POST":  
         form = Insurance_detailForm(request.POST) 
-        print(form)
         if form.is_valid():
             try:  
                 form.save()  
                 return redirect('show_insurance_detail')  
             except Exception as e:  
-                print(e)  
+  
                 pass  
     else:  
         form = Insurance_detailForm()
@@ -1346,13 +1348,12 @@ def d_insurance_detail(request, id):
 def add_country(request):  
     if request.method == "POST":  
         form = CountryForm(request.POST) 
-        print(form)
         if form.is_valid():
             try:  
                 form.save()  
                 return redirect('show_country')  
             except Exception as e:  
-                print(e)  
+  
                 pass  
     else:  
         form = CountryForm()  
@@ -1388,13 +1389,12 @@ def d_country(request, id):
 def add_zone(request):  
     if request.method == "POST":  
         form = ZoneForm(request.POST) 
-        print(form)
         if form.is_valid():
             try:  
                 form.save()  
                 return redirect('show_zone')  
             except Exception as e:  
-                print(e)  
+  
                 pass  
     else:  
         form = ZoneForm()  
@@ -1430,13 +1430,12 @@ def d_zone(request, id):
 def add_area(request):  
     if request.method == "POST":  
         form = AreaForm(request.POST) 
-        print(form)
         if form.is_valid():
             try:  
                 form.save()  
                 return redirect('show_area')  
             except Exception as e:  
-                print(e)  
+  
                 pass  
     else:  
         form = AreaForm()  
@@ -1472,13 +1471,12 @@ def d_area(request, id):
 def add_branch(request):  
     if request.method == "POST":  
         form = BranchForm(request.POST) 
-        print(form)
         if form.is_valid():
             try:  
                 form.save()  
                 return redirect('show_branch')  
             except Exception as e:  
-                print(e)  
+  
                 pass  
     else:  
         form = BranchForm()  
@@ -1524,13 +1522,12 @@ def d_branch(request, id):
 def add_module(request):  
     if request.method == "POST":  
         form = ModuleForm(request.POST) 
-        print(form)
         if form.is_valid():
             try:  
                 form.save()  
                 return redirect('show_module')  
             except Exception as e:  
-                print(e)  
+  
                 pass  
     else:  
         form = ModuleForm()  

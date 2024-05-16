@@ -66,6 +66,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.media',
             ],
         },
     },
@@ -137,3 +138,9 @@ LOGIN_URL = 'login_user'
 # SESSION AGE 5 Minutes
 SESSION_COOKIE_AGE = 50*60
 
+# Define the base URL where media files will be served from
+MEDIA_URL = '/media/'
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+HOST = 'http://127.0.0.1:8080'

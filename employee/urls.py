@@ -1,5 +1,7 @@
 from django.urls import path, include
 from . import views
+from django.conf import settings
+from django.conf.urls.static import static
 
 
 urlpatterns = [
@@ -68,7 +70,7 @@ urlpatterns = [
     path('d_cv_template/<int:id>', views.d_cv_template, name="d_cv_template"),
     path('generate_cv',views.generate_cv, name="generate_cv"),
     path('generate',views.generate, name="generate"),
-    path('print',views.print, name="print"),
+    path('print_pdf',views.print_pdf, name="print_pdf"),
 
     #Company
     path('save_company', views.add_company, name="save_company"),  
@@ -161,4 +163,8 @@ urlpatterns = [
     path('e_module/<int:id>', views.e_module, name="e_module"),  
     path('u_module/<int:id>', views.u_module, name="u_module"),  
     path('d_module/<int:id>', views.d_module, name="d_module"),
-]
+
+]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+
+

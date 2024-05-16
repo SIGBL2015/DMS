@@ -54,7 +54,7 @@ class Project_typeForm(forms.ModelForm):
 class ProjectForm(forms.ModelForm):  
     class Meta:  
         model = Project  
-        fields = ('id','branch','project_type','title','client_name','start_date','end_date','duration','amount','tax','total','advance_tax','advance_amount','earnest_money','em_instrument_no','em_expire_date','em_doc','pg_start_date','pg_end_date','pg_validity','pg_percentage','pg_amount','pg_instrument_no','keywords','pg_doc','project_doc','project_status')
+        fields = ('id','branch','project_type','title','client_name','start_date','end_date','duration','amount','tax','advance_tax','advance_amount','earnest_money','em_instrument_no','em_expire_date','em_doc','pg_start_date','pg_end_date','pg_validity','pg_percentage','pg_amount','pg_instrument_no','keywords','pg_doc','project_doc','project_status')
 
 class BankForm(forms.ModelForm):  
     class Meta:  

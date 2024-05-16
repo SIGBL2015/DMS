@@ -40,6 +40,7 @@
                             <th>Advance Tax(%)</th>
                             <th>Advance Amount</th>
                             <th>Earning Money</th>
+                            <th>EM File</th>
                             <th>EM Instrument No</th>
                             <th>PG Start Date</th>
                             <th>PG End Date</th>
@@ -70,6 +71,7 @@
                                 <td>{{ project.advance_tax }}</td>
                                 <td>{{ project.advance_amount}}</td>
                                 <td>{{ project.earnest_money }}</td>
+                                <td><a href="{{ MEDIA_URL }}{{ project.em_doc }}" target="_blank">EM Document</a></td>
                                 <td>{{ project.em_instrument_no}}</td>
                                 <td>{{ project.pg_start_date }}</td>
                                 <td>{{ project.pg_end_date}}</td>
@@ -77,8 +79,8 @@
                                 <td>{{ project.pg_percentage}}</td>
                                 <td>{{ project.pg_amount }}</td>
                                 <td>{{ project.pg_instrument_no}}</td>
-                                <td>{{ project.pg_doc}}</td>
-                                <td>{{ project.project_doc }}</td>    
+                                <td><a href="{{ MEDIA_URL }}{{ project.pg_doc }}" target="_blank">PG Document</a></td>
+                                <td><a href="{{ MEDIA_URL }}{{ project.project_doc }}" target="_blank">Project Document</a></td>    
                                 <td>{{ project.status }}</td>  
                                 <td>  
                                     <a href="/employee/e_project/{{ project.id }}"><span class="ion-ios-compose" ></span></a>  
@@ -103,6 +105,7 @@
                               <th>Advance Tax(%)</th>
                               <th>Advance Amount</th>
                               <th>Earning Money</th>
+                              <th>EM File</th>
                               <th>EM Instrument No</th>
                               <th>PG Start Date</th>
                               <th>PG End Date</th>
