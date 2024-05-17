@@ -51,11 +51,11 @@
                   <div class="row">
                     <div class="form-group col-6"> 
                       <label for="email">Issued Date</label>
-                      <input id="issued_date" type="date" class="form-control" name="issued_date" value="{{ insurance_detail.issued_date }}">
+                      <input id="issued_date" type="date" class="form-control" name="issued_date" value="{{ insurance_detail.issued_date|date:'Y-m-d' }}">
                     </div>
                     <div class="form-group col-6"> 
                       <label for="email">Expire Date</label>
-                      <input id="expire_date" type="date" class="form-control" name="expire_date" value="{{ insurance_detail.expire_date }}">
+                      <input id="expire_date" type="date" class="form-control" name="expire_date" value="{{ insurance_detail.expire_date|date:'Y-m-d' }}">
                     </div>
                   </div>
   

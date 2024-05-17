@@ -33,7 +33,7 @@
                     <label for="email">Insurance Type</label>
                     <select class="form-control" id="insurance_type" name="insurance_type">
                         <option value="">-- Select Type --</option>
-                        {% for type in types %}
+                        {% for type in insurance_types %}
                             <option value="{{ type.id }}">{{ type.type_name }}</option>
                         {% endfor %}
                     </select>

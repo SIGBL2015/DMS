@@ -54,7 +54,7 @@
                                     <td>{{ bank_guaranty.bg_validity }}</td> 
                                     <td>{{ bank_guaranty.bg_percentage }}</td>
                                     <td>{{ bank_guaranty.bg_amount }}</td> 
-                                    <td>{{ bank_guaranty.bg_doc }}</td>   
+                                    <td><a href="{{ MEDIA_URL }}{{ bank_guaranty.bg_doc }}" target="_blank">BG Document</a></td>   
                                     <td>{{ bank_guaranty.status }}</td>  
                                     <td>  
                                         <a href="/employee/e_bank_guaranty/{{ bank_guaranty.id }}"><span class="ion-ios-compose" ></span></a>  

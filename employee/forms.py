@@ -64,12 +64,12 @@ class BankForm(forms.ModelForm):
 class Bank_guarantyForm(forms.ModelForm):  
     class Meta:  
         model = Bank_guaranty  
-        fields = ('id','project','bank','duration','instrument_no','bg_start_date','bg_end_date','bg_validity','bg_percentage','bg_amount','bg_doc','addendum')
+        fields = ('id','project','bank','duration','instrument_no','bg_start_date','bg_end_date','bg_validity','bg_percentage','bg_amount','bg_doc')
 
 class Liquidity_damagesForm(forms.ModelForm):  
     class Meta:  
         model = Liquidity_damages  
-        fields = ('id','project','unit','percentage','max_percentage','ld_doc','addendum')
+        fields = ('id','project','unit','percentage','max_percentage','ld_doc')
 
 class Insurance_typeForm(forms.ModelForm):  
     class Meta:  

@@ -62,18 +62,18 @@
                   <div class="row">
                       <div class="form-group col-6"> 
                         <label for="email">Bank.G Start Date</label>
-                        <input id="bg_start_date" type="date" class="form-control" name="bg_start_date" value="{{ bank_guaranty.bg_start_date }}">
+                        <input id="bg_start_date" type="date" class="form-control" name="bg_start_date" value="{{ bank_guaranty.bg_start_date|date:'Y-m-d' }}">
                       </div>
                       <div class="form-group col-6"> 
                         <label for="email">Bank.G End Date</label>
-                        <input id="bg_end_date" type="date" class="form-control" name="bg_end_date" value="{{ bank_guaranty.bg_end_date }}">
+                        <input id="bg_end_date" type="date" class="form-control" name="bg_end_date" value="{{ bank_guaranty.bg_end_date|date:'Y-m-d' }}">
                       </div>
                     </div>
     
                     <div class="row">
                       <div class="form-group col-6"> 
                         <label for="email">Bank.G Validity</label>
-                        <input id="bg_validity" type="text" class="form-control" name="bg_validity" value="{{ bank_guaranty.bg_validity }}">
+                        <input id="bg_validity" type="date" class="form-control" name="bg_validity" value="{{ bank_guaranty.bg_validity|date:'Y-m-d' }}">
                       </div>
                       <div class="form-group col-6"> 
                         <label for="email">Bank.G Percentage(%)</label>

@@ -1064,13 +1064,13 @@ def add_project(request):
         if form.is_valid():
             try:  
                 file_instance = form.save(commit=False)
-                # file_instance.save()
+                file_instance.save()
 
                 # Loop through each file field in the form
                 for field_name, uploaded_file in request.FILES.items():
                     if uploaded_file:
                         # Generate folder path dynamically
-                        folder_name = file_instance.title
+                        folder_name = str(file_instance.pk)
                         folder_path = os.path.join(settings.MEDIA_ROOT,'project', folder_name)
 
                         if not os.path.exists(folder_path):
@@ -1172,13 +1172,29 @@ def d_bank(request, id):
 @login_required 
 def add_bank_guaranty(request):  
     if request.method == "POST":  
-        form = Bank_guarantyForm(request.POST) 
+        form = Bank_guarantyForm(request.POST)
         if form.is_valid():
             try:  
-                form.save()  
+                file_instance = form.save(commit=False)
+                # Generate folder path dynamically
+                folder_name = str(file_instance.project.id)
+                folder_path = os.path.join(settings.MEDIA_ROOT,'project',folder_name,'bank_guarantee')
+                
+                if not os.path.exists(folder_path):
+                    os.makedirs(folder_path)
+                # Generate file path dynamically
+                file_name = request.FILES['bg_doc'].name
+                file_path = os.path.join(folder_path, file_name)
+                # Save file to the generated path
+                with open(file_path, 'wb') as f:
+                    for chunk in request.FILES['bg_doc'].chunks():
+                        f.write(chunk)
+                # Update the file field with the relative path to the file
+                file_instance.bg_doc = os.path.relpath(file_path, settings.MEDIA_ROOT)
+                file_instance.save()  
                 return redirect('show_bank_guaranty')  
             except Exception as e:  
-  
+                print(e)
                 pass  
     else:  
         form = Bank_guarantyForm()  
@@ -1220,7 +1236,23 @@ def add_liquidity_damages(request):
         form = Liquidity_damagesForm(request.POST) 
         if form.is_valid():
             try:  
-                form.save()  
+                file_instance = form.save(commit=False)
+                # Generate folder path dynamically
+                folder_name = str(file_instance.project.id)
+                folder_path = os.path.join(settings.MEDIA_ROOT,'project',folder_name,'liquidity_damages')
+                
+                if not os.path.exists(folder_path):
+                    os.makedirs(folder_path)
+                # Generate file path dynamically
+                file_name = request.FILES['ld_doc'].name
+                file_path = os.path.join(folder_path, file_name)
+                # Save file to the generated path
+                with open(file_path, 'wb') as f:
+                    for chunk in request.FILES['ld_doc'].chunks():
+                        f.write(chunk)
+                # Update the file field with the relative path to the file
+                file_instance.ld_doc = os.path.relpath(file_path, settings.MEDIA_ROOT)
+                file_instance.save()   
                 return redirect('show_liquidity_damages')  
             except Exception as e:  
   
@@ -1274,8 +1306,8 @@ def add_insurance_type(request):
 
 @login_required    
 def show_insurance_type(request):  
-    insurance_type = Insurance_type.objects.all()  
-    return render(request,"insurance_type/show_insurance_type.html",{'insurance_type':insurance_type})  
+    insurance_types = Insurance_type.objects.all()  
+    return render(request,"insurance_type/show_insurance_type.html",{'insurance_types':insurance_types})  
 
 @login_required  
 def e_insurance_type(request, id):  
@@ -1318,8 +1350,8 @@ def add_insurance_detail(request):
 
 @login_required    
 def show_insurance_detail(request):  
-    insurance_detail = Insurance_detail.objects.all()  
-    return render(request,"insurance_detail/show_insurance_detail.html",{'insurance_detail':insurance_detail})  
+    insurance_details = Insurance_detail.objects.all()  
+    return render(request,"insurance_detail/show_insurance_detail.html",{'insurance_details':insurance_details})  
 
 @login_required  
 def e_insurance_detail(request, id):  

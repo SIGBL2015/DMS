@@ -17,7 +17,7 @@
             <div class="card-header"><h4>Add</h4></div>
 
             <div class="card-body">
-              <form method="POST" action="save_liquidity_damages">
+              <form method="POST" action="save_liquidity_damages" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="row">
                   <div class="form-group col-6">

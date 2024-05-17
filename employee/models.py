@@ -139,7 +139,7 @@ class Project(models.Model):
     earnest_money = models.IntegerField(null=True)
     em_instrument_no = models.CharField(max_length=100,null=True)
     em_expire_date = models.DateField(null=True)
-    em_doc = models.FileField(null=True, blank=True)
+    em_doc = models.CharField(max_length=255,null=True, blank=True)
     pg_start_date = models.DateField(null=True) 
     pg_end_date = models.DateField(null=True)
     pg_validity = models.DateField(null=True) 
@@ -147,8 +147,8 @@ class Project(models.Model):
     pg_amount = models.IntegerField(null=True)
     pg_instrument_no = models.CharField(max_length=100,null=True)
     keywords = models.CharField(max_length=1000,null=True)
-    pg_doc = models.FileField(null=True, blank=True)
-    project_doc = models.FileField(null=True, blank=True)
+    pg_doc = models.CharField(max_length=255,null=True, blank=True)
+    project_doc = models.CharField(max_length=255,null=True, blank=True)
     project_status = models.CharField(max_length=100,null=True)
     status = models.IntegerField(default=1) 
     class Meta:  
@@ -173,7 +173,7 @@ class Bank_guaranty(models.Model):
     bg_validity = models.DateField(null=True) 
     bg_percentage = models.IntegerField(null=True)
     bg_amount = models.IntegerField(null=True)
-    bg_doc = models.CharField(max_length=100,null=True) 
+    bg_doc = models.CharField(max_length=255,null=True, blank=True)
     addendum = models.CharField(max_length=100,null=True)
     status = models.IntegerField(default=1) 
     class Meta:  
@@ -184,7 +184,7 @@ class Liquidity_damages(models.Model):
     unit = models.IntegerField(null=True)
     percentage = models.IntegerField(null=True)
     max_percentage = models.IntegerField(null=True)
-    ld_doc = models.CharField(max_length=100,null=True) 
+    ld_doc = models.CharField(max_length=255,null=True, blank=True) 
     addendum = models.CharField(max_length=100,null=True)
     status = models.IntegerField(default=1) 
     class Meta:  

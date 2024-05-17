@@ -136,7 +136,7 @@ LOGIN_REDIRECT_URL = 'home'
 LOGIN_URL = 'login_user'
 
 # SESSION AGE 5 Minutes
-SESSION_COOKIE_AGE = 50*60
+SESSION_COOKIE_AGE = 180*60
 
 # Define the base URL where media files will be served from
 MEDIA_URL = '/media/'
