@@ -12,7 +12,10 @@ from xhtml2pdf import pisa
 import io as BytesIO
 from django.conf import settings
 from django.template.loader import get_template
-from django.template import Context
+import logging
+
+# Set up logging
+logger = logging.getLogger(__name__)
 
 # Create your views here. 
 @login_required    
@@ -401,7 +404,8 @@ def d_skill(request, id):
 
 
 # Company
-@login_required 
+@login_required
+@permission_required('employee.add_company', raise_exception=True)
 def add_company(request):  
     if request.method == "POST":  
         form = CompanyForm(request.POST) 
@@ -417,11 +421,13 @@ def add_company(request):
     return render(request,'company/add_company.html',{'form':form})  
 
 @login_required    
+@permission_required('employee.view_company', raise_exception=True)
 def show_company(request):  
     company = Company.objects.all()  
     return render(request,"company/show_company.html",{'company':company})  
 
 @login_required  
+@permission_required('employee.change_company', raise_exception=True)
 def e_company(request, id):  
     company = Company.objects.get(id=id)  
     return render(request,'company/e_company.html', {'company':company})  
@@ -436,6 +442,7 @@ def u_company(request, id):
     return render(request, 'company/e_company.html', {'company': company})  
 
 @login_required  
+@permission_required('employee.delete_company', raise_exception=True)
 def d_company(request, id):  
     company = Company.objects.get(id=id)  
     company.delete()  
@@ -696,6 +703,7 @@ def d_role_permission(request, id):
 
 # CV_template
 @login_required 
+@permission_required('employee.add_cv_template', raise_exception=True)
 def add_cv_template(request):  
     if request.method == "POST":  
         form = CV_templateForm(request.POST) 
@@ -712,11 +720,13 @@ def add_cv_template(request):
     return render(request,'cv_template/add_cv_template.html',{'form':form,'columns':columns})  
 
 @login_required    
+@permission_required('employee.view_cv_template', raise_exception=True)
 def show_cv_template(request):  
     cv_templates = CV_template.objects.all()  
     return render(request,"cv_template/show_cv_template.html",{'cv_templates':cv_templates})  
 
 @login_required  
+@permission_required('employee.change_cv_template', raise_exception=True)
 def e_cv_template(request, id):  
     cv_template = CV_template.objects.get(id=id)  
     return render(request,'cv_template/e_cv_template.html', {'cv_template':cv_template})  
@@ -731,6 +741,7 @@ def u_cv_template(request, id):
     return render(request, 'cv_template/e_cv_template.html', {'cv_template': cv_template})  
 
 @login_required  
+@permission_required('employee.delete_cv_template', raise_exception=True)
 def d_cv_template(request, id):  
     cv_template = CV_template.objects.get(id=id)  
     cv_template.delete()  
@@ -1061,8 +1072,8 @@ def d_project_type(request, id):
 def add_project(request):
     if request.method == "POST":  
         form = ProjectForm(request.POST, request.FILES) 
-        if form.is_valid():
-            try:  
+        try:
+            if form.is_valid():
                 file_instance = form.save(commit=False)
                 file_instance.save()
 
@@ -1089,9 +1100,11 @@ def add_project(request):
                 file_instance.save()
                         
                 return redirect('show_project')
-            except Exception as e:  
-                print(e)
-                pass 
+            else:
+                logger.error('Form is not valid: %s', form.errors)
+        except Exception as e:  
+            logger.exception('An error occurred while processing the form: %s', e)
+            form.add_error(None, f'An unexpected error occurred: {str(e)}')
     else:  
         form = ProjectForm()  
         branches = Branch.objects.filter(status=1).values('id','branch_name')
@@ -1129,7 +1142,6 @@ def d_project(request, id):
 # Bank
 @login_required 
 def add_bank(request): 
-    print('in function.....') 
     if request.method == "POST":  
         form = BankForm(request.POST) 
         if form.is_valid():

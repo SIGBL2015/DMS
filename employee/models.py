@@ -177,7 +177,7 @@ class Bank_guaranty(models.Model):
     addendum = models.CharField(max_length=100,null=True)
     status = models.IntegerField(default=1) 
     class Meta:  
-        db_table = "Bank_guaranty"
+        db_table = "bank_guaranty"
 
 class Liquidity_damages(models.Model):  
     project = models.ForeignKey(Project, on_delete=models.CASCADE,null=True)
