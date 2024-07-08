@@ -1,0 +1,5 @@
+login pe current event organize id
+event api with event organize id and day parameter
+duplication user email and phone number not allowed just pass response
+when new event organize add then old organize should deactivate
+set date in event on behalf event organize date and day no.

@@ -1,5 +1,5 @@
 from django import forms  
-from employee.models import Employee, Department, Designation, Region, Education,Project, Employment_Record, Certifications, Skills, Company, Module, Mainmenu, Submenu, Role, Company_module, Role_permission, CV_template, Template_column, Project_type, Project, Bank, Bank_guaranty, Liquidity_damages, Insurance_type, Insurance_detail, Country, Zone, Area, Branch
+from employee.models import Employee, Department, Designation, Region, Education,Project, Employment_Record, Certifications, Skills, Company, Module, Mainmenu, Submenu, Role, Company_module, Role_permission, CV_template, Template_column, Project_type, Project, Bank, Bank_guaranty, Liquidity_damages, Insurance_type, Insurance_detail, Country, Zone, Area, Branch, Client, Document_type, Project_document
 
 class EmployeeForm(forms.ModelForm):  
     class Meta:  
@@ -54,7 +54,7 @@ class Project_typeForm(forms.ModelForm):
 class ProjectForm(forms.ModelForm):  
     class Meta:  
         model = Project  
-        fields = ('id','branch','project_type','title','client_name','start_date','end_date','duration','amount','tax','advance_tax','advance_amount','earnest_money','em_instrument_no','em_expire_date','em_doc','pg_start_date','pg_end_date','pg_validity','pg_percentage','pg_amount','pg_instrument_no','keywords','pg_doc','project_doc','project_status')
+        fields = ('id','branch','project_type','title','client','start_date','end_date','duration','amount','tax','advance_tax','advance_amount','earnest_money','em_instrument_no','em_expire_date','em_doc','pg_start_date','pg_end_date','pg_validity','pg_percentage','pg_amount','pg_instrument_no','keywords','pg_doc','project_doc','project_status','scope','sector','po_scan_doc')
 
 class BankForm(forms.ModelForm):  
     class Meta:  
@@ -101,6 +101,11 @@ class BranchForm(forms.ModelForm):
         model = Branch  
         fields = ('id','company','country','zone','region','area','branch_name','branch_code','branch_address')
 
+class ClientForm(forms.ModelForm):  
+    class Meta:  
+        model = Client  
+        fields = ('id','client_name','email','phone','country','address')
+
 class ModuleForm(forms.ModelForm):  
     class Meta:  
         model = Module  
@@ -141,7 +146,15 @@ class Template_columnForm(forms.ModelForm):
         model = Template_column  
         fields = ('id','title','table_name','field_name')
 
+class Document_typeForm(forms.ModelForm):  
+    class Meta:  
+        model = Document_type  
+        fields = ('id','title')
 
+class Project_documentForm(forms.ModelForm):  
+    class Meta:  
+        model = Project_document  
+        fields = ('id','project','document_type','doc_path','remarks')
 
 
 # SELECT table_name FROM information_schema.tables

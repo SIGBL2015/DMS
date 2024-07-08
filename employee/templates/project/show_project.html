@@ -83,8 +83,9 @@
                                 <td><a href="{{ MEDIA_URL }}{{ project.project_doc }}" target="_blank">Project Document</a></td>    
                                 <td>{{ project.status }}</td>  
                                 <td>  
-                                    <a href="/employee/e_project/{{ project.id }}"><span class="ion-ios-compose" ></span></a>  
+                                    <!-- <a href="/employee/e_project/{{ project.id }}"><span class="ion-ios-compose" ></span></a>   -->
                                     <a href="/employee/d_project/{{ project.id }}"><span class="ion-ios-trash" ></span></a>  
+                                    <a href="/employee/project_details/{{ project.id }}"><span class="ion-ios-eye" ></span></a>  
                                 </td>  
                             </tr>  
                             {% endfor %}

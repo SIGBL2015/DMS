@@ -107,6 +107,27 @@ urlpatterns = [
     path('u_branch/<int:id>', views.u_branch, name="u_branch"),  
     path('d_branch/<int:id>', views.d_branch, name="d_branch"),
 
+    #Client
+    path('save_client', views.add_client, name="save_client"),  
+    path('show_client',views.show_client, name="show_client"),  
+    path('e_client/<int:id>', views.e_client, name="e_client"),  
+    path('u_client/<int:id>', views.u_client, name="u_client"),  
+    path('d_client/<int:id>', views.d_client, name="d_client"),
+
+    #Document_type
+    path('save_document_type', views.add_document_type, name="save_document_type"),  
+    path('show_document_type',views.show_document_type, name="show_document_type"),  
+    path('e_document_type/<int:id>', views.e_document_type, name="e_document_type"),  
+    path('u_document_type/<int:id>', views.u_document_type, name="u_document_type"),  
+    path('d_document_type/<int:id>', views.d_document_type, name="d_document_type"),
+
+    #Project_document
+    path('save_project_document', views.add_project_document, name="save_project_document"),  
+    path('show_project_document',views.show_project_document, name="show_project_document"),  
+    path('e_project_document/<int:id>', views.e_project_document, name="e_project_document"),  
+    path('u_project_document/<int:id>', views.u_project_document, name="u_project_document"),  
+    path('d_project_document/<int:id>', views.d_project_document, name="d_project_document"),
+
     #Project_type
     path('save_project_type', views.add_project_type, name="save_project_type"),  
     path('show_project_type',views.show_project_type, name="show_project_type"),  
@@ -121,6 +142,7 @@ urlpatterns = [
     path('e_project/<int:id>', views.e_project, name="e_project"),  
     path('u_project/<int:id>', views.u_project, name="u_project"),  
     path('d_project/<int:id>', views.d_project, name="d_project"),
+    path('project_details/<int:id>', views.project_details, name="project_details"),
 
     #Bank
     path('save_bank', views.add_bank, name="save_bank"),  

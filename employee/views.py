@@ -1,7 +1,7 @@
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render, redirect  
-from employee.forms import EmployeeForm, DepartmentForm, DesignationForm, RegionForm, EducationForm, Employment_RecordForm, CertificationsForm, SkillsForm, CompanyForm, Project_typeForm, ProjectForm, ModuleForm, MainmenuForm, SubmenuForm, RoleForm, Company_moduleForm, Role_permissionForm, CV_templateForm, Template_columnForm, BankForm, Bank_guarantyForm, Liquidity_damagesForm, Insurance_typeForm, Insurance_detailForm, CountryForm, ZoneForm, AreaForm, BranchForm
-from employee.models import Employee, Department, Designation, Region, Education, Employment_Record, Certifications, Skills, Company, Module, Mainmenu, Submenu, Role, Company_module, Role_permission, CV_template, Template_column, Project_type, Project, Bank, Bank_guaranty, Liquidity_damages, Insurance_type, Insurance_detail, Country, Zone, Area, Branch
+from employee.forms import EmployeeForm, DepartmentForm, DesignationForm, RegionForm, EducationForm, Employment_RecordForm, CertificationsForm, SkillsForm, CompanyForm, Project_typeForm, ProjectForm, ModuleForm, MainmenuForm, SubmenuForm, RoleForm, Company_moduleForm, Role_permissionForm, CV_templateForm, Template_columnForm, BankForm, Bank_guarantyForm, Liquidity_damagesForm, Insurance_typeForm, Insurance_detailForm, CountryForm, ZoneForm, AreaForm, BranchForm, ClientForm, Document_typeForm, Project_documentForm
+from employee.models import Employee, Department, Designation, Region, Education, Employment_Record, Certifications, Skills, Company, Module, Mainmenu, Submenu, Role, Company_module, Role_permission, CV_template, Template_column, Project_type, Project, Bank, Bank_guaranty, Liquidity_damages, Insurance_type, Insurance_detail, Country, Zone, Area, Branch, Client, Document_type, Project_document
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db import connection
 import json
@@ -12,6 +12,7 @@ from xhtml2pdf import pisa
 import io as BytesIO
 from django.conf import settings
 from django.template.loader import get_template
+from datetime import datetime
 import logging
 
 # Set up logging
@@ -1109,7 +1110,9 @@ def add_project(request):
         form = ProjectForm()  
         branches = Branch.objects.filter(status=1).values('id','branch_name')
         project_types = Project_type.objects.filter(status=1).values('id','type_name')
-    return render(request,'project/add_project.html',{'form':form, 'branches':branches, 'project_types':project_types})  
+        clients = Client.objects.filter(status=1).values('id','client_name')
+        countries = Country.objects.filter(status=1).values('id','country_name')
+    return render(request,'project/add_project.html',{'form':form, 'branches':branches, 'project_types':project_types, 'clients':clients, 'countries':countries})  
 
 @login_required    
 def show_project(request):  
@@ -1121,16 +1124,56 @@ def e_project(request, id):
     project = Project.objects.get(id=id)  
     branches = Branch.objects.filter(status=1).values('id','branch_name')
     project_types = Project_type.objects.filter(status=1).values('id','type_name')
-    return render(request,'project/e_project.html', {'project':project, 'branches':branches, 'project_types':project_types})  
+    clients = Client.objects.filter(status=1).values('id','client_name')
+    countries = Country.objects.filter(status=1).values('id','country_name')
+    return render(request,'project/e_project.html', {'project':project, 'branches':branches, 'project_types':project_types, 'clients':clients, 'countries':countries})  
 
 @login_required  
 def u_project(request, id):  
-    project = Project.objects.get(id=id)  
-    form = ProjectForm(request.POST, instance = project)  
-    if form.is_valid():  
-        form.save()  
-        return redirect("show_project")  
-    return render(request, 'project/e_project.html', {'project': project})  
+    project_instance = Project.objects.get(id=id)
+    # Retrieve old file paths before initializing the form
+    old_file_paths = {}
+    for field in request.FILES:
+        old_file_paths[field] = getattr(project_instance, field)
+
+    if request.method == 'POST':
+        form = ProjectForm(request.POST, request.FILES, instance=project_instance)
+        try:
+            if form.is_valid():
+                file_instance = form.save(commit=False)
+                # Loop through each file field in the form
+                for field_name in request.FILES:
+                    uploaded_file = request.FILES[field_name]
+                    if uploaded_file:
+                        folder_name = str(file_instance.pk)
+                        folder_path = os.path.join(settings.MEDIA_ROOT, 'project', folder_name)
+
+                        if not os.path.exists(folder_path):
+                            os.makedirs(folder_path)
+
+                        file_path = os.path.join(folder_path, uploaded_file.name)
+
+                        old_file_path = old_file_paths.get(field_name)
+                        if old_file_path:
+                            old_file_full_path = os.path.join(settings.MEDIA_ROOT, old_file_path)
+                            if os.path.exists(old_file_full_path):
+                                os.remove(old_file_full_path)
+
+                        with open(file_path, 'wb') as f:
+                            for chunk in uploaded_file.chunks():
+                                f.write(chunk)
+
+                        setattr(file_instance, field_name, os.path.relpath(file_path, settings.MEDIA_ROOT))
+                    else:
+                        # Ensure the old file path is retained if no new file is uploaded
+                        setattr(file_instance, field_name, old_file_paths[field_name])
+                        
+                    file_instance.save()
+                return redirect('show_project')
+            
+        except Exception as e:
+            logger.exception('An error occurred while processing the form: %s', e)
+            form.add_error(None, f'An unexpected error occurred: {str(e)}')
 
 @login_required  
 def d_project(request, id):  
@@ -1138,6 +1181,62 @@ def d_project(request, id):
     project.delete()  
     return redirect("show_project")
 
+@login_required  
+def project_details(request, id):  
+    user = request.user
+    # if user.has_perm('employee.change_project'):
+    #     permission = ''
+    # else:
+    #     permission = 'disabled'
+
+    # project = Project.objects.get(id=id)  
+    # banks = Bank.objects.all()
+    # types = Insurance_type.objects.all()
+    # document_types = Document_type.objects.all()  
+    # bank_guaranty = Bank_guaranty.objects.get(project=id)
+    # liquidity_damages = Liquidity_damages.objects.get(project_id=id)
+    # insurance_detail = Insurance_detail.objects.get(project_id=id) 
+    # project_document = Project_document.objects.filter(project=id)
+    # branches = Branch.objects.filter(status=1).values('id','branch_name')
+    # project_types = Project_type.objects.filter(status=1).values('id','type_name')
+    # clients = Client.objects.filter(status=1).values('id','client_name')
+    # countries = Country.objects.filter(status=1).values('id','country_name')
+    # return render(request,'project/project_details.html', {'document_types':document_types,'project_document':project_document,'types':types,'banks':banks,'bank_guaranty':bank_guaranty,'liquidity_damages':liquidity_damages,'insurance_detail':insurance_detail,'permission':permission,'project':project, 'branches':branches, 'project_types':project_types, 'clients':clients, 'countries':countries})  
+    context = {}
+    if user.has_perm('employee.change_project'):
+        context['permission'] = ''
+    else:
+        context['permission'] = 'disabled'
+    # Use get_object_or_404 for Project as it is likely required
+    context['project'] = get_object_or_404(Project, id=id)
+
+    # Use try-except for optional single object queries
+    try:
+        context['bank_guaranty'] = Bank_guaranty.objects.get(project=id)
+    except Bank_guaranty.DoesNotExist:
+        context['bank_guaranty'] = None
+
+    try:
+        context['liquidity_damages'] = Liquidity_damages.objects.get(project_id=id)
+    except Liquidity_damages.DoesNotExist:
+        context['liquidity_damages'] = None
+
+    try:
+        context['insurance_detail'] = Insurance_detail.objects.get(project_id=id)
+    except Insurance_detail.DoesNotExist:
+        context['insurance_detail'] = None
+
+    # QuerySets are handled normally as empty QuerySets are fine
+    context['banks'] = Bank.objects.all()
+    context['types'] = Insurance_type.objects.all()
+    context['document_types'] = Document_type.objects.all()
+    context['project_document'] = Project_document.objects.filter(project=id)
+    context['branches'] = Branch.objects.filter(status=1).values('id', 'branch_name')
+    context['project_types'] = Project_type.objects.filter(status=1).values('id', 'type_name')
+    context['clients'] = Client.objects.filter(status=1).values('id', 'client_name')
+    context['countries'] = Country.objects.filter(status=1).values('id', 'country_name')
+
+    return render(request, 'project/project_details.html', context)
 
 # Bank
 @login_required 
@@ -1184,30 +1283,32 @@ def d_bank(request, id):
 @login_required 
 def add_bank_guaranty(request):  
     if request.method == "POST":  
-        form = Bank_guarantyForm(request.POST)
-        if form.is_valid():
-            try:  
+        form = Bank_guarantyForm(request.POST, request.FILES)
+        try: 
+            if form.is_valid():
                 file_instance = form.save(commit=False)
-                # Generate folder path dynamically
-                folder_name = str(file_instance.project.id)
-                folder_path = os.path.join(settings.MEDIA_ROOT,'project',folder_name,'bank_guarantee')
-                
-                if not os.path.exists(folder_path):
-                    os.makedirs(folder_path)
-                # Generate file path dynamically
-                file_name = request.FILES['bg_doc'].name
-                file_path = os.path.join(folder_path, file_name)
-                # Save file to the generated path
-                with open(file_path, 'wb') as f:
-                    for chunk in request.FILES['bg_doc'].chunks():
-                        f.write(chunk)
-                # Update the file field with the relative path to the file
-                file_instance.bg_doc = os.path.relpath(file_path, settings.MEDIA_ROOT)
+                if 'bg_doc' in request.FILES:
+                    # Generate folder path dynamically
+                    folder_name = str(file_instance.project.id)
+                    folder_path = os.path.join(settings.MEDIA_ROOT,'project',folder_name,'bank_guarantee')
+                    
+                    if not os.path.exists(folder_path):
+                        os.makedirs(folder_path)
+                    # Generate file path dynamically
+                    file_name = request.FILES['bg_doc'].name
+                    file_path = os.path.join(folder_path, file_name)
+                    # Save file to the generated path
+                    with open(file_path, 'wb') as f:
+                        for chunk in request.FILES['bg_doc'].chunks():
+                            f.write(chunk)
+                    # Update the file field with the relative path to the file
+                    file_instance.bg_doc = os.path.relpath(file_path, settings.MEDIA_ROOT)
                 file_instance.save()  
-                return redirect('show_bank_guaranty')  
-            except Exception as e:  
-                print(e)
-                pass  
+                return redirect('show_bank_guaranty') 
+                
+        except Exception as e:  
+            print(e)
+            pass  
     else:  
         form = Bank_guarantyForm()  
         projects = Project.objects.filter(status=1).values('id','title')
@@ -1228,13 +1329,45 @@ def e_bank_guaranty(request, id):
 
 @login_required  
 def u_bank_guaranty(request, id):  
-    bank_guaranty = Bank_guaranty.objects.get(id=id)  
-    form = Bank_guarantyForm(request.POST, instance = bank_guaranty)  
-    if form.is_valid():  
-        form.save()  
-        return redirect("show_bank_guaranty")  
-    return render(request, 'bank_guaranty/e_bank_guaranty.html', {'bank_guaranty': bank_guaranty})  
+    bank_guaranty = Bank_guaranty.objects.get(id=id)
+    old_path = bank_guaranty.bg_doc 
+    if request.method == "POST": 
+        form = Bank_guarantyForm(request.POST, request.FILES, instance = bank_guaranty)
+        try: 
+            if form.is_valid():
+                file_instance = form.save(commit=False)
+                if 'bg_doc' in request.FILES:
+                    # Generate folder path dynamically
+                    folder_name = str(file_instance.project.id)
+                    folder_path = os.path.join(settings.MEDIA_ROOT,'project',folder_name,'bank_guarantee')
+                    
+                    if not os.path.exists(folder_path):
+                        os.makedirs(folder_path)
+                    # Generate file path dynamically
+                    file_name = str(request.FILES['bg_doc'])
+                    file_path = os.path.join(folder_path, file_name)
+                    
+                    if old_path and os.path.exists(os.path.join(settings.MEDIA_ROOT, old_path)):
+                            os.remove(os.path.join(settings.MEDIA_ROOT, old_path))
+                    # Save file to the generated path
+                    with open(file_path, 'wb') as f:
+                        for chunk in request.FILES['bg_doc'].chunks():
+                            f.write(chunk)
+                    # Update the file field with the relative path to the file
+                    file_instance.bg_doc = os.path.relpath(file_path, settings.MEDIA_ROOT)
+                else:
+                    # Ensure the old file path is retained if no new file is uploaded
+                    file_instance.bg_doc = old_path
 
+                file_instance.save()  
+                return redirect('show_bank_guaranty')  
+                  
+        except Exception as e:  
+            print(e)
+            pass  
+    else:
+        print("EROORRROOOROROR")
+   
 @login_required  
 def d_bank_guaranty(request, id):  
     bank_guaranty = Bank_guaranty.objects.get(id=id)  
@@ -1245,30 +1378,31 @@ def d_bank_guaranty(request, id):
 @login_required 
 def add_liquidity_damages(request):  
     if request.method == "POST":  
-        form = Liquidity_damagesForm(request.POST) 
-        if form.is_valid():
-            try:  
+        form = Liquidity_damagesForm(request.POST, request.FILES) 
+        try:
+            if form.is_valid():
                 file_instance = form.save(commit=False)
-                # Generate folder path dynamically
-                folder_name = str(file_instance.project.id)
-                folder_path = os.path.join(settings.MEDIA_ROOT,'project',folder_name,'liquidity_damages')
-                
-                if not os.path.exists(folder_path):
-                    os.makedirs(folder_path)
-                # Generate file path dynamically
-                file_name = request.FILES['ld_doc'].name
-                file_path = os.path.join(folder_path, file_name)
-                # Save file to the generated path
-                with open(file_path, 'wb') as f:
-                    for chunk in request.FILES['ld_doc'].chunks():
-                        f.write(chunk)
-                # Update the file field with the relative path to the file
-                file_instance.ld_doc = os.path.relpath(file_path, settings.MEDIA_ROOT)
+                if 'ld_doc' in request.FILES:
+                    # Generate folder path dynamically
+                    folder_name = str(file_instance.project.id)
+                    folder_path = os.path.join(settings.MEDIA_ROOT,'project',folder_name,'liquidity_damages')
+                    
+                    if not os.path.exists(folder_path):
+                        os.makedirs(folder_path)
+                    # Generate file path dynamically
+                    file_name = request.FILES['ld_doc'].name
+                    file_path = os.path.join(folder_path, file_name)
+                    # Save file to the generated path
+                    with open(file_path, 'wb') as f:
+                        for chunk in request.FILES['ld_doc'].chunks():
+                            f.write(chunk)
+                    # Update the file field with the relative path to the file
+                    file_instance.ld_doc = os.path.relpath(file_path, settings.MEDIA_ROOT)
                 file_instance.save()   
                 return redirect('show_liquidity_damages')  
-            except Exception as e:  
+        except Exception as e:  
   
-                pass  
+            pass  
     else:  
         form = Liquidity_damagesForm()
         projects = Project.objects.filter(status=1).values('id','title')  
@@ -1288,12 +1422,42 @@ def e_liquidity_damages(request, id):
 @login_required  
 def u_liquidity_damages(request, id):  
     liquidity_damages = Liquidity_damages.objects.get(id=id)  
-    form = Liquidity_damagesForm(request.POST, instance = liquidity_damages)  
-    if form.is_valid():  
-        form.save()  
-        return redirect("show_liquidity_damages")  
-    return render(request, 'liquidity_damages/e_liquidity_damages.html', {'liquidity_damages': liquidity_damages})  
+    old_path = liquidity_damages.ld_doc 
+    if request.method == "POST": 
+        form = Liquidity_damagesForm(request.POST, request.FILES, instance = liquidity_damages)
+        try: 
+            if form.is_valid():
+                file_instance = form.save(commit=False)
+                if 'ld_doc' in request.FILES:
+                    # Generate folder path dynamically
+                    folder_name = str(file_instance.project.id)
+                    folder_path = os.path.join(settings.MEDIA_ROOT,'project',folder_name,'liquidity_damages')
+                    
+                    if not os.path.exists(folder_path):
+                        os.makedirs(folder_path)
+                    # Generate file path dynamically
+                    file_name = str(request.FILES['ld_doc'])
+                    file_path = os.path.join(folder_path, file_name)
+                    
+                    if old_path and os.path.exists(os.path.join(settings.MEDIA_ROOT, old_path)):
+                            os.remove(os.path.join(settings.MEDIA_ROOT, old_path))
+                    # Save file to the generated path
+                    with open(file_path, 'wb') as f:
+                        for chunk in request.FILES['ld_doc'].chunks():
+                            f.write(chunk)
+                    # Update the file field with the relative path to the file
+                    file_instance.ld_doc = os.path.relpath(file_path, settings.MEDIA_ROOT)
+                else:
+                    # Ensure the old file path is retained if no new file is uploaded
+                    file_instance.ld_doc = old_path
 
+                file_instance.save()  
+                return redirect('show_liquidity_damages')  
+                  
+        except Exception as e:  
+            print(e)
+            pass  
+    
 @login_required  
 def d_liquidity_damages(request, id):  
     liquidity_damages = Liquidity_damages.objects.get(id=id)  
@@ -1560,6 +1724,212 @@ def d_branch(request, id):
     branch = Branch.objects.get(id=id)  
     branch.delete()  
     return redirect("show_branch")
+
+# Client
+@login_required 
+def add_client(request):  
+    if request.method == "POST":  
+        form = ClientForm(request.POST) 
+        if form.is_valid():
+            try:  
+                form.save()  
+                return redirect('show_client')  
+            except Exception as e:  
+  
+                pass  
+    else:  
+        form = ClientForm()  
+        countries = Country.objects.filter(status=1).values('id','country_name')
+    return render(request,'client/add_client.html',{'form':form, 'countries':countries})  
+
+@login_required    
+def show_client(request):  
+    clients = Client.objects.all()  
+    return render(request,"client/show_client.html",{'clients':clients})  
+
+@login_required  
+def e_client(request, id):  
+    client = Client.objects.get(id=id)  
+    countries = Country.objects.filter(status=1).values('id','country_name')
+    return render(request,'client/e_client.html', {'client':client, 'countries':countries})  
+
+@login_required  
+def u_client(request, id):  
+    client = Client.objects.get(id=id)  
+    form = ClientForm(request.POST, instance = client)  
+    if form.is_valid():  
+        form.save()  
+        return redirect("show_client")  
+    return render(request, 'client/e_client.html', {'client': client})  
+
+@login_required  
+def d_client(request, id):  
+    client = Client.objects.get(id=id)  
+    client.delete()  
+    return redirect("show_client")
+
+# Document_type
+@login_required 
+def add_document_type(request):  
+    if request.method == "POST":  
+        form = Document_typeForm(request.POST) 
+        if form.is_valid():
+            try:  
+                form.save()  
+                return redirect('show_document_type')  
+            except Exception as e:  
+  
+                pass  
+    else:  
+        form = Document_typeForm()  
+    return render(request,'document_type/add_document_type.html',{'form':form})  
+
+@login_required    
+def show_document_type(request):  
+    document_types = Document_type.objects.all()  
+    return render(request,"document_type/show_document_type.html",{'document_types':document_types})  
+
+@login_required  
+def e_document_type(request, id):  
+    document_type = Document_type.objects.get(id=id)  
+    return render(request,'document_type/e_document_type.html', {'document_type':document_type})  
+
+@login_required  
+def u_document_type(request, id):  
+    document_type = Document_type.objects.get(id=id)  
+    form = Document_typeForm(request.POST, instance = document_type)  
+    if form.is_valid():  
+        form.save()  
+        return redirect("show_document_type")  
+    return render(request, 'document_type/e_document_type.html', {'document_type': document_type})  
+
+@login_required  
+def d_document_type(request, id):  
+    document_type = Document_type.objects.get(id=id)  
+    document_type.delete()  
+    return redirect("show_document_type")
+
+# Project_document
+@login_required 
+def add_project_document(request): 
+    if request.method == "POST": 
+        # Manually handle form validation
+        project = request.POST.get('project')
+        document_types = request.POST.getlist('document_type')
+        doc_paths = request.FILES.getlist('doc_path')
+        remarks = request.POST.getlist('remarks')
+
+        # Check if the common project field is provided
+        if not project:
+            return render(request, 'project_document/add_project_document.html', {'error': 'Project is required'})
+
+        # Ensure that all dynamic fields have values
+        if len(document_types) != len(doc_paths) or len(doc_paths) != len(remarks):
+            return render(request, 'project_document/add_project_document.html', {'error': 'Mismatched form fields'})
+
+        # Process and save the data 
+        try: 
+            # Generate folder path dynamically
+            folder_name = str(project)
+            folder_path = os.path.join(settings.MEDIA_ROOT,'project',folder_name)
+            
+            if not os.path.exists(folder_path):
+                print(f"An error occurred this path does not exist: {folder_path}")
+
+            # Process dynamic fields and save them to the database
+            for document_type, doc_path, remark in zip(document_types, doc_paths, remarks):
+               # Generate the new file name
+                doc_type_title = Document_type.objects.get(id=document_type)
+                timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+                new_file_name = f"{project}_{doc_type_title.title}_{timestamp}{os.path.splitext(doc_path.name)[1]}"
+                new_file_path = os.path.join(folder_path, new_file_name)
+
+                # Save file to the generated path
+                with open(new_file_path, 'wb') as f:
+                    for chunk in doc_path.chunks():
+                        f.write(chunk)
+
+                # Update the file field with the relative path to the file
+                relative_file_path = os.path.relpath(new_file_path, settings.MEDIA_ROOT)
+
+                Project_document.objects.create(
+                    project_id=project,
+                    document_type_id=document_type,
+                    doc_path=relative_file_path,
+                    remarks=remark
+                    )
+
+            return redirect('show_project_document')  
+        except Exception as e:  
+                # Handle exceptions and provide feedback
+            print(f"An error occurred: {e}")
+    else:  
+        projects = Project.objects.filter(status=1).values('id','title')
+        document_types = Document_type.objects.filter(status=1).values('id','title')
+        return render(request,'project_document/add_project_document.html',{'projects':projects, 'document_types':document_types})  
+
+@login_required    
+def show_project_document(request):  
+    project_documents = Project_document.objects.all()  
+    return render(request,"project_document/show_project_document.html",{'project_documents':project_documents})  
+
+@login_required  
+def e_project_document(request, id):  
+    project_document = Project_document.objects.get(id=id)
+    projects = Project.objects.filter(status=1).values('id','title')
+    document_types = Document_type.objects.filter(status=1).values('id','title')  
+    return render(request,'project_document/e_project_document.html', {'project_document':project_document, 'projects':projects, 'document_types':document_types})  
+
+@login_required  
+def u_project_document(request, id):  
+    project_document = Project_document.objects.get(id=id)  
+    old_path = project_document.doc_path 
+    if request.method == "POST": 
+        form = Project_documentForm(request.POST, request.FILES, instance = project_document)
+        try: 
+            if form.is_valid():
+                file_instance = form.save(commit=False)
+                if 'doc_path' in request.FILES:
+                    # Generate folder path dynamically
+                    folder_name = str(file_instance.project.id)
+                    folder_path = os.path.join(settings.MEDIA_ROOT,'project',folder_name)
+                    
+                    if not os.path.exists(folder_path):
+                        print(f"An error occurred this path does not exist: {folder_path}")
+                    print(file_instance.document_type.id,'-------->')
+                    # Generate the new file name
+                    doc_type_title = Document_type.objects.get(id=file_instance.document_type.id)
+                    timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+                    new_file_name = f"{file_instance.project.id}_{doc_type_title.title}_{timestamp}{os.path.splitext(request.FILES['doc_path'].name)[1]}"
+                    new_file_path = os.path.join(folder_path, new_file_name)
+                    
+                    
+                    if old_path and os.path.exists(os.path.join(settings.MEDIA_ROOT, old_path)):
+                            os.remove(os.path.join(settings.MEDIA_ROOT, old_path))
+                    # Save file to the generated path
+                    with open(new_file_path, 'wb') as f:
+                        for chunk in request.FILES['doc_path'].chunks():
+                            f.write(chunk)
+                    # Update the file field with the relative path to the file
+                    file_instance.doc_path = os.path.relpath(new_file_path, settings.MEDIA_ROOT)
+                else:
+                    # Ensure the old file path is retained if no new file is uploaded
+                    file_instance.doc_path = old_path
+
+                file_instance.save() 
+                greeting = project_details(request, file_instance.project.id)
+                return greeting 
+                return redirect('project_details'+id)  
+                  
+        except Exception as e:  
+            print(e)
+            pass
+
+@login_required  
+def d_project_document(request, id):  
+    project_document = Project_document.objects.get(id=id)  
+    project_document.delete()  
+    return redirect("show_project_document")
 
 # Module
 @login_required 

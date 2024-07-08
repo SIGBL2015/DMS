@@ -44,6 +44,16 @@ class Branch(models.Model):
     class Meta:  
         db_table = "branch"
 
+class Client(models.Model):  
+    client_name = models.CharField(max_length=100,null=True) 
+    email = models.CharField(max_length=100,null=True) 
+    phone = models.CharField(max_length=100,null=True) 
+    country = models.ForeignKey(Country, on_delete=models.CASCADE,null=True)
+    address = models.CharField(max_length=100,null=True)  
+    status = models.IntegerField(default=1) 
+    class Meta:  
+        db_table = "client"
+
 class Department(models.Model):  
     depart_name = models.CharField(max_length=100,null=True)  
     status = models.IntegerField(default=1) 
@@ -127,7 +137,8 @@ class Project(models.Model):
     branch =  models.ForeignKey(Branch, on_delete=models.CASCADE,null=True)
     project_type = models.ForeignKey(Project_type, on_delete=models.CASCADE,null=True)
     title = models.CharField(max_length=100,null=True)  
-    client_name = models.CharField(max_length=100,null=True)
+    client = models.ForeignKey(Client, on_delete=models.CASCADE,null=True)
+    country = models.ForeignKey(Country, on_delete=models.CASCADE,null=True)
     start_date = models.DateField(null=True) 
     end_date = models.DateField(null=True)
     duration = models.IntegerField(null=True)
@@ -151,6 +162,11 @@ class Project(models.Model):
     project_doc = models.CharField(max_length=255,null=True, blank=True)
     project_status = models.CharField(max_length=100,null=True)
     status = models.IntegerField(default=1) 
+    scope = models.CharField(max_length=100,null=True)
+    sector = models.CharField(max_length=100,null=True)
+    po_scan_doc = models.CharField(max_length=255,null=True, blank=True)
+    em_received = models.CharField(max_length=100,null=True)
+    em_receive_date = models.DateField(null=True)
     class Meta:  
         db_table = "project"
 
@@ -270,3 +286,24 @@ class Template_column(models.Model):
     status = models.IntegerField(default=1) 
     class Meta:  
         db_table = "template_column"
+
+class Document_type(models.Model): 
+    title = models.CharField(max_length=100, null=True)
+    created_at = models.DateField(null=True)
+    updated_at = models.DateField(null=True)
+    deleted_at = models.DateField(null=True)
+    status = models.IntegerField(default=1) 
+    class Meta:  
+        db_table = "document_type"
+
+class Project_document(models.Model): 
+    project = models.ForeignKey(Project, on_delete=models.CASCADE,null=True)
+    document_type = models.ForeignKey(Document_type, on_delete=models.CASCADE,null=True)
+    doc_path = models.CharField(max_length=255, null=True, blank=True)
+    remarks = models.CharField(max_length=255, null=True)
+    created_at = models.DateField(auto_now_add=True, null=True)
+    updated_at = models.DateField(auto_now=True, null=True)
+    deleted_at = models.DateField(null=True, blank=True)
+    status = models.IntegerField(default=1) 
+    class Meta:  
+        db_table = "project_document"

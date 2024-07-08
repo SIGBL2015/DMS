@@ -47,6 +47,9 @@
             <li>
               <a href="{% url 'show_branch' %}"><i class="ion ion-clipboard"></i><span>Branch</span></a>
             </li>
+            <li>
+              <a href="{% url 'show_client' %}"><i class="ion ion-clipboard"></i><span>Client</span></a>
+            </li>
           </ul>
         </li>
 
@@ -85,13 +88,15 @@
         <li>
           <a href="#" class="has-dropdown"><i class="ion ion-ios-nutrition"></i>Project</a>
           <ul class="menu-dropdown">
-            <li><a href="{% url 'show_project_type' %}"><i class="ion ion-ios-circle-outline"></i> Add Project Type</a></li>
-            <li><a href="{% url 'show_project' %}"><i class="ion ion-ios-circle-outline"></i> Add Project</a></li>
-            <li><a href="{% url 'show_bank' %}"><i class="ion ion-ios-circle-outline"></i> Add Bank</a></li>
-            <li><a href="{% url 'show_bank_guaranty' %}"><i class="ion ion-ios-circle-outline"></i> Add Bank Guaranty</a></li>
-            <li><a href="{% url 'show_liquidity_damages' %}"><i class="ion ion-ios-circle-outline"></i> Add Liquidity Damages</a></li>
-            <li><a href="{% url 'show_insurance_type' %}"><i class="ion ion-ios-circle-outline"></i> Add Insurance Type</a></li>
-            <li><a href="{% url 'show_insurance_detail' %}"><i class="ion ion-ios-circle-outline"></i> Add Insurance Detail</a></li>
+            <li><a href="{% url 'show_project_type' %}"><i class="ion ion-ios-circle-outline"></i>Project Type</a></li>
+            <li><a href="{% url 'show_document_type' %}"><i class="ion ion-ios-circle-outline"></i>Document Type</a></li>
+            <li><a href="{% url 'show_project' %}"><i class="ion ion-ios-circle-outline"></i>Project</a></li>
+            <li><a href="{% url 'show_project_document' %}"><i class="ion ion-ios-circle-outline"></i>Project Documents</a></li>
+            <li><a href="{% url 'show_bank' %}"><i class="ion ion-ios-circle-outline"></i>Bank</a></li>
+            <li><a href="{% url 'show_bank_guaranty' %}"><i class="ion ion-ios-circle-outline"></i>Bank Guaranty</a></li>
+            <li><a href="{% url 'show_liquidity_damages' %}"><i class="ion ion-ios-circle-outline"></i>Liquidity Damages</a></li>
+            <li><a href="{% url 'show_insurance_type' %}"><i class="ion ion-ios-circle-outline"></i>Insurance Type</a></li>
+            <li><a href="{% url 'show_insurance_detail' %}"><i class="ion ion-ios-circle-outline"></i>Insurance Detail</a></li>
             <!-- <li><a href="#" class="has-dropdown"><i class="ion ion-ios-circle-outline"></i> Menu 2</a>
               <ul class="menu-dropdown">
                 <li><a href="#"><i class="ion ion-ios-circle-outline"></i> Child Menu 1</a></li>

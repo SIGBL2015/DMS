@@ -2,7 +2,6 @@
 <html lang="en">
   {% load static %} 
   {% include 'layout/style.html' %}
-
 <body>
   <div id="app">
     <div class="main-wrapper">
@@ -11,15 +10,15 @@
       <div class="main-content">
         <section class="section">
           <h1 class="section-header">
-            <div>Insurance Detail</div>
-            <div style="float: right;"><a href="/employee/save_insurance_detail" class="btn btn-sm btn-danger">Add</a></div>
+            <div>Document Type</div>
+            <div style="float: right;"><a href="/employee/save_document_type" class="btn btn-sm btn-danger">Add</a></div>
           </h1>
           <div class="section-body">
             <div class="row mt-5">
               <div class="col-12">
                 <div class="card">
                     <div class="card-header">
-                      <h3 class="card-title">Insurance Details</h3>
+                      <h3 class="card-title">Document Type Details</h3>
                     </div>
                     <!-- /.card-header -->
                     <div class="card-body">
@@ -27,32 +26,20 @@
                         <thead>
                         <tr>
                           <th>S.No</th>
-                          <th>Project</th>
-                          <th>Insurance Type</th>
-                          <th>Issued Date</th>
-                          <th>Expire Date</th>
-                          <th>Amount</th>
-                          <th>Vendor</th>
-                          <th>Instrument No</th>
+                          <th>Type Name</th>
                           <th>Status</th>
                           <th>Action</th>
                         </tr>
                         </thead>
                         <tbody>
-                            {% for insurance_detail in insurance_details %}  
+                            {% for document_type in document_types %}  
                                 <tr>  
                                     <td>{{ forloop.counter }}</td>  
-                                    <td>{{ insurance_detail.project.title }}</td>
-                                    <td>{{ insurance_detail.insurance_type.type_name }}</td> 
-                                    <td>{{ insurance_detail.issued_date }}</td> 
-                                    <td>{{ insurance_detail.expire_date }}</td>     
-                                    <td>{{ insurance_detail.amount }}</td>
-                                    <td>{{ insurance_detail.vendor }}</td> 
-                                    <td>{{ insurance_detail.instrument_no }}</td>    
-                                    <td>{{ insurance_detail.status }}</td>  
+                                    <td>{{ document_type.title }}</td>  
+                                    <td>{{ document_type.status }}</td>  
                                     <td>  
-                                        <!-- <a href="/employee/e_insurance_detail/{{ insurance_detail.id }}"><span class="ion-ios-compose" ></span></a>   -->
-                                        <a href="/employee/d_insurance_detail/{{ insurance_detail.id }}"><span class="ion-ios-trash" ></span></a>  
+                                        <a href="/employee/e_document_type/{{ document_type.id }}"><span class="ion-ios-compose" ></span></a>  
+                                        <a href="/employee/d_document_type/{{ document_type.id }}"><span class="ion-ios-trash" ></span></a>  
                                     </td>  
                                 </tr>  
                             {% endfor %}
@@ -60,13 +47,7 @@
                         <tfoot>
                         <tr>
                             <th>S.No</th>
-                            <th>Project</th>
-                            <th>Insurance Type</th>
-                            <th>Issued Date</th>
-                            <th>Expire Date</th>
-                            <th>Amount</th>
-                            <th>Vendor</th>
-                            <th>Instrument No</th>
+                            <th>Type Name</th>
                             <th>Status</th>
                             <th>Action</th>
                         </tr>
@@ -84,7 +65,6 @@
       {% include 'layout/footer.html' %}
     </div>
   </div>
-
   {% include 'layout/script.html' %}
 </body>
 </html>

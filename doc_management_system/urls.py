@@ -25,9 +25,4 @@ urlpatterns = [
     path('', include('accounts.urls')), 
     path('accounts/', include('accounts.urls')),
     path('employee/', include('employee.urls')),
-    # path('emp', views.emp),  
-    # path('show',views.show),  
-    # path('edit/<int:id>', views.edit),  
-    # path('update/<int:id>', views.update),  
-    # path('delete/<int:id>', views.destroy),  
 ]  + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
