@@ -39,7 +39,7 @@
                                     <td>{{ area.status }}</td>  
                                     <td>  
                                         <a href="/employee/e_area/{{ area.id }}"><span class="ion-ios-compose" ></span></a>  
-                                        <a href="/employee/d_area/{{ area.id }}"><span class="ion-ios-trash" ></span></a>  
+                                        <a href="/employee/d_area/{{ area.id }}" onclick="return confirm('Are you sure you want to delete this?')"><span class="ion-ios-trash" ></span></a>  
                                     </td>  
                                 </tr>  
                             {% endfor %}

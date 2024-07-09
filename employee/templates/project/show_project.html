@@ -84,7 +84,7 @@
                                 <td>{{ project.status }}</td>  
                                 <td>  
                                     <!-- <a href="/employee/e_project/{{ project.id }}"><span class="ion-ios-compose" ></span></a>   -->
-                                    <a href="/employee/d_project/{{ project.id }}"><span class="ion-ios-trash" ></span></a>  
+                                    <a href="/employee/d_project/{{ project.id }}" onclick="return confirm('Are you sure you want to delete this?')"><span class="ion-ios-trash" ></span></a>  
                                     <a href="/employee/project_details/{{ project.id }}"><span class="ion-ios-eye" ></span></a>  
                                 </td>  
                             </tr>  

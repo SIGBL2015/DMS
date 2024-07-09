@@ -52,7 +52,7 @@
                                     <td>{{ insurance_detail.status }}</td>  
                                     <td>  
                                         <!-- <a href="/employee/e_insurance_detail/{{ insurance_detail.id }}"><span class="ion-ios-compose" ></span></a>   -->
-                                        <a href="/employee/d_insurance_detail/{{ insurance_detail.id }}"><span class="ion-ios-trash" ></span></a>  
+                                        <a href="/employee/d_insurance_detail/{{ insurance_detail.id }}" onclick="return confirm('Are you sure you want to delete this?')"><span class="ion-ios-trash" ></span></a>  
                                     </td>  
                                 </tr>  
                             {% endfor %}

@@ -54,7 +54,7 @@
                                     <td>{{ branch.status }}</td>  
                                     <td>  
                                         <a href="/employee/e_branch/{{ branch.id }}"><span class="ion-ios-compose" ></span></a>  
-                                        <a href="/employee/d_branch/{{ branch.id }}"><span class="ion-ios-trash" ></span></a>  
+                                        <a href="/employee/d_branch/{{ branch.id }}" onclick="return confirm('Are you sure you want to delete this?')"><span class="ion-ios-trash" ></span></a>  
                                     </td>  
                                 </tr>  
                             {% endfor %}

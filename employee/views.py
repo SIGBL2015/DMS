@@ -45,7 +45,7 @@ def emp(request):
 @login_required  
 @permission_required('employee.view_employee', raise_exception=True)  
 def show(request):  
-    employees = Employee.objects.all()
+    employees = Employee.objects.filter(status=1)
     return render(request,"employee/show.html",{'employees':employees})  
 
 @login_required  
@@ -70,7 +70,8 @@ def update(request, id):
 @permission_required('employee.delete_employee', raise_exception=True)  
 def destroy(request, id):  
     employee = Employee.objects.get(id=id)  
-    employee.delete()  
+    employee.status=0 
+    employee.save()  
     return redirect("view_employee")  
 
 
@@ -94,7 +95,7 @@ def add_depart(request):
 @login_required  
 @permission_required('employee.view_department', raise_exception=True)   
 def show_depart(request):  
-    departments = Department.objects.all()  
+    departments = Department.objects.filter(status=1)
     return render(request,"department/show_depart.html",{'departments':departments})  
 
 @login_required  
@@ -116,7 +117,8 @@ def u_depart(request, id):
 @permission_required('employee.delete_department', raise_exception=True) 
 def d_depart(request, id):  
     department = Department.objects.get(id=id)  
-    department.delete()  
+    department.status=0  
+    department.save()
     return redirect("show_depart")  
 
 
@@ -140,7 +142,7 @@ def add_design(request):
 @login_required  
 @permission_required('employee.view_designation', raise_exception=True)   
 def show_design(request):  
-    designations = Designation.objects.all()  
+    designations = Designation.objects.filter(status=1)  
     return render(request,"designation/show_design.html",{'designations':designations})  
 
 @login_required  
@@ -162,7 +164,8 @@ def u_design(request, id):
 @permission_required('employee.delete_designation', raise_exception=True) 
 def d_design(request, id):  
     designation = Designation.objects.get(id=id)  
-    designation.delete()  
+    designation.status=0  
+    designation.save()
     return redirect("show_design")  
 
 
@@ -186,7 +189,7 @@ def add_region(request):
 @login_required    
 @permission_required('employee.view_region', raise_exception=True)
 def show_region(request):  
-    regions = Region.objects.all()  
+    regions = Region.objects.filter(status=1)  
     return render(request,"region/show_region.html",{'regions':regions})  
 
 @login_required 
@@ -208,7 +211,8 @@ def u_region(request, id):
 @permission_required('employee.delete_region', raise_exception=True)
 def d_region(request, id):  
     region = Region.objects.get(id=id)  
-    region.delete()  
+    region.status=0  
+    region.save()
     return redirect("show_region") 
 
 
@@ -233,7 +237,7 @@ def add_education(request):
 @login_required    
 @permission_required('employee.view_education', raise_exception=True)
 def show_education(request):  
-    educations = Education.objects.all()  
+    educations = Education.objects.filter(status=1)  
     return render(request,"education/show_education.html",{'educations':educations})  
 
 @login_required  
@@ -256,7 +260,8 @@ def u_education(request, id):
 @permission_required('employee.delete_education', raise_exception=True)
 def d_education(request, id):  
     education = Education.objects.get(id=id)  
-    education.delete()  
+    education.status=0  
+    education.save()
     return redirect("show_education") 
 
 
@@ -281,7 +286,7 @@ def add_employement_Record(request):
 @login_required 
 @permission_required('employee.view_employement_record', raise_exception=True)   
 def show_employement_Record(request):  
-    employement_Records = Employment_Record.objects.all()  
+    employement_Records = Employment_Record.objects.filter(status=1)  
     return render(request,"employement_record/show_employement_record.html",{'employement_Records':employement_Records})  
 
 @login_required  
@@ -304,13 +309,14 @@ def u_employement_Record(request, id):
 @permission_required('employee.delete_employement_record', raise_exception=True)
 def d_employement_Record(request, id):  
     employement_Record = Employment_Record.objects.get(id=id)  
-    employement_Record.delete()  
+    employement_Record.status=0 
+    employement_Record.save()
     return redirect("show_employement_record") 
 
  
 # Certifications
 @login_required 
-@permission_required('employee.add_certification', raise_exception=True)
+@permission_required('employee.add_certifications', raise_exception=True)
 def add_certification(request):  
     if request.method == "POST":  
         form = CertificationsForm(request.POST) 
@@ -327,13 +333,13 @@ def add_certification(request):
     return render(request,'certification/add_certification.html',{'form':form,'employees':employees})  
 
 @login_required  
-@permission_required('employee.view_certification', raise_exception=True)  
+@permission_required('employee.view_certifications', raise_exception=True)  
 def show_certification(request):  
-    certifications = Certifications.objects.all()  
+    certifications = Certifications.objects.filter(status=1) 
     return render(request,"certification/show_certification.html",{'certifications':certifications})  
 
 @login_required  
-@permission_required('employee.change_certification', raise_exception=True)
+@permission_required('employee.change_certifications', raise_exception=True)
 def e_certification(request, id):  
     certification = Certifications.objects.get(id=id)  
     employees = Employee.objects.filter(status=1).values('id','ename')
@@ -349,16 +355,17 @@ def u_certification(request, id):
     return render(request, 'certification/e_certification.html', {'certification': certification})  
 
 @login_required 
-@permission_required('employee.delete_certification', raise_exception=True) 
+@permission_required('employee.delete_certifications', raise_exception=True) 
 def d_certification(request, id):  
     certification = Certifications.objects.get(id=id)  
-    certification.delete()  
+    certification.status=0 
+    certification.save()
     return redirect("show_certification") 
 
 
 # Skills
 @login_required 
-@permission_required('employee.add_skill', raise_exception=True)
+@permission_required('employee.add_skills', raise_exception=True)
 def add_skill(request):  
     if request.method == "POST":  
         form = SkillsForm(request.POST) 
@@ -375,13 +382,13 @@ def add_skill(request):
     return render(request,'skill/add_skill.html',{'form':form,'employees':employees})  
 
 @login_required  
-@permission_required('employee.view_skill', raise_exception=True)  
+@permission_required('employee.view_skills', raise_exception=True)  
 def show_skill(request):  
-    skills = Skills.objects.all()  
+    skills = Skills.objects.filter(status=1) 
     return render(request,"skill/show_skill.html",{'skills':skills})  
 
 @login_required  
-@permission_required('employee.change_skill', raise_exception=True)
+@permission_required('employee.change_skills', raise_exception=True)
 def e_skill(request, id):  
     skill = Skills.objects.get(id=id)  
     employees = Employee.objects.filter(status=1).values('id','ename')
@@ -397,10 +404,11 @@ def u_skill(request, id):
     return render(request, 'skill/e_skill.html', {'skill': skill})  
 
 @login_required  
-@permission_required('employee.delete_skill', raise_exception=True)
+@permission_required('employee.delete_skills', raise_exception=True)
 def d_skill(request, id):  
     skill = Skills.objects.get(id=id)  
-    skill.delete()  
+    skill.status=0  
+    skill.save()
     return redirect("show_skill") 
 
 
@@ -424,7 +432,7 @@ def add_company(request):
 @login_required    
 @permission_required('employee.view_company', raise_exception=True)
 def show_company(request):  
-    company = Company.objects.all()  
+    company = Company.objects.filter(status=1) 
     return render(request,"company/show_company.html",{'company':company})  
 
 @login_required  
@@ -446,7 +454,8 @@ def u_company(request, id):
 @permission_required('employee.delete_company', raise_exception=True)
 def d_company(request, id):  
     company = Company.objects.get(id=id)  
-    company.delete()  
+    company.status=0
+    company.save()  
     return redirect("show_company") 
 
 
@@ -468,7 +477,7 @@ def add_module(request):
 
 @login_required    
 def show_module(request):  
-    modules = Module.objects.all()  
+    modules = Module.objects.filter(status=1)
     return render(request,"module/show_module.html",{'modules':modules})  
 
 @login_required  
@@ -488,7 +497,8 @@ def u_module(request, id):
 @login_required  
 def d_module(request, id):  
     module = Module.objects.get(id=id)  
-    module.delete()  
+    module.status=0 
+    module.save()
     return redirect("show_module") 
 
 
@@ -530,7 +540,8 @@ def u_mainmenu(request, id):
 @login_required  
 def d_mainmenu(request, id):  
     mainmenu = Mainmenu.objects.get(id=id)  
-    mainmenu.delete()  
+    mainmenu.status=0  
+    mainmenu.save()
     return redirect("show_mainmenu") 
 
 
@@ -572,7 +583,8 @@ def u_submenu(request, id):
 @login_required  
 def d_submenu(request, id):  
     submenu = Submenu.objects.get(id=id)  
-    submenu.delete()  
+    submenu.status=0  
+    submenu.save()
     return redirect("show_submenu") 
 
 
@@ -614,7 +626,8 @@ def u_role(request, id):
 @login_required  
 def d_role(request, id):  
     role = Role.objects.get(id=id)  
-    role.delete()  
+    role.status=0  
+    role.save()
     return redirect("show_role") 
 
 
@@ -636,7 +649,7 @@ def add_company_module(request):
 
 @login_required    
 def show_company_module(request):  
-    company_modules = Company_module.objects.all()  
+    company_modules = Company_module.objects.filter(status=1) 
     return render(request,"company_module/show_company_module.html",{'company_modules':company_modules})  
 
 @login_required  
@@ -656,7 +669,8 @@ def u_company_module(request, id):
 @login_required  
 def d_company_module(request, id):  
     company_module = Company_module.objects.get(id=id)  
-    company_module.delete()  
+    company_module.status=0  
+    company_module.save()
     return redirect("show_company_module") 
 
 
@@ -698,7 +712,8 @@ def u_role_permission(request, id):
 @login_required  
 def d_role_permission(request, id):  
     role_permission = Role_permission.objects.get(id=id)  
-    role_permission.delete()  
+    role_permission.status=0 
+    role_permission.save() 
     return redirect("show_role_permission") 
 
 
@@ -723,7 +738,7 @@ def add_cv_template(request):
 @login_required    
 @permission_required('employee.view_cv_template', raise_exception=True)
 def show_cv_template(request):  
-    cv_templates = CV_template.objects.all()  
+    cv_templates = CV_template.objects.filter(status=1) 
     return render(request,"cv_template/show_cv_template.html",{'cv_templates':cv_templates})  
 
 @login_required  
@@ -745,13 +760,15 @@ def u_cv_template(request, id):
 @permission_required('employee.delete_cv_template', raise_exception=True)
 def d_cv_template(request, id):  
     cv_template = CV_template.objects.get(id=id)  
-    cv_template.delete()  
+    cv_template.status=0  
+    cv_template.save()
     return redirect("show_cv_template") 
 
 
 
 
 @login_required    
+@permission_required('employee.generate_cv', raise_exception=True)
 def generate_cv(request):  
     employees = Employee.objects.filter(status=1).values('id','ename')
     templates = CV_template.objects.filter(status=1).values('id','title') 
@@ -910,7 +927,7 @@ def generate(request):
 
 
     employee = Employee.objects.get(id=request.POST.get('employee'))
-    columns = Template_column.objects.all()  
+    columns = Template_column.objects.filter(status=1)  
     _columns = {}
 
     for column in columns:
@@ -961,7 +978,7 @@ def add_template_column(request):
 
 @login_required    
 def show_template_column(request):  
-    template_columns = Template_column.objects.all()  
+    template_columns = Template_column.objects.filter(status=1) 
     return render(request,"template_column/show_template_column.html",{'template_columns':template_columns})  
 
 @login_required  
@@ -981,53 +998,13 @@ def u_template_column(request, id):
 @login_required  
 def d_template_column(request, id):  
     template_column = Template_column.objects.get(id=id)  
-    template_column.delete()  
-    return redirect("show_template_column") 
-
-
-# Company
-@login_required 
-def add_company(request):  
-    if request.method == "POST":  
-        form = CompanyForm(request.POST) 
-        if form.is_valid():
-            try:  
-                form.save()  
-                return redirect('show_company')  
-            except Exception as e:  
-  
-                pass  
-    else:  
-        form = CompanyForm()  
-    return render(request,'company/add_company.html',{'form':form})  
-
-@login_required    
-def show_company(request):  
-    company = Company.objects.all()  
-    return render(request,"company/show_company.html",{'company':company})  
-
-@login_required  
-def e_company(request, id):  
-    company = Company.objects.get(id=id)  
-    return render(request,'company/e_company.html', {'company':company})  
-
-@login_required  
-def u_company(request, id):  
-    company = Company.objects.get(id=id)  
-    form = CompanyForm(request.POST, instance = company)  
-    if form.is_valid():  
-        form.save()  
-        return redirect("show_company")  
-    return render(request, 'company/e_company.html', {'company': company})  
-
-@login_required  
-def d_company(request, id):  
-    company = Company.objects.get(id=id)  
-    company.delete()  
-    return redirect("show_company") 
+    template_column.status=0  
+    template_column.save()
+    return redirect("show_template_column")
 
 # Project_type
 @login_required 
+@permission_required('employee.add_project_type', raise_exception=True)
 def add_project_type(request):  
     if request.method == "POST":  
         form = Project_typeForm(request.POST) 
@@ -1044,11 +1021,13 @@ def add_project_type(request):
     return render(request,'project_type/add_project_type.html',{'form':form})  
 
 @login_required    
+@permission_required('employee.view_project_type', raise_exception=True)
 def show_project_type(request):  
-    project_types = Project_type.objects.all()  
+    project_types = Project_type.objects.filter(status=1) 
     return render(request,"project_type/show_project_type.html",{'project_types':project_types})  
 
 @login_required  
+@permission_required('employee.change_project_type', raise_exception=True)
 def e_project_type(request, id):  
     project_type = Project_type.objects.get(id=id)  
     return render(request,'project_type/e_project_type.html', {'project_type':project_type})  
@@ -1063,13 +1042,16 @@ def u_project_type(request, id):
     return render(request, 'project_type/e_project_type.html', {'project_type': project_type})  
 
 @login_required  
+@permission_required('employee.delete_project_type', raise_exception=True)
 def d_project_type(request, id):  
     project_type = Project_type.objects.get(id=id)  
-    project_type.delete()  
+    project_type.status=0  
+    project_type.save()
     return redirect("show_project_type")
 
 # Project
 @login_required 
+@permission_required('employee.add_project', raise_exception=True)
 def add_project(request):
     if request.method == "POST":  
         form = ProjectForm(request.POST, request.FILES) 
@@ -1114,12 +1096,14 @@ def add_project(request):
         countries = Country.objects.filter(status=1).values('id','country_name')
     return render(request,'project/add_project.html',{'form':form, 'branches':branches, 'project_types':project_types, 'clients':clients, 'countries':countries})  
 
-@login_required    
+@login_required   
+@permission_required('employee.view_project', raise_exception=True) 
 def show_project(request):  
-    projects = Project.objects.all() 
+    projects = Project.objects.filter(status=1)
     return render(request,"project/show_project.html",{'projects':projects})  
 
 @login_required  
+@permission_required('employee.change_project', raise_exception=True)
 def e_project(request, id):  
     project = Project.objects.get(id=id)  
     branches = Branch.objects.filter(status=1).values('id','branch_name')
@@ -1176,9 +1160,11 @@ def u_project(request, id):
             form.add_error(None, f'An unexpected error occurred: {str(e)}')
 
 @login_required  
+@permission_required('employee.delete_project', raise_exception=True)
 def d_project(request, id):  
     project = Project.objects.get(id=id)  
-    project.delete()  
+    project.status=0  
+    project.save()
     return redirect("show_project")
 
 @login_required  
@@ -1227,9 +1213,9 @@ def project_details(request, id):
         context['insurance_detail'] = None
 
     # QuerySets are handled normally as empty QuerySets are fine
-    context['banks'] = Bank.objects.all()
-    context['types'] = Insurance_type.objects.all()
-    context['document_types'] = Document_type.objects.all()
+    context['banks'] = Bank.objects.filter(status=1)
+    context['types'] = Insurance_type.objects.filter(status=1)
+    context['document_types'] = Document_type.objects.filter(status=1)
     context['project_document'] = Project_document.objects.filter(project=id)
     context['branches'] = Branch.objects.filter(status=1).values('id', 'branch_name')
     context['project_types'] = Project_type.objects.filter(status=1).values('id', 'type_name')
@@ -1240,6 +1226,7 @@ def project_details(request, id):
 
 # Bank
 @login_required 
+@permission_required('employee.add_bank', raise_exception=True)
 def add_bank(request): 
     if request.method == "POST":  
         form = BankForm(request.POST) 
@@ -1255,11 +1242,13 @@ def add_bank(request):
     return render(request,'bank/add_bank.html',{'form':form})  
 
 @login_required    
+@permission_required('employee.view_bank', raise_exception=True)
 def show_bank(request):  
-    banks = Bank.objects.all()  
+    banks = Bank.objects.filter(status=1)  
     return render(request,"bank/show_bank.html",{'banks':banks})  
 
 @login_required  
+@permission_required('employee.change_bank', raise_exception=True)
 def e_bank(request, id):  
     bank = Bank.objects.get(id=id) 
     return render(request,'bank/e_bank.html', {'bank':bank})  
@@ -1274,13 +1263,16 @@ def u_bank(request, id):
     return render(request, 'bank/e_bank.html', {'bank': bank})  
 
 @login_required  
+@permission_required('employee.delete_bank', raise_exception=True)
 def d_bank(request, id):  
     bank = Bank.objects.get(id=id)  
-    bank.delete()  
+    bank.status=0  
+    bank.save()
     return redirect("show_bank")
 
 # Bank_guaranty
 @login_required 
+@permission_required('employee.add_bank_guaranty', raise_exception=True)
 def add_bank_guaranty(request):  
     if request.method == "POST":  
         form = Bank_guarantyForm(request.POST, request.FILES)
@@ -1316,11 +1308,13 @@ def add_bank_guaranty(request):
     return render(request,'bank_guaranty/add_bank_guaranty.html',{'form':form,'projects':projects,'banks':banks})  
 
 @login_required    
+@permission_required('employee.view_bank_guaranty', raise_exception=True)
 def show_bank_guaranty(request):  
-    bank_guaranties = Bank_guaranty.objects.all()  
+    bank_guaranties = Bank_guaranty.objects.filter(status=1)  
     return render(request,"bank_guaranty/show_bank_guaranty.html",{'bank_guaranties':bank_guaranties})  
 
 @login_required  
+@permission_required('employee.change_bank_guaranty', raise_exception=True)
 def e_bank_guaranty(request, id):  
     bank_guaranty = Bank_guaranty.objects.get(id=id) 
     projects = Project.objects.filter(status=1).values('id','title')
@@ -1369,13 +1363,16 @@ def u_bank_guaranty(request, id):
         print("EROORRROOOROROR")
    
 @login_required  
+@permission_required('employee.delete_bank_guaranty', raise_exception=True)
 def d_bank_guaranty(request, id):  
     bank_guaranty = Bank_guaranty.objects.get(id=id)  
-    bank_guaranty.delete()  
+    bank_guaranty.status=0  
+    bank_guaranty.save()
     return redirect("show_bank_guaranty")
 
 # Liquidity_damages
 @login_required 
+@permission_required('employee.add_liquidity_damages', raise_exception=True)
 def add_liquidity_damages(request):  
     if request.method == "POST":  
         form = Liquidity_damagesForm(request.POST, request.FILES) 
@@ -1408,12 +1405,14 @@ def add_liquidity_damages(request):
         projects = Project.objects.filter(status=1).values('id','title')  
     return render(request,'liquidity_damages/add_liquidity_damages.html',{'form':form,'projects':projects})  
 
-@login_required    
+@login_required  
+@permission_required('employee.view_liquidity_damages', raise_exception=True)  
 def show_liquidity_damages(request):  
-    liquidity_damages = Liquidity_damages.objects.all()  
+    liquidity_damages = Liquidity_damages.objects.filter(status=1)  
     return render(request,"liquidity_damages/show_liquidity_damages.html",{'liquidity_damages':liquidity_damages})  
 
 @login_required  
+@permission_required('employee.change_liquidity_damages', raise_exception=True)
 def e_liquidity_damages(request, id):  
     liquidity_damages = Liquidity_damages.objects.get(id=id)
     projects = Project.objects.filter(status=1).values('id','title') 
@@ -1459,13 +1458,16 @@ def u_liquidity_damages(request, id):
             pass  
     
 @login_required  
+@permission_required('employee.delete_liquidity_damages', raise_exception=True)
 def d_liquidity_damages(request, id):  
     liquidity_damages = Liquidity_damages.objects.get(id=id)  
-    liquidity_damages.delete()  
+    liquidity_damages.status=0  
+    liquidity_damages.save()
     return redirect("show_liquidity_damages")
 
 # Insurance_type
 @login_required 
+@permission_required('employee.add_insurance_type', raise_exception=True)
 def add_insurance_type(request):  
     if request.method == "POST":  
         form = Insurance_typeForm(request.POST) 
@@ -1481,11 +1483,13 @@ def add_insurance_type(request):
     return render(request,'insurance_type/add_insurance_type.html',{'form':form})  
 
 @login_required    
+@permission_required('employee.view_insurance_type', raise_exception=True)
 def show_insurance_type(request):  
-    insurance_types = Insurance_type.objects.all()  
+    insurance_types = Insurance_type.objects.filter(status=1)  
     return render(request,"insurance_type/show_insurance_type.html",{'insurance_types':insurance_types})  
 
 @login_required  
+@permission_required('employee.change_insurance_type', raise_exception=True)
 def e_insurance_type(request, id):  
     insurance_type = Insurance_type.objects.get(id=id) 
     return render(request,'insurance_type/e_insurance_type.html', {'insurance_type':insurance_type})  
@@ -1500,14 +1504,17 @@ def u_insurance_type(request, id):
     return render(request, 'insurance_type/e_insurance_type.html', {'insurance_type': insurance_type})  
 
 @login_required  
+@permission_required('employee.delete_insurance_type', raise_exception=True)
 def d_insurance_type(request, id):  
     insurance_type = Insurance_type.objects.get(id=id)  
-    insurance_type.delete()  
+    insurance_type.status=0  
+    insurance_type.save()
     return redirect("show_insurance_type")
 
 
 # Insurance_detail
 @login_required 
+@permission_required('employee.add_insurance_detail', raise_exception=True)
 def add_insurance_detail(request):  
     if request.method == "POST":  
         form = Insurance_detailForm(request.POST) 
@@ -1524,12 +1531,14 @@ def add_insurance_detail(request):
         insurance_types = Insurance_type.objects.filter(status=1).values('id','type_name') 
     return render(request,'insurance_detail/add_insurance_detail.html',{'form':form,'projects':projects,'insurance_types':insurance_types})  
 
-@login_required    
+@login_required   
+@permission_required('employee.view_insurance_detail', raise_exception=True) 
 def show_insurance_detail(request):  
-    insurance_details = Insurance_detail.objects.all()  
+    insurance_details = Insurance_detail.objects.filter(status=1) 
     return render(request,"insurance_detail/show_insurance_detail.html",{'insurance_details':insurance_details})  
 
 @login_required  
+@permission_required('employee.change_insurance_type', raise_exception=True)
 def e_insurance_detail(request, id):  
     insurance_detail = Insurance_detail.objects.get(id=id) 
     projects = Project.objects.filter(status=1).values('id','title')
@@ -1546,13 +1555,16 @@ def u_insurance_detail(request, id):
     return render(request, 'insurance_detail/e_insurance_detail.html', {'insurance_detail': insurance_detail})  
 
 @login_required  
+@permission_required('employee.delete_insurance_detail', raise_exception=True)
 def d_insurance_detail(request, id):  
     insurance_detail = Insurance_detail.objects.get(id=id)  
-    insurance_detail.delete()  
+    insurance_detail.status=0  
+    insurance_detail.save()
     return redirect("show_insurance_detail")
 
 # Country
 @login_required 
+@permission_required('employee.add_country', raise_exception=True)
 def add_country(request):  
     if request.method == "POST":  
         form = CountryForm(request.POST) 
@@ -1567,12 +1579,14 @@ def add_country(request):
         form = CountryForm()  
     return render(request,'country/add_country.html',{'form':form})  
 
-@login_required    
+@login_required 
+@permission_required('employee.view_country', raise_exception=True)   
 def show_country(request):  
-    countries = Country.objects.all()  
+    countries = Country.objects.filter(status=1) 
     return render(request,"country/show_country.html",{'countries':countries})  
 
 @login_required  
+@permission_required('employee.change_country', raise_exception=True)
 def e_country(request, id):  
     country = Country.objects.get(id=id)
     return render(request,'country/e_country.html', {'country':country})  
@@ -1587,13 +1601,16 @@ def u_country(request, id):
     return render(request, 'country/e_country.html', {'country': country})  
 
 @login_required  
+@permission_required('employee.delete_country', raise_exception=True)
 def d_country(request, id):  
     country = Country.objects.get(id=id)  
-    country.delete()  
+    country.status=0  
+    country.save()
     return redirect("show_country")
 
 # Zone
 @login_required 
+@permission_required('employee.add_zone', raise_exception=True)
 def add_zone(request):  
     if request.method == "POST":  
         form = ZoneForm(request.POST) 
@@ -1608,12 +1625,14 @@ def add_zone(request):
         form = ZoneForm()  
     return render(request,'zone/add_zone.html',{'form':form})  
 
-@login_required    
+@login_required   
+@permission_required('employee.view_zone', raise_exception=True) 
 def show_zone(request):  
-    zones = Zone.objects.all()  
+    zones = Zone.objects.filter(status=1) 
     return render(request,"zone/show_zone.html",{'zones':zones})  
 
 @login_required  
+@permission_required('employee.change_zone', raise_exception=True)
 def e_zone(request, id):  
     zone = Zone.objects.get(id=id)  
     return render(request,'zone/e_zone.html', {'zone':zone})  
@@ -1627,14 +1646,17 @@ def u_zone(request, id):
         return redirect("show_zone")  
     return render(request, 'zone/e_zone.html', {'zone': zone})  
 
-@login_required  
+@login_required
+@permission_required('employee.delete_zone', raise_exception=True)  
 def d_zone(request, id):  
     zone = Zone.objects.get(id=id)  
-    zone.delete()  
+    zone.status=0  
+    zone.save()
     return redirect("show_zone")
 
 # Area
 @login_required 
+@permission_required('employee.add_area', raise_exception=True)
 def add_area(request):  
     if request.method == "POST":  
         form = AreaForm(request.POST) 
@@ -1649,12 +1671,14 @@ def add_area(request):
         form = AreaForm()  
     return render(request,'area/add_area.html',{'form':form})  
 
-@login_required    
+@login_required   
+@permission_required('employee.view_area', raise_exception=True) 
 def show_area(request):  
-    areas = Area.objects.all()  
+    areas = Area.objects.filter(status=1)  
     return render(request,"area/show_area.html",{'areas':areas})  
 
 @login_required  
+@permission_required('employee.change_area', raise_exception=True)
 def e_area(request, id):  
     area = Area.objects.get(id=id)  
     return render(request,'area/e_area.html', {'area':area})  
@@ -1669,13 +1693,16 @@ def u_area(request, id):
     return render(request, 'area/e_area.html', {'area': area})  
 
 @login_required  
+@permission_required('employee.delete_area', raise_exception=True)
 def d_area(request, id):  
     area = Area.objects.get(id=id)  
-    area.delete()  
+    area.status=0  
+    area.save()
     return redirect("show_area")
 
 # Branch
 @login_required 
+@permission_required('employee.add_branch', raise_exception=True)
 def add_branch(request):  
     if request.method == "POST":  
         form = BranchForm(request.POST) 
@@ -1695,12 +1722,14 @@ def add_branch(request):
         areas = Area.objects.filter(status=1).values('id','area_name')
     return render(request,'branch/add_branch.html',{'form':form, 'companies':companies, 'countries':countries, 'zones':zones, 'regions':regions, 'areas':areas})  
 
-@login_required    
+@login_required   
+@permission_required('employee.view_branch', raise_exception=True) 
 def show_branch(request):  
-    branches = Branch.objects.all()  
+    branches = Branch.objects.filter(status=1)  
     return render(request,"branch/show_branch.html",{'branches':branches})  
 
-@login_required  
+@login_required
+@permission_required('employee.change_branch', raise_exception=True)  
 def e_branch(request, id):  
     branch = Branch.objects.get(id=id)
     companies = Company.objects.filter(status=1).values('id','comp_name')
@@ -1720,13 +1749,16 @@ def u_branch(request, id):
     return render(request, 'branch/e_branch.html', {'branch': branch})  
 
 @login_required  
+@permission_required('employee.delete_branch', raise_exception=True)
 def d_branch(request, id):  
     branch = Branch.objects.get(id=id)  
-    branch.delete()  
+    branch.status=0  
+    branch.save()
     return redirect("show_branch")
 
 # Client
 @login_required 
+@permission_required('employee.add_client', raise_exception=True)
 def add_client(request):  
     if request.method == "POST":  
         form = ClientForm(request.POST) 
@@ -1743,11 +1775,13 @@ def add_client(request):
     return render(request,'client/add_client.html',{'form':form, 'countries':countries})  
 
 @login_required    
+@permission_required('employee.view_client', raise_exception=True)
 def show_client(request):  
-    clients = Client.objects.all()  
+    clients = Client.objects.filter(status=1) 
     return render(request,"client/show_client.html",{'clients':clients})  
 
 @login_required  
+@permission_required('employee.change_client', raise_exception=True)
 def e_client(request, id):  
     client = Client.objects.get(id=id)  
     countries = Country.objects.filter(status=1).values('id','country_name')
@@ -1763,13 +1797,16 @@ def u_client(request, id):
     return render(request, 'client/e_client.html', {'client': client})  
 
 @login_required  
+@permission_required('employee.delete_client', raise_exception=True)
 def d_client(request, id):  
     client = Client.objects.get(id=id)  
-    client.delete()  
+    client.status=0  
+    client.save()
     return redirect("show_client")
 
 # Document_type
 @login_required 
+@permission_required('employee.add_document_type', raise_exception=True)
 def add_document_type(request):  
     if request.method == "POST":  
         form = Document_typeForm(request.POST) 
@@ -1784,12 +1821,14 @@ def add_document_type(request):
         form = Document_typeForm()  
     return render(request,'document_type/add_document_type.html',{'form':form})  
 
-@login_required    
+@login_required  
+@permission_required('employee.view_document_type', raise_exception=True)  
 def show_document_type(request):  
-    document_types = Document_type.objects.all()  
+    document_types = Document_type.objects.filter(status=1)  
     return render(request,"document_type/show_document_type.html",{'document_types':document_types})  
 
 @login_required  
+@permission_required('employee.change_document_type', raise_exception=True)
 def e_document_type(request, id):  
     document_type = Document_type.objects.get(id=id)  
     return render(request,'document_type/e_document_type.html', {'document_type':document_type})  
@@ -1804,13 +1843,16 @@ def u_document_type(request, id):
     return render(request, 'document_type/e_document_type.html', {'document_type': document_type})  
 
 @login_required  
+@permission_required('employee.delete_document_type', raise_exception=True)
 def d_document_type(request, id):  
     document_type = Document_type.objects.get(id=id)  
-    document_type.delete()  
+    document_type.status=0  
+    document_type.save()
     return redirect("show_document_type")
 
 # Project_document
 @login_required 
+@permission_required('employee.add_project_document', raise_exception=True)
 def add_project_document(request): 
     if request.method == "POST": 
         # Manually handle form validation
@@ -1868,12 +1910,14 @@ def add_project_document(request):
         document_types = Document_type.objects.filter(status=1).values('id','title')
         return render(request,'project_document/add_project_document.html',{'projects':projects, 'document_types':document_types})  
 
-@login_required    
+@login_required   
+@permission_required('employee.view_project_document', raise_exception=True) 
 def show_project_document(request):  
-    project_documents = Project_document.objects.all()  
+    project_documents = Project_document.objects.filter(status=1)  
     return render(request,"project_document/show_project_document.html",{'project_documents':project_documents})  
 
 @login_required  
+@permission_required('employee.change_project_document', raise_exception=True)
 def e_project_document(request, id):  
     project_document = Project_document.objects.get(id=id)
     projects = Project.objects.filter(status=1).values('id','title')
@@ -1926,51 +1970,12 @@ def u_project_document(request, id):
             pass
 
 @login_required  
+@permission_required('employee.delete_project_document', raise_exception=True)
 def d_project_document(request, id):  
     project_document = Project_document.objects.get(id=id)  
-    project_document.delete()  
+    project_document.status=0 
+    project_document.save() 
     return redirect("show_project_document")
-
-# Module
-@login_required 
-def add_module(request):  
-    if request.method == "POST":  
-        form = ModuleForm(request.POST) 
-        if form.is_valid():
-            try:  
-                form.save()  
-                return redirect('show_module')  
-            except Exception as e:  
-  
-                pass  
-    else:  
-        form = ModuleForm()  
-    return render(request,'module/add_module.html',{'form':form})  
-
-@login_required    
-def show_module(request):  
-    modules = Module.objects.all()  
-    return render(request,"module/show_module.html",{'modules':modules})  
-
-@login_required  
-def e_module(request, id):  
-    module = Module.objects.get(id=id)  
-    return render(request,'module/e_module.html', {'module':module})  
-
-@login_required  
-def u_module(request, id):  
-    module = Module.objects.get(id=id)  
-    form = ModuleForm(request.POST, instance = module)  
-    if form.is_valid():  
-        form.save()  
-        return redirect("show_module")  
-    return render(request, 'module/e_module.html', {'module': module})  
-
-@login_required  
-def d_module(request, id):  
-    module = Module.objects.get(id=id)  
-    module.delete()  
-    return redirect("show_module") 
 
 
 #     select json_array(json_object(
