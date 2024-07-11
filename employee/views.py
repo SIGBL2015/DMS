@@ -28,11 +28,30 @@ def dashboard(request):
 @permission_required('employee.add_employee', raise_exception=True)  
 def emp(request):
     if request.method == "POST":  
-        form = EmployeeForm(request.POST)  
-        # if form.is_valid(): 
-        try:  
-            form.save()  
-            return redirect('view_employee')  
+        form = EmployeeForm(request.POST, request.FILES)  
+        try:
+            if form.is_valid():
+                file_instance = form.save(commit=False)
+                file_instance.save()
+                if 'cv_doc' in request.FILES:
+                    # Generate folder path dynamically
+                    folder_name = str(file_instance.pk)
+                    folder_path = os.path.join(settings.MEDIA_ROOT,'employee',folder_name,'cv')
+                    
+                    if not os.path.exists(folder_path):
+                        os.makedirs(folder_path)
+                    # Generate file path dynamically
+                    timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+                    new_file_name = f"{file_instance.pk}_cv_{timestamp}{os.path.splitext(request.FILES['cv_doc'].name)[1]}"
+                    new_file_path = os.path.join(folder_path, new_file_name)
+                    # Save file to the generated path
+                    with open(new_file_path, 'wb') as f:
+                        for chunk in request.FILES['cv_doc'].chunks():
+                            f.write(chunk)
+                    # Update the file field with the relative path to the file
+                    file_instance.cv_doc = os.path.relpath(new_file_path, settings.MEDIA_ROOT)
+                file_instance.save()  
+                return redirect('view_employee') 
         except Exception as e:      
             pass  
     else:  
@@ -60,11 +79,42 @@ def edit(request, id):
 @login_required  
 def update(request, id):  
     employee = Employee.objects.get(id=id)  
-    form = EmployeeForm(request.POST, instance = employee)  
-    if form.is_valid():  
-        form.save()  
-        return redirect("view_employee")  
-    return render(request, 'employee/edit.html', {'employee': employee})  
+    old_path = employee.cv_doc 
+    if request.method == "POST": 
+        form = EmployeeForm(request.POST, request.FILES, instance = employee)
+        try: 
+            if form.is_valid():
+                file_instance = form.save(commit=False)
+                if 'cv_doc' in request.FILES:
+                    # Generate folder path dynamically
+                    folder_name = str(file_instance.pk)
+                    folder_path = os.path.join(settings.MEDIA_ROOT,'employee',folder_name,'cv')
+                    
+                    if not os.path.exists(folder_path):
+                        os.makedirs(folder_path)
+
+                    # Generate file path dynamically
+                    timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+                    new_file_name = f"{file_instance.pk}_cv_{timestamp}{os.path.splitext(request.FILES['cv_doc'].name)[1]}"
+                    new_file_path = os.path.join(folder_path, new_file_name)
+                    
+                    if old_path and os.path.exists(os.path.join(settings.MEDIA_ROOT, old_path)):
+                            os.remove(os.path.join(settings.MEDIA_ROOT, old_path))
+                    # Save file to the generated path
+                    with open(new_file_path, 'wb') as f:
+                        for chunk in request.FILES['cv_doc'].chunks():
+                            f.write(chunk)
+                    # Update the file field with the relative path to the file
+                    file_instance.cv_doc = os.path.relpath(new_file_path, settings.MEDIA_ROOT)
+                else:
+                    # Ensure the old file path is retained if no new file is uploaded
+                    file_instance.cv_doc = old_path
+
+                file_instance.save() 
+                return redirect("view_employee")   
+        except Exception as e:  
+            print(e)
+            return render(request, 'employee/edit.html', {'employee': employee})  
 
 @login_required  
 @permission_required('employee.delete_employee', raise_exception=True)  
@@ -221,14 +271,32 @@ def d_region(request, id):
 @permission_required('employee.add_education', raise_exception=True)
 def add_education(request):  
     if request.method == "POST":  
-        form = EducationForm(request.POST) 
-        if form.is_valid():
-            try:  
-                form.save()  
-                return redirect('show_education')  
-            except Exception as e:  
-  
-                pass  
+        form = EducationForm(request.POST, request.FILES) 
+        try:
+            print(form)
+            if form.is_valid():
+                file_instance = form.save(commit=False)
+                if 'degree_doc' in request.FILES:
+                    # Generate folder path dynamically
+                    folder_name = str(file_instance.employee.id)
+                    folder_path = os.path.join(settings.MEDIA_ROOT,'employee',folder_name,'education')
+                    
+                    if not os.path.exists(folder_path):
+                        os.makedirs(folder_path)
+                    # Generate file path dynamically
+                    timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+                    new_file_name = f"{file_instance.employee.id}_edu_{timestamp}{os.path.splitext(request.FILES['degree_doc'].name)[1]}"
+                    new_file_path = os.path.join(folder_path, new_file_name)
+                    # Save file to the generated path
+                    with open(new_file_path, 'wb') as f:
+                        for chunk in request.FILES['degree_doc'].chunks():
+                            f.write(chunk)
+                    # Update the file field with the relative path to the file
+                    file_instance.degree_doc = os.path.relpath(new_file_path, settings.MEDIA_ROOT)
+                file_instance.save()  
+                return redirect('show_education') 
+        except Exception as e:      
+            pass
     else:  
         form = EducationForm()  
         employees = Employee.objects.filter(status=1).values('id','ename')
@@ -250,11 +318,42 @@ def e_education(request, id):
 @login_required  
 def u_education(request, id):  
     education = Education.objects.get(id=id)  
-    form = EducationForm(request.POST, instance = education)  
-    if form.is_valid():  
-        form.save()  
-        return redirect("show_education")  
-    return render(request, 'education/e_education.html', {'education': education})  
+    old_path = education.degree_doc 
+    if request.method == "POST": 
+        form = EducationForm(request.POST, request.FILES, instance = education)
+        try: 
+            if form.is_valid():
+                file_instance = form.save(commit=False)
+                if 'degree_doc' in request.FILES:
+                    # Generate folder path dynamically
+                    folder_name = str(file_instance.employee.id)
+                    folder_path = os.path.join(settings.MEDIA_ROOT,'employee',folder_name,'education')
+                    
+                    if not os.path.exists(folder_path):
+                        os.makedirs(folder_path)
+
+                    # Generate file path dynamically
+                    timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+                    new_file_name = f"{file_instance.employee.id}_edu_{timestamp}{os.path.splitext(request.FILES['degree_doc'].name)[1]}"
+                    new_file_path = os.path.join(folder_path, new_file_name)
+                    
+                    if old_path and os.path.exists(os.path.join(settings.MEDIA_ROOT, old_path)):
+                            os.remove(os.path.join(settings.MEDIA_ROOT, old_path))
+                    # Save file to the generated path
+                    with open(new_file_path, 'wb') as f:
+                        for chunk in request.FILES['degree_doc'].chunks():
+                            f.write(chunk)
+                    # Update the file field with the relative path to the file
+                    file_instance.degree_doc = os.path.relpath(new_file_path, settings.MEDIA_ROOT)
+                else:
+                    # Ensure the old file path is retained if no new file is uploaded
+                    file_instance.degree_doc = old_path
+
+                file_instance.save() 
+                return redirect("show_education")   
+        except Exception as e:  
+            print(e)
+            return render(request, 'education/e_education.html', {'education': education})  
 
 @login_required  
 @permission_required('employee.delete_education', raise_exception=True)
@@ -319,14 +418,31 @@ def d_employement_Record(request, id):
 @permission_required('employee.add_certifications', raise_exception=True)
 def add_certification(request):  
     if request.method == "POST":  
-        form = CertificationsForm(request.POST) 
-        if form.is_valid():
-            try:  
-                form.save()  
-                return redirect('show_certification')  
-            except Exception as e:  
-  
-                pass  
+        form = CertificationsForm(request.POST, request.FILES) 
+        try:
+            if form.is_valid():
+                file_instance = form.save(commit=False)
+                if 'certification_doc' in request.FILES:
+                    # Generate folder path dynamically
+                    folder_name = str(file_instance.employee.id)
+                    folder_path = os.path.join(settings.MEDIA_ROOT,'employee',folder_name,'certification')
+                    
+                    if not os.path.exists(folder_path):
+                        os.makedirs(folder_path)
+                    # Generate file path dynamically
+                    timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+                    new_file_name = f"{file_instance.employee.id}_certificate_{timestamp}{os.path.splitext(request.FILES['certification_doc'].name)[1]}"
+                    new_file_path = os.path.join(folder_path, new_file_name)
+                    # Save file to the generated path
+                    with open(new_file_path, 'wb') as f:
+                        for chunk in request.FILES['certification_doc'].chunks():
+                            f.write(chunk)
+                    # Update the file field with the relative path to the file
+                    file_instance.certification_doc = os.path.relpath(new_file_path, settings.MEDIA_ROOT)
+                file_instance.save()  
+                return redirect('show_certification') 
+        except Exception as e:      
+            pass
     else:  
         form = CertificationsForm()  
         employees = Employee.objects.filter(status=1).values('id','ename')
@@ -348,11 +464,42 @@ def e_certification(request, id):
 @login_required  
 def u_certification(request, id):  
     certification = Certifications.objects.get(id=id)  
-    form = CertificationsForm(request.POST, instance = certification)  
-    if form.is_valid():  
-        form.save()  
-        return redirect("show_certification")  
-    return render(request, 'certification/e_certification.html', {'certification': certification})  
+    old_path = certification.certification_doc 
+    if request.method == "POST": 
+        form = CertificationsForm(request.POST, request.FILES, instance = certification)
+        try: 
+            if form.is_valid():
+                file_instance = form.save(commit=False)
+                if 'certification_doc' in request.FILES:
+                    # Generate folder path dynamically
+                    folder_name = str(file_instance.employee.id)
+                    folder_path = os.path.join(settings.MEDIA_ROOT,'employee',folder_name,'certification')
+                    
+                    if not os.path.exists(folder_path):
+                        os.makedirs(folder_path)
+
+                    # Generate file path dynamically
+                    timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+                    new_file_name = f"{file_instance.employee.id}_certificate_{timestamp}{os.path.splitext(request.FILES['certification_doc'].name)[1]}"
+                    new_file_path = os.path.join(folder_path, new_file_name)
+                    
+                    if old_path and os.path.exists(os.path.join(settings.MEDIA_ROOT, old_path)):
+                            os.remove(os.path.join(settings.MEDIA_ROOT, old_path))
+                    # Save file to the generated path
+                    with open(new_file_path, 'wb') as f:
+                        for chunk in request.FILES['certification_doc'].chunks():
+                            f.write(chunk)
+                    # Update the file field with the relative path to the file
+                    file_instance.certification_doc = os.path.relpath(new_file_path, settings.MEDIA_ROOT)
+                else:
+                    # Ensure the old file path is retained if no new file is uploaded
+                    file_instance.certification_doc = old_path
+
+                file_instance.save() 
+                return redirect("show_certification")   
+        except Exception as e:  
+            print(e)
+            return render(request, 'certification/e_certification.html', {'certification': certification}) 
 
 @login_required 
 @permission_required('employee.delete_certifications', raise_exception=True) 
@@ -763,9 +910,6 @@ def d_cv_template(request, id):
     cv_template.status=0  
     cv_template.save()
     return redirect("show_cv_template") 
-
-
-
 
 @login_required    
 @permission_required('employee.generate_cv', raise_exception=True)

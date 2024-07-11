@@ -4,7 +4,7 @@ from employee.models import Employee, Department, Designation, Region, Education
 class EmployeeForm(forms.ModelForm):  
     class Meta:  
         model = Employee  
-        fields = ('id','eid','ename','eemail','econtact','department','designation','branch','cnic','date_of_joining','dob','qualification_id','e_address','deliverable_task') 
+        fields = ('id','eid','ename','eemail','econtact','department','designation','branch','cnic','date_of_joining','dob','qualification_id','e_address','deliverable_task','cv_doc') 
 
 class DepartmentForm(forms.ModelForm):  
     class Meta:  
@@ -24,7 +24,7 @@ class RegionForm(forms.ModelForm):
 class EducationForm(forms.ModelForm):  
     class Meta:  
         model = Education  
-        fields = ('id','employee','degree_name','institute','country','from_date','to_date','grade') 
+        fields = ('id','employee','degree_name','institute','country','from_date','to_date','grade','degree_doc') 
 
 class Employment_RecordForm(forms.ModelForm):  
     class Meta:  
@@ -34,7 +34,7 @@ class Employment_RecordForm(forms.ModelForm):
 class CertificationsForm(forms.ModelForm):  
     class Meta:  
         model = Certifications  
-        fields = ('id','employee','certification_name')
+        fields = ('id','employee','certification_name','certification_doc','expiry_date')
 
 class SkillsForm(forms.ModelForm):  
     class Meta:  

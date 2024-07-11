@@ -17,7 +17,7 @@
             <div class="card-header"><h4>Add</h4></div>
 
             <div class="card-body">
-              <form method="POST" action="save_emp">
+              <form method="POST" action="save_emp" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="row">
                   <div class="form-group col-6">
@@ -84,12 +84,12 @@
                 </div>
 
                 <div class="row">
-                  <div class="form-group col-6">
+                  <div class="form-group col-4">
                     <label>Date Of Birth</label>
                     <input id="dob" type="date" class="form-control" name="dob">
                   </div>
 
-                  <div class="form-group col-6">
+                  <div class="form-group col-4">
                     <label>Qualification</label>
                     <select class="form-control" id="qualification_id" name="qualification_id">
                       <option>Master</option>
@@ -97,6 +97,10 @@
                       <option>Intermediate</option>
                       <option>Matriculation</option>
                     </select>
+                  </div>
+                  <div class="form-group col-4"> 
+                    <label for="email">CV Document</label>
+                    <input id="cv_doc" type="file" class="form-control" name="cv_doc">
                   </div>
                 </div>
 

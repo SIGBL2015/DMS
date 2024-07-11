@@ -29,6 +29,8 @@
                             <th>S.No</th>
                             <th>Employee</th>
                             <th>Certification</th>
+                            <th>Document</th>
+                            <th>Expiry</th>
                             <th>Status</th>
                             <th>Action</th>
                           </tr>
@@ -38,7 +40,9 @@
                             <tr>  
                                 <td>{{ forloop.counter }}</td>  
                                 <td>{{ certification.employee.ename}}</td>
-                                <td>{{ certification.certification_name }}</td>    
+                                <td>{{ certification.certification_name }}</td>  
+                                <td><a href="{{ MEDIA_URL }}{{ certification.certification_doc }}" target="_blank">Document</a></td>
+                                <td>{{ certification.expiry_date }}</td>  
                                 <td>{{ certification.status }}</td>  
                                 <td>  
                                     <a href="/employee/e_certification/{{ certification.id }}"><span class="ion-ios-compose" ></span></a>  
@@ -52,6 +56,8 @@
                               <th>S.No</th>
                               <th>Employee</th>
                               <th>Certification</th>
+                              <th>Document</th>
+                              <th>Expiry</th>
                               <th>Status</th>
                               <th>Action</th>
                           </tr>

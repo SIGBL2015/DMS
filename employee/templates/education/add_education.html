@@ -17,7 +17,7 @@
             <div class="card-header"><h4>Add</h4></div>
 
             <div class="card-body">
-              <form method="POST" action="save_education">
+              <form method="POST" action="save_education" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="row">
                   <div class="form-group col-6">
@@ -64,6 +64,10 @@
                   <div class="form-group col-6">
                     <label>Grade</label>
                     <input id="grade" type="text" class="form-control" name="grade">
+                  </div>
+                  <div class="form-group col-6"> 
+                    <label for="email">Degree Document</label>
+                    <input id="degree_doc" type="file" class="form-control" name="degree_doc">
                   </div>
                 </div>
 

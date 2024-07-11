@@ -34,6 +34,7 @@
                           <th>From Date</th>
                           <th>To Date</th>
                           <th>Grade</th>
+                          <th>Degree Doc</th>
                           <th>Status</th>
                           <th>Action</th>
                         </tr>
@@ -48,7 +49,8 @@
                                     <td>{{ education.country }}</td> 
                                     <td>{{ education.from_date }}</td> 
                                     <td>{{ education.to_date }}</td> 
-                                    <td>{{ education.grade }}</td>    
+                                    <td>{{ education.grade }}</td> 
+                                    <td><a href="{{ MEDIA_URL }}{{ education.degree_doc }}" target="_blank">Degree Doc</a></td>      
                                     <td>{{ education.status }}</td>  
                                     <td>  
                                         <a href="/employee/e_education/{{ education.id }}"><span class="ion-ios-compose" ></span></a>  
@@ -67,6 +69,7 @@
                             <th>From Date</th>
                             <th>To Date</th>
                             <th>Grade</th>
+                            <th>Degree Doc</th>
                             <th>Status</th>
                             <th>Action</th>
                         </tr>

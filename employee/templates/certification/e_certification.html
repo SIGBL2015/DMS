@@ -17,7 +17,7 @@
             <div class="card-header"><h4>Edit</h4></div>
 
             <div class="card-body">
-              <form method="POST" action="/employee/u_certification/{{certification.id}}">
+              <form method="POST" action="/employee/u_certification/{{certification.id}}" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="row">
                   <div class="form-group col-6">
@@ -36,6 +36,25 @@
                   <div class="form-group col-6">
                     <label for="email">Certification Name</label>
                     <input id="certification_name" type="text" class="form-control" name="certification_name" value="{{ certification.certification_name }}">
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="form-group col-6"> 
+                    <label for="email">Certification Doc</label>
+                    <div class="row">
+                      <div class="form-group col-10">
+                        <input id="certification_doc" type="file" class="form-control" name="certification_doc" value="{{ certification.certification_doc }}">
+                      </div>
+                      <div class="form-group col-1">
+                        <a href="{{ MEDIA_URL }}{{ certification.certification_doc }}" target="_blank"><span class="ion-ios-eye" ></span></a>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="form-group col-6">
+                    <label>Expiry Date</label>
+                    <input id="expiry_date" type="date" class="form-control" name="expiry_date" value="{{ certification.expiry_date|date:'Y-m-d' }}">
                   </div>
                 </div>
 

@@ -17,7 +17,7 @@
             <div class="card-header"><h4>Add</h4></div>
 
             <div class="card-body">
-              <form method="POST" action="save_certification">
+              <form method="POST" action="save_certification" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="row">
                   <div class="form-group col-6">
@@ -32,6 +32,17 @@
                   <div class="form-group col-6"> 
                     <label for="email">Certification Name</label>
                     <input id="certification_name" type="text" class="form-control" name="certification_name">
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="form-group col-6"> 
+                    <label for="email">Certification Doc</label>
+                    <input id="certification_doc" type="file" class="form-control" name="certification_doc">
+                  </div>
+
+                  <div class="form-group col-6">
+                    <label>Expiry Date</label>
+                    <input id="expiry_date" type="date" class="form-control" name="expiry_date">
                   </div>
                 </div>
 

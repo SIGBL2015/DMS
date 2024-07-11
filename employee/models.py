@@ -80,6 +80,7 @@ class Employee(models.Model):
     qualification_id = models.CharField(max_length=100,null=True)
     deliverable_task = models.CharField(max_length=1000,null=True)
     e_address = models.CharField(max_length=100,null=True)
+    cv_doc = models.CharField(max_length=255,null=True, blank=True) 
     status = models.IntegerField(default=1) 
 
     class Meta:  
@@ -92,7 +93,8 @@ class Education(models.Model):
     country = models.CharField(max_length=50,null=True)  
     from_date = models.DateField(null=True) 
     to_date = models.DateField(null=True) 
-    grade = models.IntegerField(null=True)
+    grade = models.CharField(max_length=50,null=True)  
+    degree_doc = models.CharField(max_length=255,null=True, blank=True) 
     status = models.IntegerField(default=1) 
     class Meta:  
         db_table = "education"
@@ -116,6 +118,8 @@ class Employment_Record(models.Model):
 class Certifications(models.Model):  
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE,null=True)
     certification_name = models.CharField(max_length=100,null=True)  
+    certification_doc = models.CharField(max_length=255,null=True, blank=True) 
+    expiry_date = models.DateField(null=True) 
     status = models.IntegerField(default=1) 
     class Meta:  
         db_table = "certifications"
