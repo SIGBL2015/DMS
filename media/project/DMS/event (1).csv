@@ -1,7 +1,0 @@
-event_name,event_date,event_startTime,event_duration,event_venue,event_speaker,event_sponsor,event_moderator,category,event_topic,event_details
-event 3,9/18/2023,12:38:33,20,venue 3,speaker 3,sponsor 3,moderator 3,category 3,topic 3,detail 3
-event 4,9/19/2023,13:38:33,20,venue 4,speaker 4,sponsor 4,moderator 4,category 4,topic 4,detail 4
-event 5,9/20/2023,14:38:33,20,venue 5,speaker 5,sponsor 5,moderator 5,category 5,topic 5,detail 5
-event 6,9/21/2023,15:38:33,20,venue 6,speaker 6,sponsor 6,moderator 6,category 6,topic 6,detail 6
-event 7,9/22/2023,16:38:33,20,venue 7,speaker 7,sponsor 7,moderator 7,category 7,topic 7,detail 7
-event 8,9/23/2023,17:38:33,20,venue 8,speaker 8,sponsor 8,moderator 8,category 8,topic 8,detail 8

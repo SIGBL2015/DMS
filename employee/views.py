@@ -1,4 +1,5 @@
-from django.http import HttpResponse
+from pyexpat.errors import messages
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, render, redirect  
 from employee.forms import EmployeeForm, DepartmentForm, DesignationForm, RegionForm, EducationForm, Employment_RecordForm, CertificationsForm, SkillsForm, CompanyForm, Project_typeForm, ProjectForm, ModuleForm, MainmenuForm, SubmenuForm, RoleForm, Company_moduleForm, Role_permissionForm, CV_templateForm, Template_columnForm, BankForm, Bank_guarantyForm, Liquidity_damagesForm, Insurance_typeForm, Insurance_detailForm, CountryForm, ZoneForm, AreaForm, BranchForm, ClientForm, Document_typeForm, Project_documentForm
 from employee.models import Employee, Department, Designation, Region, Education, Employment_Record, Certifications, Skills, Company, Module, Mainmenu, Submenu, Role, Company_module, Role_permission, CV_template, Template_column, Project_type, Project, Bank, Bank_guaranty, Liquidity_damages, Insurance_type, Insurance_detail, Country, Zone, Area, Branch, Client, Document_type, Project_document
@@ -1215,7 +1216,9 @@ def add_project(request):
                             os.makedirs(folder_path)
 
                         # Generate file path dynamically
-                        file_path = os.path.join(folder_path, uploaded_file.name)
+                        timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+                        new_file_name = f"{file_instance.pk}_{timestamp}{os.path.splitext(uploaded_file.name)[1]}"
+                        file_path = os.path.join(folder_path, new_file_name)
 
                         # Save file to the generated path
                         with open(file_path, 'wb') as f:
@@ -1268,6 +1271,7 @@ def u_project(request, id):
         form = ProjectForm(request.POST, request.FILES, instance=project_instance)
         try:
             if form.is_valid():
+                print(form)
                 file_instance = form.save(commit=False)
                 # Loop through each file field in the form
                 for field_name in request.FILES:
@@ -1279,7 +1283,9 @@ def u_project(request, id):
                         if not os.path.exists(folder_path):
                             os.makedirs(folder_path)
 
-                        file_path = os.path.join(folder_path, uploaded_file.name)
+                        timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+                        new_file_name = f"{file_instance.pk}_{timestamp}{os.path.splitext(uploaded_file.name)[1]}"
+                        file_path = os.path.join(folder_path, new_file_name)
 
                         old_file_path = old_file_paths.get(field_name)
                         if old_file_path:
@@ -1290,14 +1296,14 @@ def u_project(request, id):
                         with open(file_path, 'wb') as f:
                             for chunk in uploaded_file.chunks():
                                 f.write(chunk)
-
-                        setattr(file_instance, field_name, os.path.relpath(file_path, settings.MEDIA_ROOT))
-                    else:
-                        # Ensure the old file path is retained if no new file is uploaded
-                        setattr(file_instance, field_name, old_file_paths[field_name])
                         
-                    file_instance.save()
-                return redirect('show_project')
+                        setattr(file_instance, field_name, os.path.relpath(file_path, settings.MEDIA_ROOT))
+                    # else:
+                    #     # Ensure the old file path is retained if no new file is uploaded
+                    #     setattr(file_instance, field_name, old_file_paths[field_name])
+                        
+                file_instance.save()
+                return redirect('../project_details/'+str(file_instance.pk))
             
         except Exception as e:
             logger.exception('An error occurred while processing the form: %s', e)
@@ -1342,17 +1348,17 @@ def project_details(request, id):
 
     # Use try-except for optional single object queries
     try:
-        context['bank_guaranty'] = Bank_guaranty.objects.get(project=id)
+        context['bank_guaranty'] = Bank_guaranty.objects.filter(project=id)
     except Bank_guaranty.DoesNotExist:
         context['bank_guaranty'] = None
 
     try:
-        context['liquidity_damages'] = Liquidity_damages.objects.get(project_id=id)
+        context['liquidity_damages'] = Liquidity_damages.objects.filter(project_id=id)
     except Liquidity_damages.DoesNotExist:
         context['liquidity_damages'] = None
 
     try:
-        context['insurance_detail'] = Insurance_detail.objects.get(project_id=id)
+        context['insurance_detail'] = Insurance_detail.objects.filter(project_id=id)
     except Insurance_detail.DoesNotExist:
         context['insurance_detail'] = None
 
@@ -1424,6 +1430,7 @@ def add_bank_guaranty(request):
             if form.is_valid():
                 file_instance = form.save(commit=False)
                 if 'bg_doc' in request.FILES:
+                    print(request.FILES['bg_doc'].name)
                     # Generate folder path dynamically
                     folder_name = str(file_instance.project.id)
                     folder_path = os.path.join(settings.MEDIA_ROOT,'project',folder_name,'bank_guarantee')
@@ -1431,8 +1438,10 @@ def add_bank_guaranty(request):
                     if not os.path.exists(folder_path):
                         os.makedirs(folder_path)
                     # Generate file path dynamically
-                    file_name = request.FILES['bg_doc'].name
-                    file_path = os.path.join(folder_path, file_name)
+                    # file_name = request.FILES['bg_doc'].name
+                    timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+                    new_file_name = f"{file_instance.project.id}_bg_{timestamp}{os.path.splitext(request.FILES['bg_doc'].name)[1]}"
+                    file_path = os.path.join(folder_path, new_file_name)
                     # Save file to the generated path
                     with open(file_path, 'wb') as f:
                         for chunk in request.FILES['bg_doc'].chunks():
@@ -1440,7 +1449,11 @@ def add_bank_guaranty(request):
                     # Update the file field with the relative path to the file
                     file_instance.bg_doc = os.path.relpath(file_path, settings.MEDIA_ROOT)
                 file_instance.save()  
-                return redirect('show_bank_guaranty') 
+                modalfield_value = request.POST.get('modalfield')
+                if modalfield_value == '1':
+                    return JsonResponse({'status': 'success'}, status=200)
+                else:
+                    return redirect('show_bank_guaranty') 
                 
         except Exception as e:  
             print(e)
@@ -1449,7 +1462,9 @@ def add_bank_guaranty(request):
         form = Bank_guarantyForm()  
         projects = Project.objects.filter(status=1).values('id','title')
         banks = Bank.objects.filter(status=1).values('id','bank_name')
-    return render(request,'bank_guaranty/add_bank_guaranty.html',{'form':form,'projects':projects,'banks':banks})  
+        return render(request,'bank_guaranty/add_bank_guaranty.html',{'form':form,'projects':projects,'banks':banks})  
+     # Added a fallback return to ensure an HttpResponse is always returned
+    return JsonResponse({'status': 'error', 'message': 'Unhandled request method'}, status=400)
 
 @login_required    
 @permission_required('employee.view_bank_guaranty', raise_exception=True)
@@ -1482,8 +1497,9 @@ def u_bank_guaranty(request, id):
                     if not os.path.exists(folder_path):
                         os.makedirs(folder_path)
                     # Generate file path dynamically
-                    file_name = str(request.FILES['bg_doc'])
-                    file_path = os.path.join(folder_path, file_name)
+                    timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+                    new_file_name = f"{file_instance.project.id}_bg_{timestamp}{os.path.splitext(request.FILES['bg_doc'].name)[1]}"
+                    file_path = os.path.join(folder_path, new_file_name)
                     
                     if old_path and os.path.exists(os.path.join(settings.MEDIA_ROOT, old_path)):
                             os.remove(os.path.join(settings.MEDIA_ROOT, old_path))
@@ -1497,8 +1513,9 @@ def u_bank_guaranty(request, id):
                     # Ensure the old file path is retained if no new file is uploaded
                     file_instance.bg_doc = old_path
 
-                file_instance.save()  
-                return redirect('show_bank_guaranty')  
+                file_instance.save() 
+                return redirect('../project_details/'+str(file_instance.project.id)) 
+                # return redirect('show_bank_guaranty')  
                   
         except Exception as e:  
             print(e)
@@ -1531,8 +1548,10 @@ def add_liquidity_damages(request):
                     if not os.path.exists(folder_path):
                         os.makedirs(folder_path)
                     # Generate file path dynamically
-                    file_name = request.FILES['ld_doc'].name
-                    file_path = os.path.join(folder_path, file_name)
+                    # file_name = request.FILES['ld_doc'].name
+                    timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+                    new_file_name = f"{file_instance.project.id}_ld_{timestamp}{os.path.splitext(request.FILES['ld_doc'].name)[1]}"
+                    file_path = os.path.join(folder_path, new_file_name)
                     # Save file to the generated path
                     with open(file_path, 'wb') as f:
                         for chunk in request.FILES['ld_doc'].chunks():
@@ -1540,14 +1559,20 @@ def add_liquidity_damages(request):
                     # Update the file field with the relative path to the file
                     file_instance.ld_doc = os.path.relpath(file_path, settings.MEDIA_ROOT)
                 file_instance.save()   
-                return redirect('show_liquidity_damages')  
+                modalfield_value = request.POST.get('modalfield')
+                if modalfield_value == '1':
+                    return JsonResponse({'status': 'success'}, status=200)
+                else:
+                    return redirect('show_liquidity_damages')  
         except Exception as e:  
   
             pass  
     else:  
         form = Liquidity_damagesForm()
         projects = Project.objects.filter(status=1).values('id','title')  
-    return render(request,'liquidity_damages/add_liquidity_damages.html',{'form':form,'projects':projects})  
+        return render(request,'liquidity_damages/add_liquidity_damages.html',{'form':form,'projects':projects})  
+     # Added a fallback return to ensure an HttpResponse is always returned
+    return JsonResponse({'status': 'error', 'message': 'Unhandled request method'}, status=400)
 
 @login_required  
 @permission_required('employee.view_liquidity_damages', raise_exception=True)  
@@ -1579,8 +1604,9 @@ def u_liquidity_damages(request, id):
                     if not os.path.exists(folder_path):
                         os.makedirs(folder_path)
                     # Generate file path dynamically
-                    file_name = str(request.FILES['ld_doc'])
-                    file_path = os.path.join(folder_path, file_name)
+                    timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+                    new_file_name = f"{file_instance.project.id}_ld_{timestamp}{os.path.splitext(request.FILES['ld_doc'].name)[1]}"
+                    file_path = os.path.join(folder_path, new_file_name)
                     
                     if old_path and os.path.exists(os.path.join(settings.MEDIA_ROOT, old_path)):
                             os.remove(os.path.join(settings.MEDIA_ROOT, old_path))
@@ -1594,8 +1620,9 @@ def u_liquidity_damages(request, id):
                     # Ensure the old file path is retained if no new file is uploaded
                     file_instance.ld_doc = old_path
 
-                file_instance.save()  
-                return redirect('show_liquidity_damages')  
+                file_instance.save() 
+                return redirect('../project_details/'+str(file_instance.project.id)) 
+                # return redirect('show_liquidity_damages')  
                   
         except Exception as e:  
             print(e)
@@ -1664,8 +1691,12 @@ def add_insurance_detail(request):
         form = Insurance_detailForm(request.POST) 
         if form.is_valid():
             try:  
-                form.save()  
-                return redirect('show_insurance_detail')  
+                form.save() 
+                modalfield_value = request.POST.get('modalfield')
+                if modalfield_value == '1':
+                    return JsonResponse({'status': 'success'}, status=200)
+                else: 
+                    return redirect('show_insurance_detail')  
             except Exception as e:  
   
                 pass  
@@ -1673,7 +1704,9 @@ def add_insurance_detail(request):
         form = Insurance_detailForm()
         projects = Project.objects.filter(status=1).values('id','title') 
         insurance_types = Insurance_type.objects.filter(status=1).values('id','type_name') 
-    return render(request,'insurance_detail/add_insurance_detail.html',{'form':form,'projects':projects,'insurance_types':insurance_types})  
+        return render(request,'insurance_detail/add_insurance_detail.html',{'form':form,'projects':projects,'insurance_types':insurance_types})  
+     # Added a fallback return to ensure an HttpResponse is always returned
+    return JsonResponse({'status': 'error', 'message': 'Unhandled request method'}, status=400)
 
 @login_required   
 @permission_required('employee.view_insurance_detail', raise_exception=True) 
@@ -1695,7 +1728,8 @@ def u_insurance_detail(request, id):
     form = Insurance_detailForm(request.POST, instance = insurance_detail)  
     if form.is_valid():  
         form.save()  
-        return redirect("show_insurance_detail")  
+        return redirect('../project_details/'+str(insurance_detail.project.id))
+        # return redirect("show_insurance_detail")  
     return render(request, 'insurance_detail/e_insurance_detail.html', {'insurance_detail': insurance_detail})  
 
 @login_required  
@@ -2044,8 +2078,12 @@ def add_project_document(request):
                     doc_path=relative_file_path,
                     remarks=remark
                     )
-
-            return redirect('show_project_document')  
+                
+            modalfield_value = request.POST.get('modalfield')
+            if modalfield_value == '1':
+                return JsonResponse({'status': 'success'}, status=200)
+            else:
+                return redirect('show_project_document')  
         except Exception as e:  
                 # Handle exceptions and provide feedback
             print(f"An error occurred: {e}")
@@ -2053,6 +2091,9 @@ def add_project_document(request):
         projects = Project.objects.filter(status=1).values('id','title')
         document_types = Document_type.objects.filter(status=1).values('id','title')
         return render(request,'project_document/add_project_document.html',{'projects':projects, 'document_types':document_types})  
+     # Added a fallback return to ensure an HttpResponse is always returned
+    return JsonResponse({'status': 'error', 'message': 'Unhandled request method'}, status=400)
+
 
 @login_required   
 @permission_required('employee.view_project_document', raise_exception=True) 
@@ -2105,9 +2146,8 @@ def u_project_document(request, id):
                     file_instance.doc_path = old_path
 
                 file_instance.save() 
-                greeting = project_details(request, file_instance.project.id)
-                return greeting 
-                return redirect('project_details'+id)  
+
+                return redirect('../project_details/'+str(file_instance.project.id))  
                   
         except Exception as e:  
             print(e)

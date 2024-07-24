@@ -295,6 +295,13 @@
                           </form>
                         </div>
                         <div class="tab-pane fade" id="document" role="tabpanel" aria-labelledby="document-tab">
+                          {% if permission == 'disabled' %}                         
+                                  <br>
+                          {% else %}
+                              <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#documentModal" style="float: right;">
+                                + Add
+                              </button>
+                          {% endif %}
                           {% for doc in project_document %}
                             <form method="POST" action="/employee/u_project_document/{{doc.id}}" enctype="multipart/form-data">
                               {% csrf_token %}
@@ -355,209 +362,155 @@
                         </div>
 
                         <div class="tab-pane fade" id="bank_guarantee" role="tabpanel" aria-labelledby="bank_guarantee-tab">
-                          <form method="POST" action="/employee/u_bank_guaranty/{{bank_guaranty.id}}" enctype="multipart/form-data">
-                            {% csrf_token %}
-                            <h4>Bank Guarantee </h4>
-                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#bankGuarantee">
-                             Add New
+                          {% if permission == 'disabled' %}                         
+                              <br>
+                          {% else %}
+                            <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#bankGuarantee" style="float: right;">
+                              + Add
                             </button>
-                            <hr class="my-4">
-                            <div class="row">
-                              <div class="form-group col-6">
-                                <label for="frist_name">Project</label>
-                                <select class="form-control" id="project" name="project" readonly>
-                                    <option value="{{ project.id }}" selected>{{ project.title }}</option>
-                                </select>
-                              </div>
+                          {% endif %}
+                          {% for bank in bank_guaranty %}
+                            <form method="POST" action="/employee/u_bank_guaranty/{{bank.id}}" enctype="multipart/form-data">
+                              {% csrf_token %}
+                              <h4>Bank Guarantee </h4>
+                              <hr class="my-4">
+                              <div class="row">
                                 <div class="form-group col-6">
-                                  <label for="email">Bank</label>
-                                  <select class="form-control" id="bank" name="bank" {{ permission }}>
-                                      <option value="">-- Select Bank --</option>
-                                      {% for bank in banks %}
-                                        {% if bank_guaranty.bank.id == bank.id %}
-                                          <option value="{{ bank.id }}" selected>{{ bank.bank_name }}</option>
-                                        {% else %}
-                                          <option value="{{ bank.id }}">{{ bank.bank_name }}</option>
-                                        {% endif %}
-                                      {% endfor %}
+                                  <label for="frist_name">Project</label>
+                                  <select class="form-control" id="project" name="project" readonly>
+                                      <option value="{{ project.id }}" selected>{{ project.title }}</option>
                                   </select>
                                 </div>
-                              </div>
-              
-                              <div class="row">
-                                <div class="form-group col-6">
-                                  <label for="frist_name">Duration</label>
-                                  <input id="duration" type="number" class="form-control" name="duration" value="{{ bank_guaranty.duration }}" {{ permission }}>
-                                </div>
-                                <div class="form-group col-6">
-                                  <label for="frist_name">Instrument No</label>
-                                  <input id="instrument_no" type="text" class="form-control" name="instrument_no" value="{{ bank_guaranty.instrument_no }}" {{ permission }}>
-                                </div>
-                              </div>
-              
-                              <div class="row">
-                                  <div class="form-group col-6"> 
-                                    <label for="email">Bank.G Start Date</label>
-                                    <input id="bg_start_date" type="date" class="form-control" name="bg_start_date" value="{{ bank_guaranty.bg_start_date|date:'Y-m-d' }}" {{ permission }}>
-                                  </div>
-                                  <div class="form-group col-6"> 
-                                    <label for="email">Bank.G End Date</label>
-                                    <input id="bg_end_date" type="date" class="form-control" name="bg_end_date" value="{{ bank_guaranty.bg_end_date|date:'Y-m-d' }}" {{ permission }}>
+                                  <div class="form-group col-6">
+                                    <label for="email">Bank</label>
+                                    <select class="form-control" id="bank" name="bank" {{ permission }}>
+                                        <option value="">-- Select Bank --</option>
+                                        {% for bankk in banks %}
+                                          {% if bank.bank.id == bankk.id %}
+                                            <option value="{{ bankk.id }}" selected>{{ bankk.bank_name }}</option>
+                                          {% else %}
+                                            <option value="{{ bankk.id }}">{{ bank.bankk_name }}</option>
+                                          {% endif %}
+                                        {% endfor %}
+                                    </select>
                                   </div>
                                 </div>
                 
                                 <div class="row">
-                                  <div class="form-group col-6"> 
-                                    <label for="email">Bank.G Validity</label>
-                                    <input id="bg_validity" type="date" class="form-control" name="bg_validity" value="{{ bank_guaranty.bg_validity|date:'Y-m-d' }}" {{ permission }}>
+                                  <div class="form-group col-6">
+                                    <label for="frist_name">Duration</label>
+                                    <input id="duration" type="number" class="form-control" name="duration" value="{{ bank.duration }}" {{ permission }}>
                                   </div>
-                                  <div class="form-group col-6"> 
-                                    <label for="email">Bank.G Percentage(%)</label>
-                                    <input id="bg_percentage" type="number" class="form-control" name="bg_percentage" value="{{ bank_guaranty.bg_percentage }}" {{ permission }}>
+                                  <div class="form-group col-6">
+                                    <label for="frist_name">Instrument No</label>
+                                    <input id="instrument_no" type="text" class="form-control" name="instrument_no" value="{{ bank.instrument_no }}" {{ permission }}>
                                   </div>
                                 </div>
                 
                                 <div class="row">
-                                  <div class="form-group col-6"> 
-                                    <label for="email">Bank.G Amount</label>
-                                    <input id="bg_amount" type="number" class="form-control" name="bg_amount" value="{{ bank_guaranty.bg_amount }}" {{ permission }}>
+                                    <div class="form-group col-6"> 
+                                      <label for="email">Bank.G Start Date</label>
+                                      <input id="bg_start_date" type="date" class="form-control" name="bg_start_date" value="{{ bank.bg_start_date|date:'Y-m-d' }}" {{ permission }}>
+                                    </div>
+                                    <div class="form-group col-6"> 
+                                      <label for="email">Bank.G End Date</label>
+                                      <input id="bg_end_date" type="date" class="form-control" name="bg_end_date" value="{{ bank.bg_end_date|date:'Y-m-d' }}" {{ permission }}>
+                                    </div>
                                   </div>
-                                  <div class="form-group col-6"> 
-                                    <label for="email">Bank.G Document</label>
-                                    <div class="row">
-                                      <div class="form-group col-10">
-                                        <input id="bg_doc" type="file" class="form-control" name="bg_doc" value="{{ bank_guaranty.bg_doc }}" {{ permission }}>
-                                      </div>
-                                      <div class="form-group col-1">
-                                        <a href="{{ MEDIA_URL }}{{ bank_guaranty.bg_doc }}" target="_blank"><span class="ion-ios-eye" ></span></a>
+                  
+                                  <div class="row">
+                                    <div class="form-group col-6"> 
+                                      <label for="email">Bank.G Validity</label>
+                                      <input id="bg_validity" type="date" class="form-control" name="bg_validity" value="{{ bank.bg_validity|date:'Y-m-d' }}" {{ permission }}>
+                                    </div>
+                                    <div class="form-group col-6"> 
+                                      <label for="email">Bank.G Percentage(%)</label>
+                                      <input id="bg_percentage" type="number" class="form-control" name="bg_percentage" value="{{ bank.bg_percentage }}" {{ permission }}>
+                                    </div>
+                                  </div>
+                  
+                                  <div class="row">
+                                    <div class="form-group col-6"> 
+                                      <label for="email">Bank.G Amount</label>
+                                      <input id="bg_amount" type="number" class="form-control" name="bg_amount" value="{{ bank.bg_amount }}" {{ permission }}>
+                                    </div>
+                                    <div class="form-group col-6"> 
+                                      <label for="email">Bank.G Document</label>
+                                      <div class="row">
+                                        <div class="form-group col-10">
+                                          <input id="bg_doc" type="file" class="form-control" name="bg_doc" value="{{ bank.bg_doc }}" {{ permission }}>
+                                        </div>
+                                        <div class="form-group col-1">
+                                          <a href="{{ MEDIA_URL }}{{ bank.bg_doc }}" target="_blank"><span class="ion-ios-eye" ></span></a>
+                                        </div>
                                       </div>
                                     </div>
                                   </div>
-                                </div>
-            
-                                {% if permission == 'disabled' %}                         
-                                <br>
-                                {% else %}
-                                  <div class="form-group text-center">
-                                    <button type="submit" class="btn btn-primary btn-block">
-                                      Save
-                                    </button>
-                                  </div>
-                                {% endif %}
-                          </form>
+              
+                                  {% if permission == 'disabled' %}                         
+                                  <br>
+                                  {% else %}
+                                    <div class="form-group text-center">
+                                      <button type="submit" class="btn btn-primary btn-block">
+                                        Save
+                                      </button>
+                                    </div>
+                                  {% endif %}
+                            </form>
+                          {% endfor %}
                         </div>
 
                         <div class="tab-pane fade" id="liquidity_damages" role="tabpanel" aria-labelledby="liquidity_damages-tab">          
-                          <form method="POST" action="/employee/u_liquidity_damages/{{liquidity_damages.id}}" enctype="multipart/form-data">
-                            {% csrf_token %}
-                            <h4> Liquidity damages</h4>
-                            <hr class="my-4">
-                            <div class="row">
-                              <div class="form-group col-6">
-                                <label for="frist_name">Project</label>
-                                <select class="form-control" id="project" name="project" readonly>
-                                    <option value="{{ project.id }}" selected>{{ project.title }}</option>
-                                </select>
-                              </div>
-                              <div class="form-group col-6">
-                                  <label for="frist_name">Unit</label>
-                                  <input id="unit" type="number" class="form-control" name="unit" value="{{ liquidity_damages.unit }}" {{ permission }}>
-                              </div>
-                            </div>
-                            <div class="row">
-                                <div class="form-group col-6"> 
-                                  <label for="email">Percentage(%)</label>
-                                  <input id="percentage" type="number" class="form-control" name="percentage" value="{{ liquidity_damages.percentage }}" {{ permission }}>
+                          {% if permission == 'disabled' %}                         
+                                <br>
+                          {% else %}
+                            <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#liquidityDamages" style="float: right;">
+                              + Add
+                            </button>
+                          {% endif %}
+                          {% for liquidity_damage in liquidity_damages %}
+                            <form method="POST" action="/employee/u_liquidity_damages/{{liquidity_damage.id}}" enctype="multipart/form-data">
+                              {% csrf_token %}
+                              <h4> Liquidity damages</h4>
+                              <hr class="my-4">
+                              <div class="row">
+                                <div class="form-group col-6">
+                                  <label for="frist_name">Project</label>
+                                  <select class="form-control" id="project" name="project" readonly>
+                                      <option value="{{ project.id }}" selected>{{ project.title }}</option>
+                                  </select>
                                 </div>
-                                <div class="form-group col-6"> 
-                                  <label for="email">Max Percentage(%)</label>
-                                  <input id="max_percentage" type="number" class="form-control" name="max_percentage" value="{{ liquidity_damages.max_percentage }}" {{ permission }}>
+                                <div class="form-group col-6">
+                                    <label for="frist_name">Unit</label>
+                                    <input id="unit" type="number" class="form-control" name="unit" value="{{ liquidity_damage.unit }}" {{ permission }}>
                                 </div>
-                            </div>
-              
-                            <div class="row">
-                                <div class="form-group col-6"> 
-                                    <label for="email">Liquidity Damages Document</label>
-                                    <div class="row">
-                                      <div class="form-group col-10">
-                                        <input id="ld_doc" type="file" class="form-control" name="ld_doc" value="{{ liquidity_damages.ld_doc }}" {{ permission }}>
+                              </div>
+                              <div class="row">
+                                  <div class="form-group col-6"> 
+                                    <label for="email">Percentage(%)</label>
+                                    <input id="percentage" type="number" class="form-control" name="percentage" value="{{ liquidity_damage.percentage }}" {{ permission }}>
+                                  </div>
+                                  <div class="form-group col-6"> 
+                                    <label for="email">Max Percentage(%)</label>
+                                    <input id="max_percentage" type="number" class="form-control" name="max_percentage" value="{{ liquidity_damage.max_percentage }}" {{ permission }}>
+                                  </div>
+                              </div>
+                
+                              <div class="row">
+                                  <div class="form-group col-6"> 
+                                      <label for="email">Liquidity Damages Document</label>
+                                      <div class="row">
+                                        <div class="form-group col-10">
+                                          <input id="ld_doc" type="file" class="form-control" name="ld_doc" value="{{ liquidity_damage.ld_doc }}" {{ permission }}>
+                                        </div>
+                                        <div class="form-group col-1">
+                                          <a href="{{ MEDIA_URL }}{{ liquidity_damage.ld_doc }}" target="_blank"><span class="ion-ios-eye" ></span></a>
+                                        </div>
                                       </div>
-                                      <div class="form-group col-1">
-                                        <a href="{{ MEDIA_URL }}{{ liquidity_damages.ld_doc }}" target="_blank"><span class="ion-ios-eye" ></span></a>
-                                      </div>
-                                    </div>
-                                </div>
-                            </div>
-                             
-              
-                            {% if permission == 'disabled' %}                         
-                            <br>
-                            {% else %}
-                              <div class="form-group text-center">
-                                <button type="submit" class="btn btn-primary btn-block">
-                                  Save
-                                </button>
+                                  </div>
                               </div>
-                            {% endif %}
-                          </form>
-                        </div>
-
-                        <div class="tab-pane fade" id="insurance" role="tabpanel" aria-labelledby="insurance-tab">
-                          <form method="POST" action="/employee/u_insurance_detail/{{insurance_detail.id}}">
-                            {% csrf_token %}
-                            <h4>Insurance</h4>
-                            <hr class="my-4">
-                            <div class="row">
-                              <div class="form-group col-6">
-                                <label for="frist_name">Project</label>
-                                <select class="form-control" id="project" name="project" readonly>
-                                    <option value="{{ project.id }}" selected>{{ project.title }}</option>
-                                </select>
-                              </div>
-                              <div class="form-group col-6">
-                                <label for="email">Insurance Type</label>
-                                <select class="form-control" id="insurance_type" name="insurance_type" {{ permission }}>
-                                    <option value="">-- Select Insurance Type --</option>
-                                    {% for type in types %}
-                                      {% if insurance_detail.insurance_type.id == type.id %}
-                                        <option value="{{ type.id }}" selected>{{ type.type_name }}</option>
-                                      {% else %}
-                                        <option value="{{ type.id }}">{{ type.type_name }}</option>
-                                      {% endif %}
-                                    {% endfor %}
-                                </select>
-                              </div>
-                            </div>
-              
-                              <div class="row">
-                                <div class="form-group col-6"> 
-                                  <label for="email">Issued Date</label>
-                                  <input id="issued_date" type="date" class="form-control" name="issued_date" value="{{ insurance_detail.issued_date|date:'Y-m-d' }}" {{ permission }}>
-                                </div>
-                                <div class="form-group col-6"> 
-                                  <label for="email">Expire Date</label>
-                                  <input id="expire_date" type="date" class="form-control" name="expire_date" value="{{ insurance_detail.expire_date|date:'Y-m-d' }}" {{ permission }}>
-                                </div>
-                              </div>
-              
-                              <div class="row">
-                                <div class="form-group col-6"> 
-                                  <label for="email">Amount</label>
-                                  <input id="amount" type="number" class="form-control" name="amount" value="{{ insurance_detail.amount }}" {{ permission }}>
-                                </div>
-                                <div class="form-group col-6"> 
-                                  <label for="email">Vendor</label>
-                                  <input id="vendor" type="text" class="form-control" name="vendor" value="{{ insurance_detail.vendor }}" {{ permission }}>
-                                </div>
-                              </div>
-              
-                              <div class="row">
-                                <div class="form-group col-6"> 
-                                  <label for="email">Instrument No</label>
-                                  <input id="instrument_no" type="text" class="form-control" name="instrument_no" value="{{ insurance_detail.instrument_no }}" {{ permission }}>
-                                </div>
-                              </div>
-            
+                              
+                
                               {% if permission == 'disabled' %}                         
                               <br>
                               {% else %}
@@ -567,20 +520,145 @@
                                   </button>
                                 </div>
                               {% endif %}
-                          </form>
-                         
+                            </form>
+                            {% endfor %}  
                         </div>
-                       
+
+                        <div class="tab-pane fade" id="insurance" role="tabpanel" aria-labelledby="insurance-tab">
+                          {% if permission == 'disabled' %}                         
+                              <br>
+                          {% else %}
+                            <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#insuranceModal" style="float: right;">
+                              + Add
+                            </button>
+                          {% endif %}
+                          {% for insurance in insurance_detail %}
+                            <form method="POST" action="/employee/u_insurance_detail/{{insurance.id}}">
+                              {% csrf_token %}
+                              <h4>Insurance</h4>
+                              <hr class="my-4">
+                              <div class="row">
+                                <div class="form-group col-6">
+                                  <label for="frist_name">Project</label>
+                                  <select class="form-control" id="project" name="project" readonly>
+                                      <option value="{{ project.id }}" selected>{{ project.title }}</option>
+                                  </select>
+                                </div>
+                                <div class="form-group col-6">
+                                  <label for="email">Insurance Type</label>
+                                  <select class="form-control" id="insurance_type" name="insurance_type" {{ permission }}>
+                                      <option value="">-- Select Insurance Type --</option>
+                                      {% for type in types %}
+                                        {% if insurance.insurance_type.id == type.id %}
+                                          <option value="{{ type.id }}" selected>{{ type.type_name }}</option>
+                                        {% else %}
+                                          <option value="{{ type.id }}">{{ type.type_name }}</option>
+                                        {% endif %}
+                                      {% endfor %}
+                                  </select>
+                                </div>
+                              </div>
+                
+                                <div class="row">
+                                  <div class="form-group col-6"> 
+                                    <label for="email">Issued Date</label>
+                                    <input id="issued_date" type="date" class="form-control" name="issued_date" value="{{ insurance.issued_date|date:'Y-m-d' }}" {{ permission }}>
+                                  </div>
+                                  <div class="form-group col-6"> 
+                                    <label for="email">Expire Date</label>
+                                    <input id="expire_date" type="date" class="form-control" name="expire_date" value="{{ insurance.expire_date|date:'Y-m-d' }}" {{ permission }}>
+                                  </div>
+                                </div>
+                
+                                <div class="row">
+                                  <div class="form-group col-6"> 
+                                    <label for="email">Amount</label>
+                                    <input id="amount" type="number" class="form-control" name="amount" value="{{ insurance.amount }}" {{ permission }}>
+                                  </div>
+                                  <div class="form-group col-6"> 
+                                    <label for="email">Vendor</label>
+                                    <input id="vendor" type="text" class="form-control" name="vendor" value="{{ insurance.vendor }}" {{ permission }}>
+                                  </div>
+                                </div>
+                
+                                <div class="row">
+                                  <div class="form-group col-6"> 
+                                    <label for="email">Instrument No</label>
+                                    <input id="instrument_no" type="text" class="form-control" name="instrument_no" value="{{ insurance.instrument_no }}" {{ permission }}>
+                                  </div>
+                                </div>
+              
+                                {% if permission == 'disabled' %}                         
+                                <br>
+                                {% else %}
+                                  <div class="form-group text-center">
+                                    <button type="submit" class="btn btn-primary btn-block">
+                                      Save
+                                    </button>
+                                  </div>
+                                {% endif %}
+                            </form>
+                          {% endfor %}
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-                
               </div>
-             
             </div>
           </div>
         </section>
+        <!-- Document Modal -->
+        <div class="modal fade" id="documentModal" tabindex="-1" aria-labelledby="documentModalLabel" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="documentModalLabel">Add Document</h5>
+                <button type="button" class="btn-close-document" data-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <form class="formnew" method="POST" data-url="{% url 'save_project_document' %}" id="myForm" enctype="multipart/form-data">
+                  {% csrf_token %}
+                  <div class="row">
+                    <div class="form-group col-6">
+                      <label for="frist_name">Project</label>
+                      <select class="form-control" id="project" name="project" readonly>
+                          <option value="{{ project.id }}" selected>{{ project.title }}</option>
+                      </select>
+                    </div>
+                    <div class="form-group col-6">
+                      <label for="id_document_type">Document Type</label>
+                      <select class="form-control" id="id_document_type" name="document_type" required>
+                          <option value="">-- Select Type --</option>
+                          {% for document_type in document_types %}
+                              <option value="{{ document_type.id }}">{{ document_type.title }}</option>
+                          {% endfor %}
+                      </select>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="form-group col-6">
+                      <label for="id_doc_path">File</label>
+                      <input id="doc_path" type="file" class="form-control" name="doc_path" required>
+                    </div>
+                    <div class="form-group col-6">
+                      <label for="id_remarks">Remarks</label>
+                      <textarea id="id_remarks" name="remarks" class="form-control" rows="4" cols="50" required></textarea>
+                      <input id="modalfield" type="text" value="1" hidden class="form-control" name="modalfield">
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <button type="submit"  value="save" class="btn btn-primary submit-btn">
+                      Save
+                    </button>
+                    <button type="button" class="btn btn-secondary btn-close-document" data-dismiss="modal">Cancel</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Document Modal -->
         <!-- Bank Guarantee Modal -->
         <div class="modal fade" id="bankGuarantee" tabindex="-1" aria-labelledby="bankGuaranteeLabel" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false">
           <div class="modal-dialog">
@@ -590,7 +668,7 @@
                 <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
               </div>
               <div class="modal-body">
-                <form method="POST" action="save_bank_guaranty" enctype="multipart/form-data">
+                <form class="formnew" method="POST" data-url="{% url 'save_bank_guaranty' %}" id="myForm2" enctype="multipart/form-data">
                   {% csrf_token %}
                   <div class="row">
                     <div class="form-group col-6">
@@ -650,21 +728,145 @@
                       </div>
                       <div class="form-group col-6"> 
                         <label for="email">Bank.G Document</label>
-                        <input id="bg_doc" type="file" class="form-control" name="bg_doc">
+                        <input id="bg_doc" type="file" class="form-control" name="bg_doc" data-target="bg_doc">
+                        <input id="modalfield" type="text" value="1" hidden class="form-control" name="modalfield">
                       </div>
                     </div>
   
                   <div class="form-group">
-                    <button type="submit" class="btn btn-primary">
+                    <button type="submit"  value="save" class="btn btn-primary submit-btn">
                       Save
                     </button>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-secondary btn-close" data-dismiss="modal">Cancel</button>
                   </div>
                 </form>
               </div>
             </div>
           </div>
         </div>
+        <!-- Bank Guarantee Modal -->
+        <!-- Liquidity Damages Modal -->
+        <div class="modal fade" id="liquidityDamages" tabindex="-1" aria-labelledby="liquidityDamagesLabel" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="liquidityDamagesLabel">Add Liquidity Damages</h5>
+                <button type="button" class="btn-close-liquidityDamages" data-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <form class="formnew" method="POST" data-url="{% url 'save_liquidity_damages' %}" id="myForm3" enctype="multipart/form-data">
+                  {% csrf_token %}
+                  <div class="row">
+                    <div class="form-group col-6">
+                      <label for="frist_name">Project</label>
+                      <select class="form-control" id="project" name="project" readonly>
+                          <option value="{{ project.id }}" selected>{{ project.title }}</option>
+                      </select>
+                    </div>
+                    <div class="form-group col-6">
+                      <label for="frist_name">Unit</label>
+                      <input id="unit" type="number" class="form-control" name="unit">
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="form-group col-6"> 
+                      <label for="email">Percentage(%)</label>
+                      <input id="percentage" type="number" class="form-control" name="percentage">
+                    </div>
+                    <div class="form-group col-6"> 
+                      <label for="email">Max Percentage(%)</label>
+                      <input id="max_percentage" type="number" class="form-control" name="max_percentage">
+                    </div>
+                  </div>
+  
+                  <div class="row">
+                    <div class="form-group col-6"> 
+                      <label for="email">Liquidity Damages Document</label>
+                      <input id="ld_doc" type="file" class="form-control" name="ld_doc">
+                      <input id="modalfield" type="text" value="1" hidden class="form-control" name="modalfield">
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <button type="submit"  value="save" class="btn btn-primary submit-btn">
+                      Save
+                    </button>
+                    <button type="button" class="btn btn-secondary btn-close-liquidityDamages" data-dismiss="modal">Cancel</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Liquidity Damages Modal -->
+        <!-- Insurance Modal -->
+        <div class="modal fade" id="insuranceModal" tabindex="-1" aria-labelledby="insuranceModalLabel" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="insuranceModalLabel">Add Insurance</h5>
+                <button type="button" class="btn-close-insurance" data-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <form class="formnew" method="POST" data-url="{% url 'save_insurance_detail' %}" id="myForm4" enctype="multipart/form-data">
+                  {% csrf_token %}
+                  <div class="row">
+                    <div class="form-group col-6">
+                      <label for="frist_name">Project</label>
+                      <select class="form-control" id="project" name="project" readonly>
+                          <option value="{{ project.id }}" selected>{{ project.title }}</option>
+                      </select>
+                    </div>
+                    <div class="form-group col-6">
+                      <label for="email">Insurance Type</label>
+                      <select class="form-control" id="insurance_type" name="insurance_type">
+                          <option value="">-- Select Type --</option>
+                          {% for type in types %}
+                              <option value="{{ type.id }}">{{ type.type_name }}</option>
+                          {% endfor %}
+                      </select>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="form-group col-6"> 
+                      <label for="email">Issued Date</label>
+                      <input id="issued_date" type="date" class="form-control" name="issued_date">
+                    </div>
+                    <div class="form-group col-6"> 
+                      <label for="email">Expire Date</label>
+                      <input id="expire_date" type="date" class="form-control" name="expire_date">
+                    </div>
+                  </div>
+  
+                  <div class="row">
+                    <div class="form-group col-6"> 
+                      <label for="email">Amount</label>
+                      <input id="amount" type="number" class="form-control" name="amount">
+                    </div>
+                    <div class="form-group col-6"> 
+                      <label for="email">Vendor</label>
+                      <input id="vendor" type="text" class="form-control" name="vendor">
+                    </div>
+                  </div>
+  
+                  <div class="row">
+                    <div class="form-group col-6"> 
+                      <label for="email">Instrument No</label>
+                      <input id="instrument_no" type="text" class="form-control" name="instrument_no">
+                      <input id="modalfield" type="text" value="1" hidden class="form-control" name="modalfield">
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <button type="submit"  value="save" class="btn btn-primary submit-btn">
+                      Save
+                    </button>
+                    <button type="button" class="btn btn-secondary btn-close-insurance" data-dismiss="modal">Cancel</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Insurance Modal -->
       </div>
       {% include 'layout/footer.html' %}
     </div>
@@ -674,9 +876,55 @@
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
   <script>
-    $(".btn-secondary").on('click',function() {
+    $(".btn-close").on('click',function() {
       $("#bankGuarantee").modal('toggle');
     });
+    $(".btn-close-document").on('click',function() {
+      $("#documentModal").modal('toggle');
+    });
+    $(".btn-close-liquidityDamages").on('click',function() {
+      $("#liquidityDamages").modal('toggle');
+    });
+    $(".btn-close-insurance").on('click',function() {
+      $("#insuranceModal").modal('toggle');
+    });
+
+    $(document).ready(function() {
+            //$('.submit-btn').click(function(e) {
+            $(".formnew").on('submit',function(e) {
+                e.preventDefault();
+
+                var form = $(this)[0]; 
+                console.log(form);
+                var formData = new FormData(form); // Use FormData for file upload
+                // console.log(formData);
+                // for (var key of formData.entries()) {
+                //     console.log(key[0] + ", " + key[1]);
+                // }
+                var url = $(this).data('url');
+                // console.log(url)
+                $.ajax({
+                    type: 'POST',
+                    url: '{{ HOST }}'+url,
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        console.log(response)
+                        if (response.status === 'success') {
+                            $(form).closest('.modal').modal('hide');
+                            location.reload();
+                        } else {
+                            //alert('An error occurred');
+                        }
+                    },
+                    error: function(response) {
+                        console.log(response)
+                        //alert('An error occurred');
+                    }
+                });
+            });
+        });
   </script>
 </body>
 </html>
