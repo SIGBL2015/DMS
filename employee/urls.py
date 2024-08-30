@@ -186,6 +186,31 @@ urlpatterns = [
     path('u_module/<int:id>', views.u_module, name="u_module"),  
     path('d_module/<int:id>', views.d_module, name="d_module"),
 
+    
+    #Employee_target
+    path('save_employee_target', views.add_employee_target, name="save_employee_target"),  
+    path('show_employee_target',views.show_employee_target, name="show_employee_target"),  
+    path('e_employee_target/<int:id>', views.e_employee_target, name="e_employee_target"),  
+    path('u_employee_target/<int:id>', views.u_employee_target, name="u_employee_target"),  
+    path('d_employee_target/<int:id>', views.d_employee_target, name="d_employee_target"),
+    path('generate_report', views.generate_report, name="generate_report"),
+    path('load_employee', views.load_employee, name="load_employee"),
+
+    #Employee_project
+    path('save_employee_project', views.add_employee_project, name="save_employee_project"),  
+    path('show_employee_project',views.show_employee_project, name="show_employee_project"),  
+    path('e_employee_project/<int:id>', views.e_employee_project, name="e_employee_project"),  
+    path('u_employee_project/<int:id>', views.u_employee_project, name="u_employee_project"),  
+    path('d_employee_project/<int:id>', views.d_employee_project, name="d_employee_project"),
+
+     #Leads
+    path('save_leads', views.add_leads, name="save_leads"),  
+    path('show_leads',views.show_leads, name="show_leads"),  
+    path('e_leads/<int:id>', views.e_leads, name="e_leads"),  
+    path('u_leads/<int:id>', views.u_leads, name="u_leads"),  
+    path('d_leads/<int:id>', views.d_leads, name="d_leads"),
+    path('save_sales', views.add_sales, name="save_sales"),  
+
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 

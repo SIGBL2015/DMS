@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+  {% load static %} 
+  {% include 'layout/style.html' %}
+
+<body>
+  <div id="app">
+    <div class="main-wrapper">
+      {% include 'layout/header.html' %}
+      {% include 'layout/sidebar.html' %}
+      <div class="main-content">
+        <section class="section">
+          <h1 class="section-header">
+            <div>Edit Employee Target</div>
+          </h1>
+          <div class="card card-primary">
+            <div class="card-header"><h4>Edit</h4></div>
+
+            <div class="card-body">
+              <form method="POST" action="/employee/u_employee_target/{{employee_target.id}}">
+                {% csrf_token %}
+                <div class="row">
+                  <div class="form-group col-6">
+                    <label for="frist_name">Employee Name</label>
+                    <select class="form-control" id="employee" name="employee">
+                        <option value=""> Select Employee </option>
+                        {% for employee in employees %}
+                          {% if employee_target.employee.id == employee.id %}                         
+                            <option value="{{ employee.id }}" selected>{{ employee.ename }}</option>
+                          {% else %}
+                            <option value="{{ employee.id }}">{{ employee.ename }}</option>
+                          {% endif %}
+                        {% endfor %}
+                    </select>
+                  </div>
+                  <div class="form-group col-6">
+                    <label for="frist_name">Financial year</label>
+                    <input id="financial_year" type="text" class="form-control" name="financial_year" value="{{ employee_target.financial_year }}">
+                  </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-6">
+                      <label for="frist_name">Currency</label>
+                      <select class="form-control" id="currency" name="currency">
+                          <option value="{{ employee_target.currency }}">{{ employee_target.currency }}</option>
+                              <option value="PKR">PKR</option>
+                              <option value="DOLLAR">DOLLAR</option>
+                          </select>
+                    </div>
+                    <div class="form-group col-6">
+                      <label for="frist_name">Quarter target</label>
+                      <input id="quarter_first_target" type="number" class="form-control" name="quarter_first_target" value="{{ employee_target.quarter_target }}">
+                    </div>
+                    <div class="form-group col-6">
+                      <label for="frist_name">Year target</label>
+                      <input id="year_target" type="number" class="form-control" name="year_target" value="{{ employee_target.year_target }}">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                  <button type="submit" class="btn btn-primary">
+                    Update
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </section>
+      </div>
+      {% include 'layout/footer.html' %}
+    </div>
+  </div>
+
+  {% include 'layout/script.html' %}
+</body>
+</html>

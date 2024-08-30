@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+  {% load static %} 
+  {% include 'layout/style.html' %} 
+  {% load humanize %}
+
+<body>
+  <div id="app">
+    <div class="main-wrapper">
+      {% include 'layout/header.html' %}
+      {% include 'layout/sidebar.html' %}
+      <div class="main-content">
+        <section class="section">
+          <h1 class="section-header">
+            <div>Sales Report</div>
+            <div id="legend-container" style="float: right; font-size:15px;">
+              <ul style="display: flex; flex-direction: row; margin: 0px; padding: 0px;">
+                <li style="align-items: center; cursor: pointer; display: flex; flex-direction: row; margin-left: 10px;">
+                  <span style="background: #dc3545; border-color: #dc3545; border-width: 3px; display: inline-block; flex-shrink: 0; height: 20px; margin-right: 10px; width: 20px;"></span>
+                  <p style="color: rgb(102, 102, 102); margin: 0px; padding: 0px;">Less than 50%</p>
+                </li>
+                <li style="align-items: center; cursor: pointer; display: flex; flex-direction: row; margin-left: 10px;">
+                  <span style="background: #ffc107; border-color: #ffc107; border-width: 3px; display: inline-block; flex-shrink: 0; height: 20px; margin-right: 10px; width: 20px;"></span>
+                  <p style="color: rgb(102, 102, 102); margin: 0px; padding: 0px;">Between 51% to 99%</p>
+                </li>
+                <li style="align-items: center; cursor: pointer; display: flex; flex-direction: row; margin-left: 10px;">
+                  <span style="background: #28a745; border-color: #28a745; border-width: 3px; display: inline-block; flex-shrink: 0; height: 20px; margin-right: 10px; width: 20px;"></span>
+                  <p style="color: rgb(102, 102, 102); margin: 0px; padding: 0px;">100% or Above</p>
+                </li>
+              </ul>
+            </div>
+          </h1>
+          <div class="section-body">
+            {% for year, quarter_data in final_data %} 
+              <div class="row mt-5">
+                <h1 class="section-header">
+                  <div class="text-center">Year {{ year }}</div>
+                </h1>
+                {% for quarter in quarter_data %} 
+                  <!-- Quater1 -->
+                  <div class="col-12">
+                    <div class="card">
+                      <div class="card-header">
+                        <p class="text-center font-weight-bold"></p>
+                        <div class="float-right">
+                          <form>
+                            <!-- <div class="input-group">
+                              <input type="text" class="form-control" placeholder="Search">
+                              <div class="input-group-btn">
+                                <button class="btn btn-secondary"><i class="ion ion-search"></i></button>
+                              </div>
+                            </div> -->
+                          </form>
+                        </div>
+                        <h4 class="">{{quarter.quarters}}</h4>
+                      </div>
+                      <div class="card-body">
+                        <div class="table-responsive">
+                          <table class="table table-striped">
+                            <tr>
+                              <th>S.No</th>
+                              <th>Employee Name</th>
+                              <!-- <th>Members</th> -->
+                              <th>Joining Date</th>
+                              <th>Target</th>
+                              <th>Achieved</th>
+                              <th>% Achieve</th>
+                              <th>Remaining Target</th>
+                              <th>Status</th>
+                              
+                            </tr>
+                            {% for sale in quarter.sales %}  
+                                <tr>  
+                                    <td>{{ forloop.counter }}</td>  
+                                    <td><img alt="image" src="/static/dist/img/avatar/avatar-1.jpeg" class="img_sales_person" /> | {{ sale.sales_person_name }}</td>
+                                    <!-- <td>
+                                      <img alt="image" src="../dist/img/avatar/avatar-5.jpeg" class="rounded-circle" width="35" data-toggle="title" title="Wildan Ahdian">
+                                    </td> -->
+                                    <td>{{ sale.joining_date }}</td> 
+                                    <!-- <td><a href="{{ MEDIA_URL }}{{ row.doc_path }}" target="_blank">{{row.document_type.title}}</a></td>    -->
+                                    <td>{{ sale.sales_target|intcomma }}</td>
+                                    <td>{{ sale.sales_amount|intcomma }}</td>
+                                    <td class="align-middle">
+                                      <div class="progress" style="height: 14px;" data-toggle="tooltip" title="100%">
+                                        <div class="progress-bar 
+                                            {% if sale.percentage < 50 %}
+                                                bg-danger
+                                            {% elif sale.percentage >= 50 and sale.percentage <= 99 %}
+                                                bg-warning
+                                            {% else %}
+                                                bg-success
+                                            {% endif %}
+                                        " style="width: {{ sale.percentage }}%;">
+                                            {{ sale.percentage }}%
+                                        </div>
+                                      </div>
+                                    </td>
+                                    <td>{{ sale.remaining|intcomma }}</td>
+                                    <td><div class="badge {% if sale.percentage < 50 %}
+                                      badge-danger
+                                  {% elif sale.percentage >= 50 and sale.percentage <= 99 %}
+                                      badge-warning
+                                  {% else %}
+                                      badge-success
+                                  {% endif %}">{% if sale.percentage > 100 %}
+                                  <span class="fa fa-star checked">{{ sale.status }}</span>
+                                               {% else %}
+                                                {{ sale.status }}
+                                               {% endif %}
+                                              </div></td>
+                                </tr>  
+                            {% endfor %}
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+            {% endfor %}
+          </div>
+        </section>
+      </div>
+      {% include 'layout/footer.html' %}
+    </div>
+  </div>
+
+  {% include 'layout/script.html' %}
+</body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js">             </script>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+</html>

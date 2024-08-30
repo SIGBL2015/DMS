@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 10, 2024 at 07:28 AM
+-- Generation Time: Aug 09, 2024 at 01:01 PM
 -- Server version: 10.4.16-MariaDB
 -- PHP Version: 7.4.12
 
@@ -372,7 +372,15 @@ INSERT INTO `auth_permission` (`id`, `name`, `content_type_id`, `codename`) VALU
 (154, 'Can change client', 38, 'change_client'),
 (155, 'Can delete client', 38, 'delete_client'),
 (156, 'Can view client', 38, 'view_client'),
-(157, 'Can generate CV', 9, 'generate_cv');
+(157, 'Can generate CV', 9, 'generate_cv'),
+(158, 'Can add employee_target', 39, 'add_employee_target'),
+(159, 'Can change employee_target', 39, 'change_employee_target'),
+(160, 'Can delete employee_target', 39, 'delete_employee_target'),
+(161, 'Can view employee_target', 39, 'view_employee_target'),
+(162, 'Can add employee_project', 40, 'add_employee_project'),
+(163, 'Can change employee_project', 40, 'change_employee_project'),
+(164, 'Can delete employee_project', 40, 'delete_employee_project'),
+(165, 'Can view employee_project', 40, 'view_employee_project');
 
 -- --------------------------------------------------------
 
@@ -399,8 +407,8 @@ CREATE TABLE `auth_user` (
 --
 
 INSERT INTO `auth_user` (`id`, `password`, `last_login`, `is_superuser`, `username`, `first_name`, `last_name`, `email`, `is_staff`, `is_active`, `date_joined`) VALUES
-(1, 'pbkdf2_sha256$390000$wIduK5Jfq16OLdS3US7z5Q$9Ig2vHd8oJwrvYXAjfnwIwkgm2f6+6Ctbos2rjD+vNg=', '2024-07-10 04:46:16.354547', 1, 'turab', '', '', '', 1, 1, '2024-02-19 10:18:22.000000'),
-(2, 'pbkdf2_sha256$390000$wIduK5Jfq16OLdS3US7z5Q$9Ig2vHd8oJwrvYXAjfnwIwkgm2f6+6Ctbos2rjD+vNg=', '2024-07-09 11:00:08.479944', 0, 'danish', 'Danish', 'khan', 'danish@gmail.com', 1, 1, '2024-02-19 10:23:50.000000'),
+(1, 'pbkdf2_sha256$390000$wIduK5Jfq16OLdS3US7z5Q$9Ig2vHd8oJwrvYXAjfnwIwkgm2f6+6Ctbos2rjD+vNg=', '2024-08-09 10:27:26.249651', 1, 'turab', '', '', '', 1, 1, '2024-02-19 10:18:22.000000'),
+(2, 'pbkdf2_sha256$390000$wIduK5Jfq16OLdS3US7z5Q$9Ig2vHd8oJwrvYXAjfnwIwkgm2f6+6Ctbos2rjD+vNg=', '2024-07-29 11:42:22.266162', 0, 'danish', 'Danish', 'khan', 'danish@gmail.com', 1, 1, '2024-02-19 10:23:50.000000'),
 (3, 'pbkdf2_sha256$390000$nHN3QkKDcnhijyLrOoNcE0$4CRmR83Xko/BUdnpzI2nlF2tPPkNCgsVKUzRqVSET4s=', '2024-02-20 05:59:03.000000', 0, 'rauf001', '', '', '', 1, 1, '2024-02-20 05:58:11.000000');
 
 -- --------------------------------------------------------
@@ -486,7 +494,10 @@ CREATE TABLE `bank_guaranty` (
 
 INSERT INTO `bank_guaranty` (`id`, `duration`, `instrument_no`, `bg_start_date`, `bg_end_date`, `bg_validity`, `bg_percentage`, `bg_amount`, `bg_doc`, `addendum`, `status`, `bank_id`, `project_id`) VALUES
 (2, 1, 'vbcf4545', '2024-05-01', '2024-05-31', '2024-05-31', 5, 34555, 'project\\KMC\\bank_guarantee\\download3.png', NULL, 1, 2, 14),
-(3, 3, 'vbcf454512', '2024-05-01', '2024-05-31', '2024-05-30', 5, 2500, 'project\\23\\bank_guarantee\\db_erd.png', NULL, 1, 2, 23);
+(3, 3, 'lx123', '2024-05-01', '2024-05-31', '2024-05-30', 5, 2500, 'project\\23\\bank_guarantee\\db_erd.png', NULL, 1, 2, 23),
+(18, 2, 'vbcf4545223', '2024-07-01', '2024-09-26', '2024-09-25', 5, 5000, 'project\\23\\bank_guarantee\\CORP.xx.08.2023 [name of client].docx', NULL, 1, 2, 23),
+(19, 6, 'rrrr777', '2024-06-01', '2024-12-31', '2024-12-31', 5, 7000, 'project\\14\\bank_guarantee\\Ref--No---CORP-8.pdf', NULL, 1, 2, 14),
+(20, 4, 'lx1212', '2024-08-01', '2024-12-31', '2024-11-30', 8, 10000, 'project\\23\\bank_guarantee\\23_bg_20240723120404.docx', NULL, 1, 2, 23);
 
 -- --------------------------------------------------------
 
@@ -524,17 +535,20 @@ CREATE TABLE `certifications` (
   `id` bigint(20) NOT NULL,
   `certification_name` varchar(100) DEFAULT NULL,
   `status` int(11) NOT NULL,
-  `employee_id` bigint(20) DEFAULT NULL
+  `employee_id` bigint(20) DEFAULT NULL,
+  `certification_doc` varchar(255) DEFAULT NULL,
+  `expiry_date` date DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `certifications`
 --
 
-INSERT INTO `certifications` (`id`, `certification_name`, `status`, `employee_id`) VALUES
-(1, 'Web Development', 1, 1),
-(2, 'Project Management', 1, 1),
-(3, 'Mob App Development', 1, 1);
+INSERT INTO `certifications` (`id`, `certification_name`, `status`, `employee_id`, `certification_doc`, `expiry_date`) VALUES
+(1, 'Web Development', 1, 1, NULL, NULL),
+(2, 'Project Management', 1, 1, NULL, NULL),
+(3, 'Mob App Development', 1, 1, NULL, NULL),
+(4, 'Web Development', 1, 8, 'employee\\8\\certification\\8_certificate_20240711114337.jpg', '2025-05-12');
 
 -- --------------------------------------------------------
 
@@ -760,6 +774,8 @@ INSERT INTO `django_content_type` (`id`, `app_label`, `model`) VALUES
 (36, 'employee', 'document_type'),
 (22, 'employee', 'education'),
 (12, 'employee', 'employee'),
+(40, 'employee', 'employee_project'),
+(39, 'employee', 'employee_target'),
 (24, 'employee', 'employement_record'),
 (21, 'employee', 'employment_record'),
 (29, 'employee', 'insurance_detail'),
@@ -829,7 +845,11 @@ INSERT INTO `django_migrations` (`id`, `app`, `name`, `applied`) VALUES
 (30, 'employee', '0012_alter_project_em_doc_alter_project_pg_doc_and_more', '2024-05-17 12:19:19.282033'),
 (31, 'employee', '0013_alter_bank_guaranty_bg_doc_and_more', '2024-05-17 12:21:40.475251'),
 (32, 'employee', '0014_document_type_remove_project_client_name_and_more', '2024-06-21 05:19:42.716333'),
-(33, 'employee', '0015_project_document_remarks', '2024-06-24 11:59:09.844384');
+(33, 'employee', '0015_project_document_remarks', '2024-06-24 11:59:09.844384'),
+(34, 'employee', '0016_certifications_certification_doc_and_more', '2024-07-11 05:07:34.597501'),
+(35, 'employee', '0017_alter_education_grade', '2024-07-11 06:40:11.686546'),
+(36, 'employee', '0018_employee_target_employee_project', '2024-07-26 06:22:47.449787'),
+(37, 'employee', '0019_rename_quarter_target_employee_target_quarter_first_target_and_more', '2024-07-29 11:35:02.716578');
 
 -- --------------------------------------------------------
 
@@ -850,6 +870,7 @@ CREATE TABLE `django_session` (
 INSERT INTO `django_session` (`session_key`, `session_data`, `expire_date`) VALUES
 ('07zx6x2883atze7kq9ajmmwqueuxwhuv', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rwENd:E2KEMg1ZkjWPFcnh3CR9Sn01h7sOK-UUO4q6aXjfGZc', '2024-04-15 05:45:45.831294'),
 ('0fe3e5bf3xo3nimzm9hzptxioypjorgi', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rjx6W:mVAFvxzU0r4fV4mknWomezvM44oIHbSK0Z05NALC1gc', '2024-03-12 08:53:20.867828'),
+('0ftf9ra839ggoz1hac0d0q55zzbmkhof', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1sbCC7:FBqYndDYQGCaaeIfNFRmQ0sK5JecWe4D23otgcjTl6g', '2024-08-06 07:53:11.009120'),
 ('0jvdz0l4k3mwvg2mb5emlraycplrsowf', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rwcDb:COEWceiZERq8DEU3AcyeJ65aKuhDYhUm1PtUvZxIoTQ', '2024-04-16 07:12:59.928798'),
 ('0snxvroyke6rqq7i44ma8l2ugjvvggg6', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1sCuR0:CXaJA6Tmmc9vEYUxFzlejyp-8a7h9L13VuCQM472BlI', '2024-05-31 08:04:10.693742'),
 ('0und978hnyp5y0zsrznre9gh1563enph', '.eJxVjMsOwiAQRf-FtSHAdCi4dO83kIEZbNXQpI-V8d-1SRe6veec-1KJtnVI2yJzGlmdFajT75apPKTtgO_UbpMuU1vnMetd0Qdd9HVieV4O9-9goGX41tZhdCZIJKDQCWMGl4PJFriSr96IMbF4jIgcyPoOXN8LVwMFPIZOvT_MNjcU:1rcJ9j:ldWDGP2JuaWDvAHJW_wW3QSrxKCz1__CDP5CmcBH6vQ', '2024-02-20 06:49:03.286594'),
@@ -861,6 +882,10 @@ INSERT INTO `django_session` (`session_key`, `session_data`, `expire_date`) VALU
 ('26yphhawyey6wwgjcpxt9fvgs9uytfdc', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rd3Uw:csDyYEfPoPlnf7zR1PPhbNhSDtWYh7OJWXECGfpeSy4', '2024-02-22 08:18:02.171490'),
 ('298bxybnh7rs8hl1dp7khn0ylwjl002h', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rl1FL:qPesLAmIwm4zg4k6cdTdrftt5xoPqDzq0riOUKBoS7I', '2024-03-15 07:30:51.164046'),
 ('2e6yx21b0jlv8efzzw2mxm0vq75cvfod', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rk9VT:HGv4LUR5Sntplg3shXS3zNhveIEvc5wR4-g49BUe9Do', '2024-03-12 22:07:55.888323'),
+('2jqz6bu3zvserhk9v68p8sqgt7rjz1in', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1sRpxI:CUzvuk1dHVNhVU4DKLDnI7RyYQUnjEy9niaSdm54xxI', '2024-07-11 12:19:12.152158'),
+('2r2kqtnod1dm6t44iiwbdtkyqdlamut5', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1scJLh:FexEJgt1cjBcbv4VQw4cunoTlEcKdf9MelqXtvlCrb4', '2024-08-09 09:43:41.860997'),
+('2swhde8swdkiun85jzlpu06v6qk9tjev', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1sVp3q:VBlpNnniis_09Su95aB4dtgodPXvKNYJZs3-Tv_sHYg', '2024-07-22 12:10:26.959175'),
+('2wu42maixc7s5ja39nsglbmkpplqeghd', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1sZ5TV:qTSXjMtWiNxdTcAKSTbRFWe1XCoNoM2-cKuzzoDo6wU', '2024-07-31 12:18:25.759428'),
 ('31hoj009wslx4qj10p02p73c1hdlaxtq', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rckRi:tHBV3-hvCySZGkwreZ_NnKK7V0LRMyVNOb0x_g5Or78', '2024-02-21 11:57:26.791694'),
 ('34zon77jarvazy9of8ok7h1cwmgs0zvc', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rk0VP:eAB-pH_1MZc7thThh_LIQzSYdgPzPZfXLdwKFfQvFMI', '2024-03-12 12:31:15.905277'),
 ('38vpwil2w3p1k3jkx10cbpcxgjof1y8x', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1sF6DA:6h1qlaLqEKQ2WjczCKh1WnrINAUudhbGXdhWF5EIWbU', '2024-06-06 09:02:56.454074'),
@@ -868,6 +893,7 @@ INSERT INTO `django_session` (`session_key`, `session_data`, `expire_date`) VALU
 ('3e74wc4xx4p8rx3bvmzqwztw86wgoohv', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1s3rTd:h-5E7zxDiB4jQTbSbrJecJ-t2jNkjyd0-Q8IdvJh754', '2024-05-06 06:55:29.794982'),
 ('3np6cp0c754xk2kz16atiohpb0rri91x', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rmTXw:VW2tQMFeiJYGQWcD17uOGOippyZ0jzHFgWU7O-5EkOg', '2024-03-19 07:56:04.575582'),
 ('3xcdrmzci04wz87dmhrsbwqjwoe6ls77', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rkeJr:lIrlgfuJieRU7l3_i0Q-rKZHFfOqdXBc9rhy2DYGqvc', '2024-03-14 07:01:59.135374'),
+('4638du1oea02fq4nuvi11nntiw4dlnnc', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1sbzN9:kvqC2khS-8L8sCJYYpZa-ofsFbC4l1_T-lqcS0M8an8', '2024-08-08 12:23:51.726917'),
 ('4ap2vmfs72bquik9f6q1bpgw0euwv1sl', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rpjgX:v6e6lV0IINxLidmguZAptbLQIBAAt4MKyfjJRZGCBjs', '2024-03-28 07:46:25.032244'),
 ('4i7ep5yaxy5lyq5swf8we247y9f01b03', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rof9l:dtuAscKB6JU0S2OuS-DTl4sX0tkYupdi89H8zRVQHBs', '2024-03-25 08:44:09.151996'),
 ('4j6o16a2ubby2got4jrs2prd876c86sh', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rd1I0:Qhx4nH_d6qPaKPE3RR-Er2EZH1qYQVVpWPUM8o4PbN8', '2024-02-22 05:56:32.139209'),
@@ -894,8 +920,10 @@ INSERT INTO `django_session` (`session_key`, `session_data`, `expire_date`) VALU
 ('83y55sqwo5f1njaasy40unlnsxxltrqi', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rk4yh:rBW7-yaZYQ445-iIgPXos9Q4wQbOoBdSXxC8KH-sV30', '2024-03-12 17:17:47.944459'),
 ('87uty74d0v656cc3xr4uv3xhcfyfgq7q', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rnWee:aP-LrntHYQESfoxE8RboxiHcrhA0n0rLPrhcDNzRcKA', '2024-03-22 05:27:20.381179'),
 ('8h0wehbzgg7e29b7kr7prmwyigll6czy', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1sMPEA:PNA0iXUbJZAH-FGosiI-cuOy4xKDjBMplZvGTVLIwUE', '2024-06-26 12:46:10.557556'),
+('9a090hipd9lv8c77py4kxhtnvuf0h1cp', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1sXDla:rnxAPazTGmOL_F0wH7e7eetONiA8YBHowvV6QhwhQ4s', '2024-07-26 08:45:22.613033'),
 ('a1ysylsg08lv28tmlk3poemxpgvibs66', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rm7RU:u6mYn3nuFK7lRjydh2fUVtED9OWEFV3mMouMTjTrjbI', '2024-03-18 08:19:56.709704'),
 ('a7951pp7lrxezmzf86u9jktny4bo4t4e', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rju09:mlplo9iIoZU_EBlWYfQ6afYaUz4Ubyi9EuTNldbDeo0', '2024-03-12 05:34:33.243006'),
+('a7dkjozyrcn0rtmqrerdsktotmamrh7i', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1sW8jr:CvoJwQ-33N-xeA3RzRvkUIJwdWVtFSY63-X7sjhlPtA', '2024-07-23 09:11:07.810947'),
 ('a7n0o32jd5rkv5jtc2p2v5xb4syggoq0', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rk5ld:2eet6kX_DwcsgI3FFp5UXW-HcVsQfItoccL-FpmPbuw', '2024-03-12 18:08:21.905621'),
 ('ae2mf90x0pe27iezq6x32fkirf11qe6k', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1sN3Hd:26AQ4Lp5W7ssoxdUu-mh7vb5MTBHzkeRzbjl5MH7nMw', '2024-06-28 07:32:25.510667'),
 ('am4v0ppvxuzm1kufm2m279lsi3zr6vm7', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rq47n:h3zoVNPvvYMbNq1ZYZ-nUtf7kcagKaokb0ysH5sPr4g', '2024-03-29 05:35:55.481508'),
@@ -907,6 +935,8 @@ INSERT INTO `django_session` (`session_key`, `session_data`, `expire_date`) VALU
 ('bcirzeek72ti0evhll6yuw7hnayzzy72', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1sDzat:dnNZXruvfPlgYnmCA44xO2usjL2rFapiDUl1llDPJTU', '2024-06-03 07:46:51.720019'),
 ('bis2363pys5627qn6ju0gvetk7454pfe', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rkI4B:Sw4a_o2IdbdmZs3qoGR7LcQig4BEaVW4shSKhEip548', '2024-03-13 07:16:19.661937'),
 ('c3pu131q0jxyq1cb5f2xm0hur6r5lj0w', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1s4Cjr:63CCbPJbj_LTkeQwYApG-xvMvvI1hnsmjrlMxeOKbPs', '2024-05-07 05:37:39.330606'),
+('c5dtoulf0d7mp8c86k8g4nggyuhyvsz8', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1sTDmz:vKpG5ezyefvQG3z512qJcTsIrfoeSrWL6bz-BqEYHP8', '2024-07-15 07:58:17.758147'),
+('c74c8eif1e4w6qu2br3qzpmwfsu0l0k0', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1sbvBv:zbgVCp6NNjprkt69OVPcY3BZa9AfAGjgvZDImkjVKzM', '2024-08-08 07:55:59.097150'),
 ('cc62y36shod0g1x9bsumybeu2zu4exie', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rk7l9:lKX3ThDu817J4IGrvuukmNEubOE4VGFxu2vPnUH_FHE', '2024-03-12 20:15:59.633626'),
 ('censme4uqzfefp6pqtad89kuu2abm77e', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1s9fFU:PkSkTQSS5GTXTElpbWFeMQtmNqUGSi-DV6dvBNmXgGA', '2024-05-22 09:14:52.283050'),
 ('cknx2uq5lqeabk9wzyrwhn6humsiwqvj', '.eJxVjMsOwiAQRf-FtSFAebp07zeQgWGkaiAp7cr479qkC93ec859sQjbWuM2yhJnZGem2Ol3S5Afpe0A79Bunefe1mVOfFf4QQe_dizPy-H-HVQY9VubyUGRigRZayzpTMmhUWYSIoP0WkAwzhtJIblEUgVwyktAUgBSY2LvD9ThN8Y:1sNRSJ:wzjH_Re_LIq5RhuDHnuaKIcG8xa7OIAu1sYL_Y8hLpA', '2024-06-29 09:21:03.239149'),
@@ -915,8 +945,10 @@ INSERT INTO `django_session` (`session_key`, `session_data`, `expire_date`) VALU
 ('cquh7w6hjl992f8khrza6o1rb6yv3b0p', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rylcC:bwQnxJAEm0u6JPGo3RWSTMBRK0AA4eDh6K8_1ROcaqQ', '2024-04-22 05:39:16.475912'),
 ('ct99xime2smdpt4fldalei55s71ja6te', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rkfiY:gmioMR6KIBxUZJebv6UZTpjJSaqHtKk36bLlbiwaGKg', '2024-03-14 08:31:34.790997'),
 ('cy8xs8a9edyoyjag3uq0lfsm12bg9j6j', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rxOAC:rCH-feWaKNT3aWgDhRyoqEGrr8LHri1om74OTBA4mu4', '2024-04-18 10:24:40.604353'),
+('d0w600srj9f9yn5stjnintw0gtadblrf', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1sVm3K:EnJupdmRy32FqylWwixupdAH32zgopTdFK5f9smqYrA', '2024-07-22 08:57:42.343677'),
 ('deyptg7wcz3asphwdmcxvlyd543cteam', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1s1jgu:NKZ_3UJ1bqhavt_5h90qJtdDePxTQdB4FrBPEqcMs5Q', '2024-04-30 10:12:24.041472'),
 ('dohgqofc96dl7qgtpgahedv1h590pqc0', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1sMomU:4gu-KruNUbg6BqAzyIvEQpekgqDWhOTbRL9YW6HYPtM', '2024-06-27 16:03:18.464135'),
+('dt6wt197dsbt9dq28kgq1yft33xp6vqr', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1sWTtD:p__zW1pp7OoPkZz_S9If30QBn4fh-GFtG4w_bXPKvp4', '2024-07-24 07:46:11.995095'),
 ('dyqh2ceii0bmk3fsw7cyr0v3eskc9eyo', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rruMN:Pj8etjm4-W9Dcj68kN4TTUB8-bLFvj2O0PAXJ0qPDrA', '2024-04-03 07:34:35.363431'),
 ('eauwmxsbwj50w7jw0rsug3bg3agacd39', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rwJsn:GCy3_w9M3eeSuTaZBdDN_UJIVjtpTccWwDANHbsJSvM', '2024-04-15 11:38:17.510724'),
 ('eekgtwmlvvsn9nmp1wef964cf49bl4ae', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rdRqQ:G6mwUutLGOjD4knhaHPv8qdq3rSW-lqNHASOguhX9gc', '2024-02-23 10:17:50.395314'),
@@ -958,6 +990,7 @@ INSERT INTO `django_session` (`session_key`, `session_data`, `expire_date`) VALU
 ('jqwtkyy0fy3cxctkup6hsa34a78swdy9', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1s1JBa:Te2NcOLCF87HPVPtLg3LQGknO-3FXPcKVp7AUlzFUTM', '2024-04-29 05:54:18.923368'),
 ('k2zqiuqte95dsa1ydnavgw1ljkymgg1t', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rk8Y6:edaor3_E95HxOkGMT-XSqBRYMPXQfxPv28IQXdiAIcc', '2024-03-12 21:06:34.258204'),
 ('kvn7mii02i9711qp8e06uv9odvor2len', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1s79Dw:6FXZhcWoLQejRnu9QbwDJaNrs2KxP9aQRDqxsJYdYCE', '2024-05-15 08:28:52.759182'),
+('l263mfq77ipbedmihsandcr70cazao46', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1sRlpj:e9GhhWv3ljA5Mt2VKdjiHnGAU5HTjJKIg5LNTdkwAnM', '2024-07-11 07:55:07.381641'),
 ('l2obl6wdc3y1jlq3z5f0d48on0hv9sce', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1s1JBb:PXxDm2iG85FEIMeY-SU9A_Ap4Dw2VGY0fkuXsLpvW8s', '2024-04-29 05:54:19.149246'),
 ('l8xwbyda85xt0oa4ufhdhn8ogm5tfi0b', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rfegz:IVeT9qQoLlKPa26eG0lUaFeBXlnEqgn30l6kfMPjqH0', '2024-02-29 12:25:13.451918'),
 ('lcevjyr9hj5vwgkllf9qvuysfwoflz4k', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rhTpc:EkqSuMYQoDDBdv66z8ftrtuzvfBfRG4yAsFAfnoj8lc', '2024-03-05 13:13:40.295421'),
@@ -968,13 +1001,17 @@ INSERT INTO `django_session` (`session_key`, `session_data`, `expire_date`) VALU
 ('m4h579qdm5kgovvkd0428fa10lvv2wa6', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rcMfO:0jshP5sHrcobxb-0iSh9dDVbJU54FKhbrY-FiN9X8Dw', '2024-02-20 10:33:58.802704'),
 ('m7y7m4pbquf0jm60n34fqg76zgqswegw', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rnC3R:fbyms3xv7DmESkXu3UI7uhuamgqGVPxaL5POyBUQkTE', '2024-03-21 07:27:33.277016'),
 ('map7n89bfl2xtv7cmv9uo04vnx85cx1m', '.eJxVjEEOgjAQRe_StWlgppTq0r1nIDOdqaCmTSisjHcXEha6_e-9_zYDrcs4rFXnYRJzMWBOvxtTfGregTwo34uNJS_zxHZX7EGrvRXR1_Vw_w5GquNWe-UupLPnJAkleUJ20SEANA69aqIQOu2BtW1CiyxEgn1sAZC7DZrPFwJ7OIg:1rc1fy:8LU_i2gKwXOhdC3zW63Q0tMmy7cgihoKnL4P8Z8ex1Y', '2024-02-19 12:09:10.587423'),
+('mcbfgsfkr0t57p5ldflphlacxknmaazr', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1sZlH6:YSV2DQDfzgB9vOpv9p60aP5EROEO032F_VPfdH7jey4', '2024-08-02 08:56:24.280710'),
 ('mfz8n55rmiolzohirqm1jxouvhucvjg1', '.eJxVjMsOwiAQRf-FtSFAebp07zeQgWGkaiAp7cr479qkC93ec859sQjbWuM2yhJnZGem2Ol3S5Afpe0A79Bunefe1mVOfFf4QQe_dizPy-H-HVQY9VubyUGRigRZayzpTMmhUWYSIoP0WkAwzhtJIblEUgVwyktAUgBSY2LvD9ThN8Y:1sA2ka:ylCW_xEdZ6yftU1beC7SuEwLgY21eAbTl8eOxnQIliU', '2024-05-23 10:20:32.825209'),
 ('mi6h03uilvqslbac0dglz5mmzvowuisp', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rkKRY:ATUsQtrN-nDe68Ju5vJcfKFTHGgM-XHZxhx8SsafGRc', '2024-03-13 09:48:36.093117'),
 ('mjaql5uqz4dnvambcwib3gsm5qyrukav', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1sFRWr:zRSSu1pFv3-GkQyQpgwQzaWa-STSUIhwcJpjKdEnwQw', '2024-06-07 07:48:41.547141'),
+('ms47cj0pghittkgxk5q96qz3rj3x9int', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1sWBiT:HB_JZ_5U8IsyxI9PM5b9KNXE9o1cZGdprD_8BkcORco', '2024-07-23 12:21:53.960469'),
 ('mt5hzuqyt58dtudradr1of6u6txv9ze1', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1sLyEV:CqC8rnW9ZFKNeuTKwDcu6wk9l8S4YsQ2KRYKsNT17l4', '2024-06-25 07:56:43.794846'),
 ('nbwavi4523mhd3gz8k5d7jbh5256dwik', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rm8cs:nrJ694dLUpvj7Y7hOihT2AOvHgy8ERE_DFgcHoGPInk', '2024-03-18 09:35:46.620919'),
 ('nenz1zkvyldvp2e7rxnenagldlf4psk9', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1s7w3O:bYqONFP8NubRK8ffzamM6_-a_xZjWc3kZJu88Mj5mvA', '2024-05-17 11:47:14.190933'),
+('nkd50xltf5m99fbaylcb1n424hojspvu', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1sbYci:KgxTJeptAlQo-fFhNWSZktJWTohbSMBjTtPc0X-iIjk', '2024-08-07 07:50:08.320561'),
 ('nnr8dtwwjblmtng7q430e5yffj03b8dk', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rjapb:LPjKMYJB-VvgMwRB00US12djs-zylan2wEpictbkMJk', '2024-03-11 09:06:23.109845'),
+('nysx7vrip8zhh2ej7xttfw0q3s7ub4yw', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1sWqVN:CugUyz1BADAJU2S2eqfFrTxckARiYxojGukNSfr7zJA', '2024-07-25 07:55:05.953788'),
 ('nzep0xlr1tp6gdnmzm6nwx9t4g82282x', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rcP20:GF5EG8_XtAPKigv7c4vxz5sQn2fbpFEigUCsqiZ4v6o', '2024-02-20 13:05:28.879799'),
 ('o2h4438llbtbdx273bocsbomnbztbefe', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rm9al:bfvqsh24i2-ZNpOVbg0mePvojOTki3sGlV8nhwpUvN0', '2024-03-18 10:37:39.366081'),
 ('oby9xv7i62is9yrg72qei52w2cvkfw2e', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1sPIqm:VVFiHxzm0PDWF9pfzbVnuJT2CMjhyd7ax_CqKtVGDao', '2024-07-04 12:34:00.937067'),
@@ -994,10 +1031,12 @@ INSERT INTO `django_session` (`session_key`, `session_data`, `expire_date`) VALU
 ('q6nbgu1o2qsm7b6zvpzi34f1y7m5y2l3', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rcfT8:rUM_MshyMm_bVS33jjEuYLL-Su0PtM-w6WaHbIlwuiw', '2024-02-21 06:38:34.499670'),
 ('qakyfr6x85jmye8ysjh3sanfpy0aezsl', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rfED8:PatHtxvNdB8wQRq1nwPFV3LqTaVc965dMAIeMHQGGIE', '2024-02-28 08:08:38.095842'),
 ('qassxsgzjdi942st4a5mefg06w3jnysi', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rnB5g:mQJLtpp-QholSHAZxvwfmz4Fz1kJsYRZ7lWfCHoTdHc', '2024-03-21 06:25:48.841645'),
+('qaulyq4v5sd9sjiuy4dbimifp8m6fg6a', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1sYILD:4UHc8DlSJmeSea6uJiJOCQA2r08k6t8ezpYF5tDOLhQ', '2024-07-29 07:50:35.568370'),
 ('qbjijq2c3x20ftm65wlioy37gzmzsxtd', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rmnwm:X5IR60ZVBX-8TeDwXEiWhqAkLuE5EwMsUjDnOhMCZMw', '2024-03-20 05:43:04.228857'),
 ('qc44i7co33xrx6ry7j0qd2rf6k2ciy60', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1s7VQt:7Phb9-WW-wSehp7REBYfYXPyqo2GcijQk5UK_PRHHjw', '2024-05-16 08:11:43.016359'),
 ('qddywxyja3ep7861xttehsxosc6qz2yb', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rphHp:oauv5dODllZVYntbYfDGDmApXdMKmgp1ZtusthrNJ4A', '2024-03-28 05:12:45.620095'),
-('qh3lvm0x78c23jyxklodbrxfcvkae9rc', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rnDFk:3y5_0iXJEQzEEQlvFBfGLRNDi4KxdNZVQjeQP7xDnIc', '2024-03-21 08:44:20.847751'),
+('qh3lvm0x78c23jyxklodbrxfcvkae9rc', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rnDFk:3y5_0iXJEQzEEQlvFBfGLRNDi4KxdNZVQjeQP7xDnIc', '2024-03-21 08:44:20.847751');
+INSERT INTO `django_session` (`session_key`, `session_data`, `expire_date`) VALUES
 ('qqrjd9uad8z45tuqvighyhxcnkq8ssr1', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1s7Tt7:4CX_YGHOQtcu5imfGNEuHBCiZNj_3-wL46tQujcgXjg', '2024-05-16 06:32:45.884280'),
 ('r72vjalm9y3rj3vrngbs31mftagd8bvb', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rm6ez:O-xYfOGmgKylFgA1zYl-cr5HsNwxmTnd1pL2ifVQ9Ws', '2024-03-18 07:29:49.107029'),
 ('rcbql0qi85tb25fxvniy1ah67j0g27l7', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1s7XUA:Unf4B70N-R4zQjiKbZ7QUVLDn9ha0gvssbokIilVFqc', '2024-05-16 10:23:14.601066'),
@@ -1015,8 +1054,7 @@ INSERT INTO `django_session` (`session_key`, `session_data`, `expire_date`) VALU
 ('sikc83v1fnh2oecpajpwn9lqrjogcutd', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rscsR:IbPRjKM660D3ZJVgcP0cNNfno1gZTDSbAJ427tZ3x2w', '2024-04-05 07:06:39.157081'),
 ('silqpx8is4craxumg9fpucg7mnd83mpp', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rxn7x:tJuoe6mSMszVHWS8F3KLxaTRl-Km-1oJYNba1uCTiFQ', '2024-04-19 13:04:01.989016'),
 ('sloi158mgtetzbwgd7zztujnjja313op', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rfGwV:zzQB5YOh1sPC0UnwcsYHKM1cZ_Jkk-rkQb_VjwazHew', '2024-02-28 11:03:39.988649'),
-('suihbm5nsziwadh1g1tkzkvtfxcqh84b', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rm4f7:8CX-kTdLSBFqJGrCWPNCzJJ-0NSvIpQbNbsUhnmY7uA', '2024-03-18 05:21:49.551259');
-INSERT INTO `django_session` (`session_key`, `session_data`, `expire_date`) VALUES
+('suihbm5nsziwadh1g1tkzkvtfxcqh84b', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rm4f7:8CX-kTdLSBFqJGrCWPNCzJJ-0NSvIpQbNbsUhnmY7uA', '2024-03-18 05:21:49.551259'),
 ('sxasemyuao6nces7uupud88yduiegkii', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1roeNF:ExcYG4YTg-tyx5D9zt8LZkxaD6ZY7Iwog3r88CwcrUg', '2024-03-25 07:54:01.680306'),
 ('sy1te4bb0arpuy1djrswhg6ymb90qir3', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rpO0n:uO7LrZE69RfTUez-210AxkihRo5NM9wReu1Y_FLmV4U', '2024-03-27 08:37:53.600651'),
 ('t0d792pxv856mc7eohk9brvhev4y81hi', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rpOwR:K6Wj1bFeAGGJ60axKN25V4t2boqV4xnI8Xl2JxqKC6o', '2024-03-27 09:37:27.263356'),
@@ -1032,12 +1070,15 @@ INSERT INTO `django_session` (`session_key`, `session_data`, `expire_date`) VALU
 ('v7q4dcq93nte1m34xwqmo2mwxcrgijg0', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1s2qFs:qMPj0yjEXt8U8n4HtCwgLVuMMrigjNNYXghU96HwdkU', '2024-05-03 11:25:04.518919'),
 ('va0k0sxd35cn5hafocmydjmju8fczigi', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rkLOR:7-lJQ08ZQdko3fMG-rOzXpF0eZCGvlHUARLLytzbQoU', '2024-03-13 10:49:27.805812'),
 ('vb7si7cpsj3ekxyftg0xf9q5su5stsvh', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1s4I8t:nb-XetMTRVMqhyhpAF2bpDq5p-_bvUdXdat1CG06ZFE', '2024-05-07 11:23:51.262383'),
+('ve61wvxzjaep1gj40ok2lbwv5ksfx89r', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1scMqE:vfYMzREzK9cGqEKAZHX_r9Qta_MzAkaWsaXm17vsoZo', '2024-08-09 13:27:26.255966'),
 ('vfvsqhl1hes918pxnz4dgenxcczisjaq', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rdQ9p:9RE_7HRZuTfpmioBE0ciRZQEZk0YjDWgnER080Iwe_c', '2024-02-23 08:29:45.844376'),
 ('vhl8lqzms9f4xzgyf3gqju0hwqft0xkg', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1repfF:O2FF2-ETdFyt9211vclZ5_oy1uH5RKkc1QxbL4ZN7LQ', '2024-02-27 05:56:01.016543'),
+('w17ns26oq9eueqfszwy14rzqtub1xpza', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1sZPzc:8gBP_b2xryrDyKpfoZL993WheZDs70GDeTA0g2UL7po', '2024-08-01 10:12:56.135095'),
 ('w4ynzsf8s2mqzk5dnxcz0l5qlhzasyd9', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rd6w5:ly2s2NHTwJVRVu_PkUsO_6-HgC9y4dRngADG_SgMnrQ', '2024-02-22 11:58:17.871519'),
 ('w5zrarhodgcr2gwlmr97gtcsmnk7qcl2', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rkzHm:M8o05RXoJvi-O6TtBzFGGVjxvXcjbMRwxDOjrtpq3zs', '2024-03-15 05:25:14.362931'),
 ('w9a757bn8a1cbw2mrg9idqyy8dx301qe', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1s1fjX:9vvWHHRgod0OUWLrZmXc3E0Xh1Vr1tQ3TgpyIO0BJek', '2024-04-30 05:58:51.778574'),
 ('wdk0h38g1f4irhnel22sowbx9plmgs9g', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rnXfn:yQCseA2yTQvmhccbKzH7kfYe4QsTyFN3XcWi4Awt9s8', '2024-03-22 06:32:35.810426'),
+('wfiyctqo474df4be682lfbixy79q2bwu', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1sS9sQ:x34tJS62KaUR0_pm-TbVc_6yVn702M1fG39jc9g3fr0', '2024-07-12 09:35:30.494900'),
 ('wkvz0tg3vqj7fw6pkp553y3w0brv6r0n', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1sOvvE:j1MrrrAx2hHE4rIO_d1nyv-jzsELU2gJyBfy6X4zbOg', '2024-07-03 12:05:04.212108'),
 ('wlnsjrj497blp983w12mkhi7rl17z91y', '.eJxVjEEOgjAQRe_StWlgppTq0r1nIDOdqaCmTSisjHcXEha6_e-9_zYDrcs4rFXnYRJzMWBOvxtTfGregTwo34uNJS_zxHZX7EGrvRXR1_Vw_w5GquNWe-UupLPnJAkleUJ20SEANA69aqIQOu2BtW1CiyxEgn1sAZC7DZrPFwJ7OIg:1rcKkl:prPRAqCNDLiJqa6puARQS8PHt0WEYbMmuukkwQ6ylKQ', '2024-02-20 08:31:23.963577'),
 ('wu8zi681s99ugpaxhiwpgeg8x4ipksxo', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rhjFn:sxumIDAv36Kztpr0ZjmXHh4dDq65S1fYkgy5Umky6rc', '2024-03-06 05:41:43.299728'),
@@ -1050,9 +1091,11 @@ INSERT INTO `django_session` (`session_key`, `session_data`, `expire_date`) VALU
 ('xytmkkx28i7ryxq99rthxgor46fmvv55', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rgI3l:esVyFiJfoOJ7XpwFtGYhzqf29WvVK-UX6_XL74C1dxA', '2024-03-02 06:27:21.199625'),
 ('y7c1bzu2qozm9rvm3boii41c0wd5dx10', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1sLiLO:3IuI0qNtqLkLHQ3ljvue99Xn6Uzk5NTsEwE20yynmBk', '2024-06-24 14:58:46.819982'),
 ('yazwzru8ofj3ztbxbxgnt4191pquedqw', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1s7ppE:_FQYUDzvw8CPAS-ibEeVpL_yPYM1Aj7anIxfkA-seAI', '2024-05-17 05:58:12.811473'),
+('yc9yj42tkt9oa7wf1emowu6w8b3bq6n8', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1sUfWl:C2r3VRRFUBjGn2Ji0wf6mYJzJms3l7kGvvJalVpcfD0', '2024-07-19 07:47:31.007230'),
 ('yf9b0eb3fgss4ihgbda6p93ztionptao', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1sR2gs:Rusg99f22n_aMblwJk-PEcyTCxYIOZFFMrjVSyUFsl8', '2024-07-09 07:42:58.193489'),
 ('yokt9tc2rtylon8esocm555kf6fm8ayd', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rhMvc:iTJ8mO12KdWrp8qJ8iJdSSnngnxhKiT3zX8Z75iXHig', '2024-03-05 05:51:24.301184'),
 ('z08g2oezf44slm31o8rb3jtze4aqs9z2', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rmWG8:2-vc62yOOI1ZOl77WdBm_tp2BcpOoNUCzC5kIk5bYNE', '2024-03-19 10:49:52.676243'),
+('z0fqlpxr22cdc1cqk9qqjt5ddk9iw4v6', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1sYeo1:SWk6-1MavGauZsbTLYaP02IU014sPQ8MNcfq3Ia31QE', '2024-07-30 07:49:49.862061'),
 ('zfuggc992k1ss30ntwgc61l469dqgojl', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1sLc4L:vD7m553cjNSQ4dZd9-NO2tRLigGa_n106R4OkMbbsMQ', '2024-06-24 08:16:45.536497'),
 ('znzoxpvk7u8vcgwxsfx35midxzqfsjux', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rkcm3:fmcog8HWBUFfCjnqZg20EFCGFOgC7lWJh5gLJ5kOmPQ', '2024-03-14 05:22:59.408115'),
 ('zvywshwffntyj3g63f6q7qpv1dx0fdqd', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1s1gZC:Qqmf1N8Pz-VgzAvNhy2wS9-gD7-sorLA-xJbDm1uuOU', '2024-04-30 06:52:14.328178');
@@ -1094,20 +1137,22 @@ CREATE TABLE `education` (
   `country` varchar(50) DEFAULT NULL,
   `from_date` date DEFAULT NULL,
   `to_date` date DEFAULT NULL,
-  `grade` int(11) DEFAULT NULL,
+  `grade` varchar(50) DEFAULT NULL,
   `status` int(11) NOT NULL,
-  `employee_id` bigint(20) DEFAULT NULL
+  `employee_id` bigint(20) DEFAULT NULL,
+  `degree_doc` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `education`
 --
 
-INSERT INTO `education` (`id`, `degree_name`, `institute`, `country`, `from_date`, `to_date`, `grade`, `status`, `employee_id`) VALUES
-(1, 'BSCS', 'FAST University', 'Pakistan', '2015-06-20', '2020-06-16', 3, 1, 1),
-(2, 'MSCS', 'IQRA University', 'Pakistan', '2015-06-20', '2020-06-16', 3, 1, 1),
-(3, 'BBA', 'Iqra University', 'Pakistan', '2024-02-01', '2024-02-21', 3, 1, 2),
-(4, 'Intermediate', 'DHA College', 'Pakistan', '2024-02-01', '2024-02-16', 2, 1, 2);
+INSERT INTO `education` (`id`, `degree_name`, `institute`, `country`, `from_date`, `to_date`, `grade`, `status`, `employee_id`, `degree_doc`) VALUES
+(1, 'BSCS', 'FAST University', 'Pakistan', '2015-06-20', '2020-06-16', '3', 1, 1, NULL),
+(2, 'MSCS', 'IQRA University', 'Pakistan', '2015-06-20', '2020-06-16', '3', 1, 1, NULL),
+(3, 'BBA', 'Iqra University', 'Pakistan', '2024-02-01', '2024-02-21', '3', 1, 2, NULL),
+(4, 'Intermediate', 'DHA College', 'Pakistan', '2024-02-01', '2024-02-16', '2', 1, 2, NULL),
+(5, 'BSCS', 'Iqra University', 'Pakistan', '2020-01-06', '2024-07-16', 'A', 1, 8, 'employee\\8\\education\\8_edu_20240711114135.png');
 
 -- --------------------------------------------------------
 
@@ -1130,16 +1175,75 @@ CREATE TABLE `employee` (
   `status` int(11) NOT NULL,
   `department_id` bigint(20) DEFAULT NULL,
   `designation_id` bigint(20) DEFAULT NULL,
-  `branch_id` bigint(20) DEFAULT NULL
+  `branch_id` bigint(20) DEFAULT NULL,
+  `cv_doc` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `employee`
 --
 
-INSERT INTO `employee` (`id`, `eid`, `ename`, `eemail`, `econtact`, `cnic`, `date_of_joining`, `dob`, `qualification_id`, `deliverable_task`, `e_address`, `status`, `department_id`, `designation_id`, `branch_id`) VALUES
-(1, '001', 'Danish', 'danish@gmail.com', '03323232322', '42323234234222', '2024-02-06', '2023-07-05', 'Master', 'asascasc', 'adascaac', 1, 1, 1, 2),
-(2, '002', 'Mikyle', 'mikyle@gmail.com', '03323232322', '42323234234222', '2022-01-01', '2000-06-06', 'Bachelor', 'iajosidoajdo oiaj doiaojd aoisdj oiajd', 'oiqqad aoidsj aoijsd oij', 1, 1, 1, 2);
+INSERT INTO `employee` (`id`, `eid`, `ename`, `eemail`, `econtact`, `cnic`, `date_of_joining`, `dob`, `qualification_id`, `deliverable_task`, `e_address`, `status`, `department_id`, `designation_id`, `branch_id`, `cv_doc`) VALUES
+(1, '001', 'Danish', 'danish@gmail.com', '03323232322', '42323234234222', '2024-02-06', '2023-07-05', 'Master', 'asascasc', 'adascaac', 1, 1, 1, 2, NULL),
+(2, '002', 'Mikyle', 'mikyle@gmail.com', '03323232322', '42323234234222', '2022-01-01', '2000-06-06', 'Bachelor', 'iajosidoajdo oiaj doiaojd aoisdj oiajd', 'oiqqad aoidsj aoijsd oij', 1, 2, 1, 2, NULL),
+(8, '007', 'Danial', 'danial@sigbl.com', '03323232322', '42323234234222', '2024-07-01', '2004-06-15', 'Bachelor', 'asdasd', 'asdasd', 1, 1, 1, 2, 'employee\\8\\cv\\8_cv_20240711113316.docx');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `employee_project`
+--
+
+CREATE TABLE `employee_project` (
+  `id` bigint(20) NOT NULL,
+  `is_key_acc_mgr` int(11) NOT NULL,
+  `created_at` date DEFAULT NULL,
+  `updated_at` date DEFAULT NULL,
+  `deleted_at` date DEFAULT NULL,
+  `status` int(11) NOT NULL DEFAULT 1,
+  `employee_id` bigint(20) DEFAULT NULL,
+  `project_id` bigint(20) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `employee_project`
+--
+
+INSERT INTO `employee_project` (`id`, `is_key_acc_mgr`, `created_at`, `updated_at`, `deleted_at`, `status`, `employee_id`, `project_id`) VALUES
+(1, 0, '2024-07-26', '2024-07-26', NULL, 1, 1, 14);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `employee_target`
+--
+
+CREATE TABLE `employee_target` (
+  `id` bigint(20) NOT NULL,
+  `financial_year` varchar(255) DEFAULT NULL,
+  `currency` varchar(255) DEFAULT NULL,
+  `quarter_first_target` int(11) DEFAULT NULL,
+  `year_target` int(11) DEFAULT NULL,
+  `created_at` date DEFAULT NULL,
+  `updated_at` date DEFAULT NULL,
+  `deleted_at` date DEFAULT NULL,
+  `status` int(11) NOT NULL DEFAULT 1,
+  `employee_id` bigint(20) DEFAULT NULL,
+  `quarter_fourth_target` int(11) DEFAULT NULL,
+  `quarter_second_target` int(11) DEFAULT NULL,
+  `quarter_third_target` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `employee_target`
+--
+
+INSERT INTO `employee_target` (`id`, `financial_year`, `currency`, `quarter_first_target`, `year_target`, `created_at`, `updated_at`, `deleted_at`, `status`, `employee_id`, `quarter_fourth_target`, `quarter_second_target`, `quarter_third_target`) VALUES
+(1, '2024', 'DOLLAR', 5000, 60000, '2024-07-26', '2024-07-26', NULL, 1, 1, NULL, NULL, NULL),
+(2, '2023', 'DOLLAR', 10000, 40000, '2024-08-07', '2024-08-07', NULL, 1, 2, NULL, NULL, NULL),
+(3, '2024', 'DOLLAR', 3000, 12000, '2024-08-07', '2024-08-07', NULL, 1, 8, NULL, NULL, NULL),
+(4, '2023', 'DOLLAR', 2000, 8000, '2024-08-08', '2024-08-08', NULL, 1, 1, NULL, NULL, NULL),
+(5, '2023', 'DOLLAR', 2000, 8000, '2024-08-08', '2024-08-08', NULL, 1, 8, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -1194,7 +1298,9 @@ CREATE TABLE `insurance_detail` (
 --
 
 INSERT INTO `insurance_detail` (`id`, `issued_date`, `expire_date`, `amount`, `vendor`, `instrument_no`, `status`, `insurance_type_id`, `project_id`) VALUES
-(1, '2024-05-01', '2024-05-31', 5000, 'no', 'vbcf4545s', 1, 1, 23);
+(1, '2024-05-01', '2024-05-31', 5000, 'never', 'vbcf4545s', 1, 1, 23),
+(6, '2024-07-08', '2024-08-08', 6000, 'no', 'vbcf4545fh', 1, 1, 23),
+(7, '2024-06-01', '2024-11-29', 5000, 'no', 'rrrr777', 1, 1, 14);
 
 -- --------------------------------------------------------
 
@@ -1237,7 +1343,10 @@ CREATE TABLE `liquidity_damages` (
 --
 
 INSERT INTO `liquidity_damages` (`id`, `unit`, `percentage`, `max_percentage`, `ld_doc`, `addendum`, `status`, `project_id`) VALUES
-(1, 1, 5, 10, 'project\\23\\liquidity_damages\\ilf_remaining.txt', NULL, 1, 23);
+(1, 5, 7, 10, 'project\\23\\liquidity_damages\\ilf_remaining.txt', NULL, 1, 23),
+(27, 3, 5, 7, 'project\\14\\liquidity_damages\\qr-code_a3trap.png', NULL, 1, 14),
+(28, 4, 6, 8, 'project\\23\\liquidity_damages\\signature.png', NULL, 1, 23),
+(29, 12, 9, 10, 'project\\23\\liquidity_damages\\23_ld_20240723120821.png', NULL, 1, 23);
 
 -- --------------------------------------------------------
 
@@ -1306,17 +1415,19 @@ CREATE TABLE `project` (
   `po_scan_doc` varchar(255) DEFAULT NULL,
   `scope` varchar(100) DEFAULT NULL,
   `sector` varchar(100) DEFAULT NULL,
-  `client_id` bigint(20) DEFAULT NULL
+  `client_id` bigint(20) DEFAULT NULL,
+  `initiated_by` varchar(100) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `project`
 --
 
-INSERT INTO `project` (`id`, `title`, `start_date`, `end_date`, `duration`, `amount`, `tax`, `total`, `advance_tax`, `advance_amount`, `earnest_money`, `em_instrument_no`, `pg_start_date`, `pg_end_date`, `pg_validity`, `pg_percentage`, `pg_amount`, `pg_doc`, `project_doc`, `status`, `pg_instrument_no`, `project_type_id`, `keywords`, `branch_id`, `em_doc`, `em_expire_date`, `project_status`, `country_id`, `em_receive_date`, `em_received`, `po_scan_doc`, `scope`, `sector`, `client_id`) VALUES
-(11, 'DMS', '2024-05-01', '2024-05-31', 1, 500000, 10, NULL, 5, 25000, 100000, 'tt4442f', '2024-05-01', '2024-05-31', '2024-06-05', 5, 25000, 'project\\DMS\\event (1).csv', 'project\\DMS\\Ref--No---CORP-8.pdf', 1, 'gr34431e', 2, 'f df sdf sf sfsdf sdfsf', 2, 'project\\DMS\\download.png', '2024-06-28', 'In Progress', 2, NULL, NULL, NULL, 'Local', 'Private', 1),
-(14, 'KMC', '2024-05-01', '2024-05-31', 1, 100000, 10, NULL, 5, 50000, 100000, 'tt4442f', '2024-05-01', '2024-05-31', '2024-05-31', 5, 50000, 'project\\KMC\\Tender Doc.docx', 'project\\KMC\\new_protal_pdf.pdf', 1, 'gr34431e', 2, 'qdqdqd  qdqdq  qwqwqd', 2, 'project\\KMC\\signature.png', '2024-06-29', 'In Progress', 2, NULL, NULL, NULL, 'Local', 'Government', 1),
-(23, 'Lexfirma', '2024-05-01', '2024-05-31', 1, 50000, 10, NULL, 5, 2500, 10000, 'tt4442f', '2024-05-02', '2024-05-30', '2024-06-01', 5, 2500, NULL, 'project\\23\\new_protal_pdf.pdf', 1, 'gr34431e', 2, 'sf  fff  sf sfs sfs sff  sfs', 2, NULL, '2024-06-30', 'In Progress', 2, NULL, NULL, NULL, 'International', 'Private', 1);
+INSERT INTO `project` (`id`, `title`, `start_date`, `end_date`, `duration`, `amount`, `tax`, `total`, `advance_tax`, `advance_amount`, `earnest_money`, `em_instrument_no`, `pg_start_date`, `pg_end_date`, `pg_validity`, `pg_percentage`, `pg_amount`, `pg_doc`, `project_doc`, `status`, `pg_instrument_no`, `project_type_id`, `keywords`, `branch_id`, `em_doc`, `em_expire_date`, `project_status`, `country_id`, `em_receive_date`, `em_received`, `po_scan_doc`, `scope`, `sector`, `client_id`, `initiated_by`) VALUES
+(11, 'DMS', '2024-05-01', '2024-05-31', 1, 500000, 10, NULL, 5, 25000, 100000, 'tt4442f', '2024-05-01', '2024-05-31', '2024-06-05', 5, 25000, 'project\\DMS\\event (1).csv', 'project\\DMS\\Ref--No---CORP-8.pdf', 1, 'gr34431e', 2, 'f df sdf sf sfsdf sdfsf', 2, 'project\\DMS\\download.png', '2024-06-28', 'In Progress', 2, NULL, NULL, NULL, 'Local', 'Private', 1, NULL),
+(14, 'KMC', '2024-05-01', '2024-05-31', 1, 100000, 10, NULL, 5, 50000, 100000, 'tt4442f', '2024-05-01', '2024-05-31', '2024-05-31', 5, 50000, 'project\\KMC\\Tender Doc.docx', 'project\\KMC\\new_protal_pdf.pdf', 1, 'gr34431e', 2, 'qdqdqd  qdqdq  qwqwqd', 2, 'project\\KMC\\signature.png', '2024-06-29', 'In Progress', 2, NULL, NULL, NULL, 'Local', 'Government', 1, NULL),
+(23, 'LexFirma', '2024-05-01', '2024-05-31', 1, 50000, 10, NULL, 5, 2500, 10000, 'tt4442f', '2024-05-02', '2024-05-30', '2024-06-01', 5, 2500, 'project\\23\\23_20240723171349.png', 'project\\23\\AdminLTE 3  DataTables.xlsx', 1, 'gr34431e', 2, 'sf  fff  sf sfs sfs sff  sfs', 2, 'project\\23\\Employee Probation Evaluation Form.docx', '2024-06-30', 'In Progress', 2, NULL, NULL, 'project\\23\\download.png', 'International', 'Private', 1, 'Own By Company'),
+(24, 'tested', '2024-07-01', '2024-07-31', 1, 10000, 5, NULL, 5, 500, 2000, 'tt4442f', '2024-07-01', '2024-07-31', '2024-07-31', 5, 500, NULL, 'project\\24\\24_20240723171836.pdf', 1, 'gr34431e', 2, 'tgdb dgdfg d', 2, 'project\\24\\24_20240723171836.docx', '2024-07-31', 'In Progress', NULL, NULL, NULL, 'project\\24\\24_20240723171912.png', 'Local', 'Government', 1, NULL);
 
 -- --------------------------------------------------------
 
@@ -1342,8 +1453,10 @@ CREATE TABLE `project_document` (
 
 INSERT INTO `project_document` (`id`, `doc_path`, `created_at`, `updated_at`, `deleted_at`, `status`, `document_type_id`, `project_id`, `remarks`) VALUES
 (3, 'project\\23\\23_EM_20240703144202.png', NULL, '2024-07-05', NULL, 1, 2, 23, '1st'),
-(4, 'project\\23\\23_PO_20240627105519.pdf', NULL, NULL, NULL, 1, 3, 23, '2nd'),
-(5, 'project\\23\\23_SRS_20240627105519.png', NULL, NULL, NULL, 1, 4, 23, '3rd');
+(5, 'project\\23\\23_SRS_20240627105519.png', NULL, NULL, NULL, 1, 4, 23, '3rd'),
+(6, 'project\\23\\23_PO_20240722115932.png', '2024-07-22', '2024-07-23', NULL, 1, 3, 23, 'checked'),
+(8, 'project\\14\\14_EM_20240723113825.pdf', '2024-07-23', '2024-07-23', NULL, 1, 2, 14, '1st'),
+(9, 'project\\14\\14_PO_20240723113825.png', '2024-07-23', '2024-07-23', NULL, 1, 3, 14, '2nd');
 
 -- --------------------------------------------------------
 
@@ -1678,6 +1791,21 @@ ALTER TABLE `employee`
   ADD KEY `employee_branch_id_fabda6fb_fk_branch_id` (`branch_id`);
 
 --
+-- Indexes for table `employee_project`
+--
+ALTER TABLE `employee_project`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `employee_project_employee_id_2bd66f29_fk_employee_id` (`employee_id`),
+  ADD KEY `employee_project_project_id_00893bbc_fk_project_id` (`project_id`);
+
+--
+-- Indexes for table `employee_target`
+--
+ALTER TABLE `employee_target`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `employee_target_employee_id_385f32e1_fk_employee_id` (`employee_id`);
+
+--
 -- Indexes for table `employment_record`
 --
 ALTER TABLE `employment_record`
@@ -1810,7 +1938,7 @@ ALTER TABLE `auth_group_permissions`
 -- AUTO_INCREMENT for table `auth_permission`
 --
 ALTER TABLE `auth_permission`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=158;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=166;
 
 --
 -- AUTO_INCREMENT for table `auth_user`
@@ -1840,7 +1968,7 @@ ALTER TABLE `bank`
 -- AUTO_INCREMENT for table `bank_guaranty`
 --
 ALTER TABLE `bank_guaranty`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- AUTO_INCREMENT for table `branch`
@@ -1852,7 +1980,7 @@ ALTER TABLE `branch`
 -- AUTO_INCREMENT for table `certifications`
 --
 ALTER TABLE `certifications`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `client`
@@ -1906,13 +2034,13 @@ ALTER TABLE `django_admin_log`
 -- AUTO_INCREMENT for table `django_content_type`
 --
 ALTER TABLE `django_content_type`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=41;
 
 --
 -- AUTO_INCREMENT for table `django_migrations`
 --
 ALTER TABLE `django_migrations`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
 
 --
 -- AUTO_INCREMENT for table `document_type`
@@ -1924,13 +2052,25 @@ ALTER TABLE `document_type`
 -- AUTO_INCREMENT for table `education`
 --
 ALTER TABLE `education`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `employee`
 --
 ALTER TABLE `employee`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+
+--
+-- AUTO_INCREMENT for table `employee_project`
+--
+ALTER TABLE `employee_project`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `employee_target`
+--
+ALTER TABLE `employee_target`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `employment_record`
@@ -1942,7 +2082,7 @@ ALTER TABLE `employment_record`
 -- AUTO_INCREMENT for table `insurance_detail`
 --
 ALTER TABLE `insurance_detail`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `insurance_type`
@@ -1954,7 +2094,7 @@ ALTER TABLE `insurance_type`
 -- AUTO_INCREMENT for table `liquidity_damages`
 --
 ALTER TABLE `liquidity_damages`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
 
 --
 -- AUTO_INCREMENT for table `mainmenu`
@@ -1972,13 +2112,13 @@ ALTER TABLE `module`
 -- AUTO_INCREMENT for table `project`
 --
 ALTER TABLE `project`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- AUTO_INCREMENT for table `project_document`
 --
 ALTER TABLE `project_document`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `project_type`
@@ -2108,6 +2248,19 @@ ALTER TABLE `employee`
   ADD CONSTRAINT `employee_branch_id_fabda6fb_fk_branch_id` FOREIGN KEY (`branch_id`) REFERENCES `branch` (`id`),
   ADD CONSTRAINT `employee_department_id_4306dd33_fk_department_id` FOREIGN KEY (`department_id`) REFERENCES `department` (`id`),
   ADD CONSTRAINT `employee_designation_id_073f8843_fk_designation_id` FOREIGN KEY (`designation_id`) REFERENCES `designation` (`id`);
+
+--
+-- Constraints for table `employee_project`
+--
+ALTER TABLE `employee_project`
+  ADD CONSTRAINT `employee_project_employee_id_2bd66f29_fk_employee_id` FOREIGN KEY (`employee_id`) REFERENCES `employee` (`id`),
+  ADD CONSTRAINT `employee_project_project_id_00893bbc_fk_project_id` FOREIGN KEY (`project_id`) REFERENCES `project` (`id`);
+
+--
+-- Constraints for table `employee_target`
+--
+ALTER TABLE `employee_target`
+  ADD CONSTRAINT `employee_target_employee_id_385f32e1_fk_employee_id` FOREIGN KEY (`employee_id`) REFERENCES `employee` (`id`);
 
 --
 -- Constraints for table `employment_record`

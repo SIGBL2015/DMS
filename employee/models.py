@@ -137,6 +137,18 @@ class Project_type(models.Model):
     class Meta:  
         db_table = "project_type"
 
+class Leads(models.Model): 
+    sale_person = models.ForeignKey(Employee, on_delete=models.CASCADE,null=True)
+    lead_date = models.DateField(null=True)
+    lead_type = models.CharField(max_length=100,null=True) 
+    convert_date = models.DateField(null=True)
+    created_at = models.DateField(auto_now_add=True, null=True)
+    updated_at = models.DateField(auto_now=True, null=True)
+    deleted_at = models.DateField(null=True, blank=True)
+    status = models.IntegerField(default=1) 
+    class Meta:  
+        db_table = "leads"
+
 class Project(models.Model):  
     branch =  models.ForeignKey(Branch, on_delete=models.CASCADE,null=True)
     project_type = models.ForeignKey(Project_type, on_delete=models.CASCADE,null=True)
@@ -171,6 +183,10 @@ class Project(models.Model):
     po_scan_doc = models.CharField(max_length=255,null=True, blank=True)
     em_received = models.CharField(max_length=100,null=True)
     em_receive_date = models.DateField(null=True)
+    initiated_by = models.CharField(max_length=100,null=True)
+    manager = models.ForeignKey(Employee, on_delete=models.CASCADE,null=True)
+    lead = models.ForeignKey(Leads, on_delete=models.CASCADE,null=True)
+    team_id = models.IntegerField(null=True)
     class Meta:  
         db_table = "project"
 
@@ -311,3 +327,42 @@ class Project_document(models.Model):
     status = models.IntegerField(default=1) 
     class Meta:  
         db_table = "project_document"
+
+class Quarters(models.Model): 
+    title = models.CharField(max_length=255, null=True)
+    short_name = models.CharField(max_length=50, null=True)
+    year = models.CharField(max_length=50, null=True)
+    start_date = models.DateField(null=True)
+    end_date = models.DateField(null=True)
+    created_at = models.DateField(auto_now_add=True, null=True)
+    updated_at = models.DateField(auto_now=True, null=True)
+    deleted_at = models.DateField(null=True, blank=True)
+    status = models.IntegerField(default=1) 
+    class Meta:  
+        db_table = "quarters"
+
+class Employee_target(models.Model): 
+    employee = models.ForeignKey(Employee, on_delete=models.CASCADE,null=True)
+    financial_year = models.CharField(max_length=255, null=True)
+    currency = models.CharField(max_length=255, null=True)
+    quarter = models.ForeignKey(Quarters, on_delete=models.CASCADE,null=True)
+    sales_target = models.IntegerField(null=True)
+    created_at = models.DateField(auto_now_add=True, null=True)
+    updated_at = models.DateField(auto_now=True, null=True)
+    deleted_at = models.DateField(null=True, blank=True)
+    status = models.IntegerField(default=1) 
+    class Meta:  
+        db_table = "employee_target"
+
+class Sales(models.Model): 
+    sale_person = models.ForeignKey(Employee, on_delete=models.CASCADE,null=True)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE,null=True)
+    quarter = models.ForeignKey(Quarters, on_delete=models.CASCADE,null=True)
+    lead = models.ForeignKey(Leads, on_delete=models.CASCADE,null=True)
+    amount = models.IntegerField(null=True) 
+    created_at = models.DateField(auto_now_add=True, null=True)
+    updated_at = models.DateField(auto_now=True, null=True)
+    deleted_at = models.DateField(null=True, blank=True)
+    status = models.IntegerField(default=1) 
+    class Meta:  
+        db_table = "sales"

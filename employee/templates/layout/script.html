@@ -10,7 +10,7 @@
 <script src="{% static 'dist/modules/chart.min.js' %}"></script>
 <script src="{% static 'dist/modules/summernote/summernote-lite.js' %}"></script>
 
-<script>
+<!-- <script>
 var ctx = document.getElementById("myChart").getContext('2d');
 var myChart = new Chart(ctx, {
   type: 'line',
@@ -46,7 +46,43 @@ var myChart = new Chart(ctx, {
     },
   }
 });
-</script>
+
+var ctx = document.getElementById("myChart3").getContext('2d');
+var myChart = new Chart(ctx, {
+  type: 'bar',
+  data: {
+    labels: ["Quarter1", "Quarter2", "Quarter3", "Quarter4"],
+    datasets: [{
+      label: 'Statistics',
+      data: [702, 430, 410, 288],
+      borderWidth: 2,
+      backgroundColor: 'rgb(87,75,144)',
+      borderColor: 'rgb(87,75,144)',
+      borderWidth: 2.5,
+      pointBackgroundColor: '#ffffff',
+      pointRadius: 4
+    }]
+  },
+  options: {
+    legend: {
+      display: false
+    },
+    scales: {
+      yAxes: [{
+        ticks: {
+          beginAtZero: true,
+          stepSize: 150
+        }
+      }],
+      xAxes: [{
+        gridLines: {
+          display: false
+        }
+      }]
+    },
+  }
+});
+</script> -->
 <script src="{% static 'dist/js/scripts.js' %}"></script>
 <script src="{% static 'dist/js/custom.js' %}"></script>
 <script src="{% static 'dist/js/demo.js' %}"></script>

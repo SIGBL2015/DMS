@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  {% load static %} 
+  {% include 'layout/style.html' %}
+
+<body>
+  <div id="app">
+    <div class="main-wrapper">
+      {% include 'layout/header.html' %}
+      {% include 'layout/sidebar.html' %}
+      <div class="main-content">
+        <section class="section">
+          <h1 class="section-header">
+            <div>Edit Lead</div>
+          </h1>
+          <div class="card card-primary">
+            <div class="card-header"><h4>Edit</h4></div>
+
+            <div class="card-body">
+              <form method="POST" action="/employee/u_leads/{{leads.id}}">
+                {% csrf_token %}
+                <div class="row">
+                  <div class="form-group col-6">
+                    <label for="frist_name">Sale Person</label>
+                    <select class="form-control" id="sale_person" name="sale_person">
+                        <option value=""> Select </option>
+                        {% for employee in employees %}
+                          {% if leads.sale_person.id == employee.id %}                         
+                            <option value="{{ employee.id }}" selected>{{ employee.ename }}</option>
+                          {% else %}
+                            <option value="{{ employee.id }}">{{ employee.ename }}</option>
+                          {% endif %}
+                        {% endfor %}
+                    </select>
+                  </div>
+                  <div class="form-group col-6">
+                    <label for="frist_name">Lead Date</label>
+                    <input id="lead_date" type="date" class="form-control" name="lead_date" value="{{ leads.lead_date|date:'Y-m-d' }}">
+                  </div>
+                  <div class="form-group col-6">
+                    <label for="frist_name">Lead Type</label>
+                    <input id="lead_type" type="text" class="form-control" name="lead_type" value="{{ leads.lead_type }}">
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <button type="submit" class="btn btn-primary">
+                    Update
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </section>
+      </div>
+      {% include 'layout/footer.html' %}
+    </div>
+  </div>
+
+  {% include 'layout/script.html' %}
+</body>
+</html>

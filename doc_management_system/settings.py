@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-4v@r1@d%74#p*wu$jn_c=y(sjxhy@gl=&=+_hrpu($k1!*oa26
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1', '172.16.10.197']
 
 
 # Application definition
@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'accounts',
     'employee',
     'django_crontab',
+    'django.contrib.humanize',
 ]
 
 MIDDLEWARE = [
@@ -144,7 +145,7 @@ MEDIA_URL = '/media/'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-HOST = 'http://127.0.0.1:8080'
+HOST = 'http://0.0.0.0:8080'
 
 LOGGING = {
     'version': 1,
