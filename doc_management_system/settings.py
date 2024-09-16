@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'employee',
     'django_crontab',
     'django.contrib.humanize',
+    'finance',
 ]
 
 MIDDLEWARE = [

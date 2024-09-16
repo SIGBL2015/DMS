@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+  {% load static %} 
+  {% include 'layout/style.html' %}
+
+<body>
+  <div id="app">
+    <div class="main-wrapper">
+      {% include 'layout/header.html' %}
+      {% include 'layout/sidebar.html' %}
+      <div class="main-content">
+        <section class="section">
+          <h1 class="section-header">
+            <div>Add Journal Entry</div>
+          </h1>
+          <div class="col-md-6 col-md-offset-4 mx-auto">
+            <div class="card card-primary">
+                <div class="card-header"><h4>Add</h4></div>
+                
+                <div class="card-body">
+    
+                  <form method="POST" action="save_journal_entry">
+                    {% csrf_token %}
+                    <div class="row">
+                      <div class="form-group col-md-12">
+                        <label for="frist_name">ChartOfAccount</label>
+                        <select class="form-control" id="coaid" name="coaid">
+                            <option value="">-- Select --</option>
+                            {% for coa in coas %}
+                                <option value="{{ coa.id }}">{{ coa.title }}</option>
+                            {% endfor %}
+                        </select>
+                      </div>
+                      <div class="form-group col-md-12">
+                        <label for="frist_name">Category Type</label>
+                        <input id="category_type" type="text" class="form-control" name="category_type">
+                      </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="form-group col-md-12">
+                          <label for="frist_name">Amount</label>
+                          <input id="amount" type="text" class="form-control" name="amount">
+                        </div>
+                        <div class="form-group col-md-12">
+                          <label for="frist_name">Transaction Type</label>
+                          <select class="form-control" id="transaction_type" name="transaction_type">
+                            <option value="">-- Select --</option>
+                            <option value="Credit">Credit</option>
+                            <option value="Debit">Debit</option>
+                          </select>
+                        </div>
+                    </div>
+    
+                    <div class="form-group">
+                      <button type="submit" class="btn btn-primary">
+                        Save
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          
+        </section>
+      </div>
+      {% include 'layout/footer.html' %}
+    </div>
+  </div>
+
+  {% include 'layout/script.html' %}
+</body>
+</html>

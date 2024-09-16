@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  {% load static %} 
+  {% include 'layout/style.html' %}
+
+<body>
+  <div id="app">
+    <div class="main-wrapper">
+      {% include 'layout/header.html' %}
+      {% include 'layout/sidebar.html' %}
+      <div class="main-content">
+        <section class="section">
+          <h1 class="section-header">
+            <div>Edit Chart Of Account</div>
+          </h1>
+          <div class="col-md-6 col-md-offset-4 mx-auto">
+            <div class="card card-primary">
+                <div class="card-header"><h4>Edit</h4></div>
+                
+                <div class="card-body">
+    
+                  <form method="POST" action="/finance/u_coa/{{coa.id}}">
+                    {% csrf_token %}
+                    <div class="row">
+                      <div class="form-group col-md-12">
+                        <label for="frist_name">Title</label>
+                        <input id="title" type="text" class="form-control" name="title" value="{{ coa.title }}" autofocus>
+                      </div>
+                      <div class="form-group col-md-12">
+                        <label for="frist_name">Short code</label>
+                        <input id="short_code" type="text" class="form-control" name="short_code" value="{{ coa.short_code }}" autofocus>
+                      </div>
+                      <div class="form-group col-md-12">
+                        <label for="frist_name">Parent Head</label>
+                        <select class="form-control" id="parent" name="parent">
+                            <option value="">-- Select --</option>
+                            {% for coa in coas %}
+                              {% if coa.parent.id == coa.id %}                         
+                                  <option value="{{ coa.id }}" selected>{{ coa.title }}</option>
+                              {% else %}
+                                  <option value="{{ coa.id }}">{{ coa.title }}</option>
+                              {% endif %}
+                            {% endfor %}
+                        </select>
+                      </div>
+                    </div>
+    
+                    <div class="form-group">
+                      <button type="submit" class="btn btn-primary">
+                        Update
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          
+        </section>
+      </div>
+      {% include 'layout/footer.html' %}
+    </div>
+  </div>
+
+  {% include 'layout/script.html' %}
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+  {% load static %} 
+  {% include 'layout/style.html' %}
+
+<body>
+  <div id="app">
+    <div class="main-wrapper">
+      {% include 'layout/header.html' %}
+      {% include 'layout/sidebar.html' %}
+      <div class="main-content">
+        <section class="section">
+          <h1 class="section-header">
+            <div>Edit Journal Entry</div>
+          </h1>
+          <div class="col-md-6 col-md-offset-4 mx-auto">
+            <div class="card card-primary">
+                <div class="card-header"><h4>Edit</h4></div>
+                
+                <div class="card-body">
+    
+                  <form method="POST" action="/finance/u_journal_entry/{{journal_entry.id}}">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="form-group col-md-12">
+                          <label for="frist_name">ChartOfAccount</label>
+                          <select class="form-control" id="coaid" name="coaid">
+                              <option value="">-- Select --</option>
+                              {% for coa in coas %}
+                                {% if journal_entry.coaid.id == coa.id %}                         
+                                    <option value="{{ coa.id }}" selected>{{ coa.title }}</option>
+                                {% else %}
+                                    <option value="{{ coa.id }}">{{ coa.title }}</option>
+                                {% endif %}
+                              {% endfor %}
+                          </select>
+                        </div>
+                        <div class="form-group col-md-12">
+                          <label for="frist_name">Category Type</label>
+                          <input id="category_type" type="text" class="form-control" name="category_type" value="{{ journal_entry.category_type }}">
+                        </div>
+                    </div>
+  
+                    <div class="row">
+                        <div class="form-group col-md-12">
+                        <label for="frist_name">Amount</label>
+                        <input id="amount" type="text" class="form-control" name="amount" value="{{ journal_entry.amount }}">
+                        </div>
+                        <div class="form-group col-md-12">
+                        <label for="frist_name">Transaction Type</label>
+                        <select class="form-control" id="transaction_type" name="transaction_type">
+                            <option value="{{ journal_entry.transaction_type }}">{{ journal_entry.transaction_type }}</option>
+                            <option value="Credit">Credit</option>
+                            <option value="Debit">Debit</option>
+                        </select>
+                        </div>
+                    </div>
+    
+                    <div class="form-group">
+                      <button type="submit" class="btn btn-primary">
+                        Update
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          
+        </section>
+      </div>
+      {% include 'layout/footer.html' %}
+    </div>
+  </div>
+
+  {% include 'layout/script.html' %}
+</body>
+</html>
