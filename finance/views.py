@@ -1,5 +1,6 @@
-from finance.forms import Chart_of_accountsForm, Journal_entryForm
-from finance.models import Chart_of_accounts, Journal_entry
+from finance.forms import Chart_of_accountsForm, Journal_entryForm, Payment_modeForm
+from finance.models import Chart_of_accounts, Journal_entry, Payment_mode
+from employee.models import Project, Bank
 from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import get_object_or_404, render, redirect  
 # Create your views here.
@@ -70,7 +71,10 @@ def add_journal_entry(request):
     else:  
         form = Journal_entryForm()  
         coas = Chart_of_accounts.objects.filter(status=1,parent_id__isnull=False).values('id','title')
-    return render(request,'journal_entry/add_journal_entry.html',{'form':form, 'coas':coas})  
+        projects = Project.objects.filter(status=1).values('id','title')
+        banks = Bank.objects.filter(status=1).values('id','bank_name')
+        modes = Payment_mode.objects.filter(status=1).values('id','title')
+    return render(request,'journal_entry/add_journal_entry.html',{'form':form, 'coas':coas, 'projects':projects, 'banks':banks, 'modes':modes})  
 
 @login_required  
 @permission_required('finance.view_journal_entry', raise_exception=True)   
@@ -83,7 +87,10 @@ def show_journal_entry(request):
 def e_journal_entry(request, id):  
     journal_entry = Journal_entry.objects.get(id=id)  
     coas = Chart_of_accounts.objects.filter(status=1,parent_id__isnull=False).values('id','title')
-    return render(request,'journal_entry/e_journal_entry.html', {'journal_entry':journal_entry, 'coas':coas})  
+    projects = Project.objects.filter(status=1).values('id','title')
+    banks = Bank.objects.filter(status=1).values('id','bank_name')
+    modes = Payment_mode.objects.filter(status=1).values('id','title')
+    return render(request,'journal_entry/e_journal_entry.html', {'journal_entry':journal_entry, 'coas':coas, 'projects':projects, 'banks':banks, 'modes':modes})  
 
 @login_required  
 def u_journal_entry(request, id):  

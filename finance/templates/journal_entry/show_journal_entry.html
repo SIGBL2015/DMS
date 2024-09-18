@@ -32,6 +32,10 @@
                           <th>Amount</th>
                           <th>Project</th>
                           <th>Transaction Type</th>
+                          <th>Payment Mode</th>
+                          <th>Bank</th>
+                          <th>Cheque No</th>
+                          <th>Receiver</th>
                           <th>Status</th>
                           <th>Action</th>
                         </tr>
@@ -43,8 +47,12 @@
                                     <td>{{ journal_entry.coaid.title }}</td>  
                                     <td>{{ journal_entry.category_type }}</td>
                                     <td>{{ journal_entry.amount }}</td>
-                                    <td>{{ journal_entry.project }}</td>
+                                    <td>{{ journal_entry.project.title }}</td>
                                     <td>{{ journal_entry.transaction_type }}</td>
+                                    <td>{{ journal_entry.payment_mode.title }}</td>
+                                    <td>{{ journal_entry.bank.bank_name }}</td>
+                                    <td>{{ journal_entry.cheque_no }}</td>
+                                    <td>{{ journal_entry.receive_person }}</td>
                                     <td>{{ journal_entry.status }}</td>  
                                     <td>  
                                         <a href="/finance/e_journal_entry/{{ journal_entry.id }}"><span class="ion-ios-compose" ></span></a>  
@@ -61,6 +69,10 @@
                           <th>Amount</th>
                           <th>Project</th>
                           <th>Transaction Type</th>
+                          <th>Payment Mode</th>
+                          <th>Bank</th>
+                          <th>Cheque No</th>
+                          <th>Receiver</th>
                           <th>Status</th>
                           <th>Action</th>
                         </tr>

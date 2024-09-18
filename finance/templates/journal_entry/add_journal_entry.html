@@ -22,7 +22,7 @@
                   <form method="POST" action="save_journal_entry">
                     {% csrf_token %}
                     <div class="row">
-                      <div class="form-group col-md-12">
+                      <div class="form-group col-md-6">
                         <label for="frist_name">ChartOfAccount</label>
                         <select class="form-control" id="coaid" name="coaid">
                             <option value="">-- Select --</option>
@@ -31,18 +31,18 @@
                             {% endfor %}
                         </select>
                       </div>
-                      <div class="form-group col-md-12">
+                      <div class="form-group col-md-6">
                         <label for="frist_name">Category Type</label>
                         <input id="category_type" type="text" class="form-control" name="category_type">
                       </div>
                     </div>
 
                     <div class="row">
-                        <div class="form-group col-md-12">
+                        <div class="form-group col-md-6">
                           <label for="frist_name">Amount</label>
-                          <input id="amount" type="text" class="form-control" name="amount">
+                          <input id="amount" type="number" class="form-control" name="amount">
                         </div>
-                        <div class="form-group col-md-12">
+                        <div class="form-group col-md-6">
                           <label for="frist_name">Transaction Type</label>
                           <select class="form-control" id="transaction_type" name="transaction_type">
                             <option value="">-- Select --</option>
@@ -50,6 +50,47 @@
                             <option value="Debit">Debit</option>
                           </select>
                         </div>
+                    </div>
+
+                    <div class="row">
+                      <div class="form-group col-md-6">
+                        <label for="frist_name">Project</label>
+                        <select class="form-control" id="project" name="project">
+                            <option value="">-- Select --</option>
+                            {% for project in projects %}
+                                <option value="{{ project.id }}">{{ project.title }}</option>
+                            {% endfor %}
+                        </select>
+                      </div>
+                      <div class="form-group col-md-6">
+                        <label for="frist_name">Payment Mode</label>
+                        <select class="form-control" id="payment_mode" name="payment_mode">
+                            <option value="">-- Select --</option>
+                            {% for mode in modes %}
+                                <option value="{{ mode.id }}">{{ mode.title }}</option>
+                            {% endfor %}
+                        </select>
+                      </div>
+                    </div>
+
+                    <div class="row">
+                      <div class="form-group col-md-6">
+                        <label for="frist_name">Bank</label>
+                        <select class="form-control" id="bank" name="bank">
+                            <option value="">-- Select --</option>
+                            {% for bank in banks %}
+                                <option value="{{ bank.id }}">{{ bank.bank_name }}</option>
+                            {% endfor %}
+                        </select>
+                      </div>
+                      <div class="form-group col-md-6">
+                        <label for="frist_name">Cheque No</label>
+                        <input id="cheque_no" type="text" class="form-control" name="cheque_no">
+                      </div>
+                      <div class="form-group col-md-6">
+                        <label for="frist_name">Receiver</label>
+                        <input id="receive_person" type="text" class="form-control" name="receive_person">
+                      </div>
                     </div>
     
                     <div class="form-group">
