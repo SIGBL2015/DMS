@@ -27,6 +27,7 @@
                         <thead>
                         <tr>
                           <th>S.No</th>
+                          <th>Ref.No</th>
                           <th>ChartOfAccount</th>
                           <th>Category</th>
                           <th>Amount</th>
@@ -44,6 +45,7 @@
                             {% for journal_entry in journal_entries %}  
                                 <tr>  
                                     <td>{{ forloop.counter }}</td>  
+                                    <td>{{ journal_entry.ref_no }}</td>  
                                     <td>{{ journal_entry.coaid.title }}</td>  
                                     <td>{{ journal_entry.category_type }}</td>
                                     <td>{{ journal_entry.amount }}</td>
@@ -64,6 +66,7 @@
                         <tfoot>
                         <tr>
                           <th>S.No</th>
+                          <th>Ref.No</th>
                           <th>ChartOfAccount</th>
                           <th>Category</th>
                           <th>Amount</th>

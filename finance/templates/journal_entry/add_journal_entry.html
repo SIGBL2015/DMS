@@ -32,8 +32,10 @@
                         </select>
                       </div>
                       <div class="form-group col-md-6">
-                        <label for="frist_name">Category Type</label>
-                        <input id="category_type" type="text" class="form-control" name="category_type">
+                        <label for="frist_name">Detail Type</label>
+                        <select class="form-control" id="detail_type" name="detail_type">
+                          <option value="">-- Select --</option>
+                      </select>
                       </div>
                     </div>
 
@@ -87,6 +89,21 @@
                         <label for="frist_name">Cheque No</label>
                         <input id="cheque_no" type="text" class="form-control" name="cheque_no">
                       </div>
+                    </div>
+                    <div class="row">
+                      <div class="form-group col-md-6">
+                        <label for="frist_name">Region</label>
+                        <select class="form-control" id="region" name="region">
+                            <option value="">-- Select --</option>
+                            {% for region in regions %}
+                                <option value="{{ region.id }}">{{ region.region_name }}</option>
+                            {% endfor %}
+                        </select>
+                      </div>
+                      <div class="form-group col-md-6">
+                        <label for="frist_name">Ref No</label>
+                        <input id="ref_no" type="text" class="form-control" name="ref_no" readonly>
+                      </div>
                       <div class="form-group col-md-6">
                         <label for="frist_name">Receiver</label>
                         <input id="receive_person" type="text" class="form-control" name="receive_person">
@@ -110,5 +127,15 @@
   </div>
 
   {% include 'layout/script.html' %}
+  <script>
+    $(document).ready(function () {
+      // $("#coaid").click(function(){
+        $.get("generate_refno", function(data, status){
+          // alert("Data: " + data.generated_code + "\nStatus: " + status);
+          $('#ref_no').val(data.generated_code);
+        });
+      // });
+    });
+</script>
 </body>
 </html>

@@ -1,6 +1,8 @@
+from datetime import datetime
+from django.http import JsonResponse
 from finance.forms import Chart_of_accountsForm, Journal_entryForm, Payment_modeForm
 from finance.models import Chart_of_accounts, Journal_entry, Payment_mode
-from employee.models import Project, Bank
+from employee.models import Project, Bank, Region
 from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import get_object_or_404, render, redirect  
 # Create your views here.
@@ -74,7 +76,8 @@ def add_journal_entry(request):
         projects = Project.objects.filter(status=1).values('id','title')
         banks = Bank.objects.filter(status=1).values('id','bank_name')
         modes = Payment_mode.objects.filter(status=1).values('id','title')
-    return render(request,'journal_entry/add_journal_entry.html',{'form':form, 'coas':coas, 'projects':projects, 'banks':banks, 'modes':modes})  
+        regions = Region.objects.filter(status=1).values('id','region_name')
+    return render(request,'journal_entry/add_journal_entry.html',{'form':form, 'coas':coas, 'projects':projects, 'banks':banks, 'modes':modes,'regions':regions})  
 
 @login_required  
 @permission_required('finance.view_journal_entry', raise_exception=True)   
@@ -90,7 +93,8 @@ def e_journal_entry(request, id):
     projects = Project.objects.filter(status=1).values('id','title')
     banks = Bank.objects.filter(status=1).values('id','bank_name')
     modes = Payment_mode.objects.filter(status=1).values('id','title')
-    return render(request,'journal_entry/e_journal_entry.html', {'journal_entry':journal_entry, 'coas':coas, 'projects':projects, 'banks':banks, 'modes':modes})  
+    regions = Region.objects.filter(status=1).values('id','region_name')
+    return render(request,'journal_entry/e_journal_entry.html', {'journal_entry':journal_entry, 'coas':coas, 'projects':projects, 'banks':banks, 'modes':modes,'regions':regions})  
 
 @login_required  
 def u_journal_entry(request, id):  
@@ -108,3 +112,28 @@ def d_journal_entry(request, id):
     journal_entry.status=0  
     journal_entry.save()
     return redirect("show_journal_entry")  
+
+def generate_refno(request):
+    ref = Journal_entry.objects.filter(status=1).values('ref_no').last()
+    print(ref)
+    # Get the current date in 'YYYYMMDD' format
+    current_date = datetime.now().strftime('%Y%m%d')
+    if(ref != None):
+
+        last=ref['ref_no']
+        
+        # Split the input string by '-'
+        parts =last.split('-')
+        
+        # The last part (e.g., '001') needs to be incremented
+        last_ref = parts[-1]
+        
+        # Convert the last part to an integer, increment it by 1
+        incremented_ref = str(int(last_ref) + 1).zfill(3)  # zfill(3) ensures it's always 3 digits
+        
+        # Reconstruct the string by joining the parts with '-'
+        new_string = '-'.join(['SIGBL',current_date,incremented_ref])
+    else:
+        # Reconstruct the string by joining the parts with '-'
+        new_string = '-'.join(['SIGBL',current_date,'001'])
+    return JsonResponse({'generated_code': new_string})
