@@ -19,5 +19,6 @@ urlpatterns = [
     path('u_journal_entry/<int:id>', views.u_journal_entry, name="u_journal_entry"),  
     path('d_journal_entry/<int:id>', views.d_journal_entry, name="d_journal_entry"),
     path('generate_refno', views.generate_refno, name="generate_refno"),
+    path('generate_pnl', views.generate_pnl, name="generate_pnl"),
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -19,7 +19,7 @@
                 
                 <div class="card-body">
     
-                  <form method="POST" action="save_journal_entry">
+                  <form method="POST" action="save_journal_entry" enctype="multipart/form-data">
                     {% csrf_token %}
                     <div class="row">
                       <div class="form-group col-md-6">
@@ -89,17 +89,24 @@
                         <label for="frist_name">Cheque No</label>
                         <input id="cheque_no" type="text" class="form-control" name="cheque_no">
                       </div>
+                     
                     </div>
                     <div class="row">
                       <div class="form-group col-md-6">
-                        <label for="frist_name">Region</label>
-                        <select class="form-control" id="region" name="region">
+                        <label for="frist_name">Doc</label>
+                        <input id="doc_path" type="file" class="form-control" name="doc_path">
+                      </div>
+                      <div class="form-group col-md-6">
+                        <label for="frist_name">Branch</label>
+                        <select class="form-control" id="branch" name="branch">
                             <option value="">-- Select --</option>
-                            {% for region in regions %}
-                                <option value="{{ region.id }}">{{ region.region_name }}</option>
+                            {% for branch in branches %}
+                                <option value="{{ branch.id }}">{{ branch.branch_name }}</option>
                             {% endfor %}
                         </select>
                       </div>
+                    </div>
+                    <div class="row">
                       <div class="form-group col-md-6">
                         <label for="frist_name">Ref No</label>
                         <input id="ref_no" type="text" class="form-control" name="ref_no" readonly>
@@ -107,6 +114,10 @@
                       <div class="form-group col-md-6">
                         <label for="frist_name">Receiver</label>
                         <input id="receive_person" type="text" class="form-control" name="receive_person">
+                      </div>
+                      <div class="form-group col-md-6">
+                        <label for="frist_name">Description</label>
+                        <textarea id="description" name="description" class="form-control" rows="4" cols="5"></textarea>
                       </div>
                     </div>
     

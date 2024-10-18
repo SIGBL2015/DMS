@@ -1,8 +1,10 @@
 from datetime import datetime
+import os
+from django.conf import settings
 from django.http import JsonResponse
 from finance.forms import Chart_of_accountsForm, Journal_entryForm, Payment_modeForm
 from finance.models import Chart_of_accounts, Journal_entry, Payment_mode
-from employee.models import Project, Bank, Region
+from employee.models import Project, Bank, Branch
 from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import get_object_or_404, render, redirect  
 # Create your views here.
@@ -62,22 +64,41 @@ def d_coa(request, id):
 @permission_required('finance.add_journal_entry', raise_exception=True)  
 def add_journal_entry(request):  
     if request.method == "POST":  
-        form = Journal_entryForm(request.POST) 
-        if form.is_valid():
-            try:  
-                form.save()  
+        form = Journal_entryForm(request.POST, request.FILES) 
+        
+        try:  
+            if form.is_valid():
+                file_instance = form.save(commit=False)
+                if 'doc_path' in request.FILES:
+                    # Generate folder path dynamically
+                    folder_name = str(file_instance.project.id)
+                    folder_path = os.path.join(settings.MEDIA_ROOT,'project',folder_name,'expense_document')
+                    
+                    if not os.path.exists(folder_path):
+                        os.makedirs(folder_path)
+                    # Generate file path dynamically
+                    timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+                    new_file_name = f"{file_instance.project.id}_{file_instance.ref_no}_{timestamp}{os.path.splitext(request.FILES['doc_path'].name)[1]}"
+                    file_path = os.path.join(folder_path, new_file_name)
+                    # Save file to the generated path
+                    with open(file_path, 'wb') as f:
+                        for chunk in request.FILES['doc_path'].chunks():
+                            f.write(chunk)
+                    # Update the file field with the relative path to the file
+                    file_instance.doc_path = os.path.relpath(file_path, settings.MEDIA_ROOT)
+                file_instance.save()   
                 return redirect('show_journal_entry')  
-            except Exception as e:  
-  
-                pass  
+        except Exception as e:  
+
+            pass  
     else:  
         form = Journal_entryForm()  
         coas = Chart_of_accounts.objects.filter(status=1,parent_id__isnull=False).values('id','title')
         projects = Project.objects.filter(status=1).values('id','title')
         banks = Bank.objects.filter(status=1).values('id','bank_name')
         modes = Payment_mode.objects.filter(status=1).values('id','title')
-        regions = Region.objects.filter(status=1).values('id','region_name')
-    return render(request,'journal_entry/add_journal_entry.html',{'form':form, 'coas':coas, 'projects':projects, 'banks':banks, 'modes':modes,'regions':regions})  
+        branches = Branch.objects.filter(status=1).values('id','branch_name')
+    return render(request,'journal_entry/add_journal_entry.html',{'form':form, 'coas':coas, 'projects':projects, 'banks':banks, 'modes':modes,'branches':branches})  
 
 @login_required  
 @permission_required('finance.view_journal_entry', raise_exception=True)   
@@ -93,8 +114,8 @@ def e_journal_entry(request, id):
     projects = Project.objects.filter(status=1).values('id','title')
     banks = Bank.objects.filter(status=1).values('id','bank_name')
     modes = Payment_mode.objects.filter(status=1).values('id','title')
-    regions = Region.objects.filter(status=1).values('id','region_name')
-    return render(request,'journal_entry/e_journal_entry.html', {'journal_entry':journal_entry, 'coas':coas, 'projects':projects, 'banks':banks, 'modes':modes,'regions':regions})  
+    branches = Branch.objects.filter(status=1).values('id','branch_name')
+    return render(request,'journal_entry/e_journal_entry.html', {'journal_entry':journal_entry, 'coas':coas, 'projects':projects, 'banks':banks, 'modes':modes,'branches':branches})  
 
 @login_required  
 def u_journal_entry(request, id):  
@@ -137,3 +158,22 @@ def generate_refno(request):
         # Reconstruct the string by joining the parts with '-'
         new_string = '-'.join(['SIGBL',current_date,'001'])
     return JsonResponse({'generated_code': new_string})
+
+#Generate Report
+@login_required 
+# @permission_required('employee.add_employee_project', raise_exception=True)
+def generate_pnl(request):  
+    if request.method == "POST":    
+        # Initialize the queryset
+        project = request.POST.get('project')
+        from_date = request.POST.get('from_date')
+        to_date = request.POST.get('to_date')
+        query = Journal_entry.objects.filter(created_at__range=[from_date, to_date],project=project)
+        cost = Project.objects.get(id=project)
+
+        total = sum([item.amount for item in query])
+        pnl= cost.amount - total
+        return render(request, 'journal_entry/generate_pnl.html', {'data': query, 'cost':cost.amount,'pnl':pnl, 'project':cost})
+    else:  
+        projects = Project.objects.filter(status=1).values('id','title')
+    return render(request,'journal_entry/pnl_report.html',{'projects':projects})

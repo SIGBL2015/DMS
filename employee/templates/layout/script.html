@@ -119,12 +119,20 @@ var myChart = new Chart(ctx, {
     });
   });
 </script>
+<script>
+  $(function () {
+    $("#example3").DataTable({
+      "responsive": false, "lengthChange": false, "autoWidth": false,"paging": false, "info": false,
+      "buttons": [{ extend: 'print',footer: true},{extend: 'excel',footer: true},{extend: 'pdf', footer: true} ]
+    }).buttons().container().appendTo('#example3_wrapper .col-md-6:eq(0)');
+  });
+</script>
 <script src="//cdn.ckeditor.com/4.5.5/standard/ckeditor.js"></script>
 <script>
   // Replace the <textarea id="editor1"> with a CKEditor
   // instance, using default configuration.
   CKEDITOR.replace( 'templete_code' );
-  console.log($("#templete_code").html());
+  // console.log($("#templete_code").html());
 </script>
 
 
