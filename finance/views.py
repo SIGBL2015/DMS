@@ -3,7 +3,7 @@ import os
 from django.conf import settings
 from django.http import JsonResponse
 from finance.forms import Chart_of_accountsForm, Journal_entryForm, Payment_modeForm
-from finance.models import Chart_of_accounts, Journal_entry, Payment_mode
+from finance.models import Chart_of_accounts, Journal_entry, Payment_mode, Account_type, Detail_type, Currency
 from employee.models import Project, Bank, Branch
 from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import get_object_or_404, render, redirect  
@@ -26,7 +26,8 @@ def add_coa(request):
     else:  
         form = Chart_of_accountsForm()  
         coas = Chart_of_accounts.objects.filter(status=1,parent_id__isnull=True).values('id','title')
-    return render(request,'chart_of_accounts/add_coa.html',{'form':form, 'coas':coas})  
+        account_types = Account_type.objects.filter(status=1).values('id','title')
+    return render(request,'chart_of_accounts/add_coa.html',{'form':form, 'coas':coas, 'account_types':account_types})  
 
 @login_required  
 @permission_required('finance.view_chart_of_accounts', raise_exception=True)   
@@ -38,8 +39,9 @@ def show_coa(request):
 @permission_required('finance.change_chart_of_accounts', raise_exception=True) 
 def e_coa(request, id):  
     coa = Chart_of_accounts.objects.get(id=id)  
+    account_types = Account_type.objects.filter(status=1).values('id','title')
     coas = Chart_of_accounts.objects.filter(status=1,parent_id__isnull=True).values('id','title')
-    return render(request,'chart_of_accounts/e_coa.html', {'coa':coa, 'coas':coas})  
+    return render(request,'chart_of_accounts/e_coa.html', {'coa':coa, 'coas':coas, 'account_types':account_types})  
 
 @login_required  
 def u_coa(request, id):  
@@ -94,11 +96,12 @@ def add_journal_entry(request):
     else:  
         form = Journal_entryForm()  
         coas = Chart_of_accounts.objects.filter(status=1,parent_id__isnull=False).values('id','title')
+        currency = Currency.objects.filter(status=1).values('id','name')
         projects = Project.objects.filter(status=1).values('id','title')
         banks = Bank.objects.filter(status=1).values('id','bank_name')
         modes = Payment_mode.objects.filter(status=1).values('id','title')
         branches = Branch.objects.filter(status=1).values('id','branch_name')
-    return render(request,'journal_entry/add_journal_entry.html',{'form':form, 'coas':coas, 'projects':projects, 'banks':banks, 'modes':modes,'branches':branches})  
+    return render(request,'journal_entry/add_journal_entry.html',{'form':form, 'coas':coas, 'projects':projects, 'banks':banks, 'modes':modes,'branches':branches,'currency':currency})  
 
 @login_required  
 @permission_required('finance.view_journal_entry', raise_exception=True)   
@@ -177,3 +180,13 @@ def generate_pnl(request):
     else:  
         projects = Project.objects.filter(status=1).values('id','title')
     return render(request,'journal_entry/pnl_report.html',{'projects':projects})
+
+def load_detail(request):
+    account_type = request.GET.get('account_type')
+    detail_type = Detail_type.objects.filter(account_type=account_type).order_by('title')
+    return JsonResponse(list(detail_type.values('id', 'title')), safe=False)
+
+def load_account(request):
+    coaid = request.GET.get('coaid')
+    account = Chart_of_accounts.objects.get(id=coaid)
+    return JsonResponse({"account":account.account_type.title,"detail":account.detail_type.title}, safe=False)

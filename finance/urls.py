@@ -11,6 +11,7 @@ urlpatterns = [
     path('e_coa/<int:id>', views.e_coa, name="e_coa"),  
     path('u_coa/<int:id>', views.u_coa, name="u_coa"),  
     path('d_coa/<int:id>', views.d_coa, name="d_coa"), 
+    path('load_detail', views.load_detail, name="load_detail"),
 
     #journal_entry
     path('save_journal_entry', views.add_journal_entry, name="save_journal_entry"),  
@@ -20,5 +21,6 @@ urlpatterns = [
     path('d_journal_entry/<int:id>', views.d_journal_entry, name="d_journal_entry"),
     path('generate_refno', views.generate_refno, name="generate_refno"),
     path('generate_pnl', views.generate_pnl, name="generate_pnl"),
+     path('load_account', views.load_account, name="load_account"),
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

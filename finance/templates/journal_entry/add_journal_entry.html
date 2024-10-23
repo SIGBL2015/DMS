@@ -23,6 +23,16 @@
                     {% csrf_token %}
                     <div class="row">
                       <div class="form-group col-md-6">
+                        <label for="frist_name">Account type</label>
+                        <input type="text" id="account_type" name="account_type" class="form-control" disabled>
+                      </div>
+                      <div class="form-group col-md-6">
+                        <label for="frist_name">Detail type</label>
+                        <input type="text" id="detail_type" name="detail_type" class="form-control" disabled>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="form-group col-md-6">
                         <label for="frist_name">ChartOfAccount</label>
                         <select class="form-control" id="coaid" name="coaid">
                             <option value="">-- Select --</option>
@@ -32,9 +42,12 @@
                         </select>
                       </div>
                       <div class="form-group col-md-6">
-                        <label for="frist_name">Detail Type</label>
-                        <select class="form-control" id="detail_type" name="detail_type">
+                        <label for="frist_name">Currency</label>
+                        <select class="form-control" id="currency" name="currency">
                           <option value="">-- Select --</option>
+                          {% for cur in currency %}
+                                <option value="{{ cur.id }}">{{ cur.name }}</option>
+                          {% endfor %}
                       </select>
                       </div>
                     </div>
@@ -45,14 +58,24 @@
                           <input id="amount" type="number" class="form-control" name="amount">
                         </div>
                         <div class="form-group col-md-6">
-                          <label for="frist_name">Transaction Type</label>
-                          <select class="form-control" id="transaction_type" name="transaction_type">
-                            <option value="">-- Select --</option>
-                            <option value="Credit">Credit</option>
-                            <option value="Debit">Debit</option>
-                          </select>
+                          <label for="frist_name">Conversion Rate</label>
+                          <input id="conversion_rate" type="number" class="form-control" name="conversion_rate" value="1">
                         </div>
                     </div>
+                    <div class="row">
+                      <div class="form-group col-md-6">
+                        <label for="frist_name">Total Amount</label>
+                        <input id="total_amount" type="number" class="form-control" name="total_amount" readonly>
+                      </div>
+                      <div class="form-group col-md-6">
+                        <label for="frist_name">Transaction Type</label>
+                        <select class="form-control" id="transaction_type" name="transaction_type">
+                          <option value="">-- Select --</option>
+                          <option value="Credit">Credit</option>
+                          <option value="Debit">Debit</option>
+                        </select>
+                      </div>
+                  </div>
 
                     <div class="row">
                       <div class="form-group col-md-6">
@@ -146,6 +169,44 @@
           $('#ref_no').val(data.generated_code);
         });
       // });
+
+      $('#coaid').change(function () {
+          if ($("#coaid").val() != '') {
+            var url = "{% url 'load_account' %}";
+            var coaid = $(this).val();
+          
+            $.ajax({
+                url: url,
+                data: {
+                    'coaid': coaid
+                },
+                traditional: true,
+                success: function (data) {
+                  $('#account_type').val(data.account);
+                  $('#detail_type').val(data.detail);
+                    // $account_type.trigger('change'); 
+                    // $detail_type.trigger('change');  // Notify Select2 to update
+                },
+                error: function (error) {
+                  $('#account_type').val('');
+                  $('#detail_type').val('');
+                }
+            });
+          }
+          else{
+            $('#account_type').val('');
+            $('#detail_type').val('');
+          }
+        });
+      
+        $('#conversion_rate').change(function () {
+            var rate = $(this).val();
+            var amount = $('#amount').val();
+
+            var total = rate * amount
+            $('#total_amount').val(total);
+
+        });
     });
 </script>
 </body>
