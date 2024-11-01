@@ -1,5 +1,5 @@
 from django import forms  
-from employee.models import Employee, Department, Designation, Region, Education,Project, Employment_Record, Certifications, Skills, Company, Module, Mainmenu, Submenu, Role, Company_module, Role_permission, CV_template, Template_column, Project_type, Project, Bank, Bank_guaranty, Liquidity_damages, Insurance_type, Insurance_detail, Country, Zone, Area, Branch, Client, Document_type, Project_document, Sales, Leads,Quarters, Employee_target
+from employee.models import Employee, Department, Designation, Region, Education,Project, Employment_Record, Certifications, Skills, Company, Module, Mainmenu, Submenu, Role, Company_module, Role_permission, CV_template, Template_column, Project_type, Project, Bank, Bank_guaranty, Liquidity_damages, Insurance_type, Insurance_detail, Country, Zone, Area, Branch, Client, Document_type, Project_document, Sales, Leads,Quarters, Employee_target, Vendor
 
 class EmployeeForm(forms.ModelForm):  
     class Meta:  
@@ -106,6 +106,11 @@ class ClientForm(forms.ModelForm):
         model = Client  
         fields = ('id','client_name','email','phone','country','address')
 
+class VendorForm(forms.ModelForm):  
+    class Meta:  
+        model = Vendor  
+        fields = ('id','vendor_name','email','phone','country','address')
+
 class ModuleForm(forms.ModelForm):  
     class Meta:  
         model = Module  
@@ -154,7 +159,7 @@ class Document_typeForm(forms.ModelForm):
 class Project_documentForm(forms.ModelForm):  
     class Meta:  
         model = Project_document  
-        fields = ('id','project','document_type','doc_path','remarks')
+        fields = ('id','project','document_type','doc_path','remarks','ref_no','issuance_date')
 
 class QuartersForm(forms.ModelForm):  
     class Meta:  

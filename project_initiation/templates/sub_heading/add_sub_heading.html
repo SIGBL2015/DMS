@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+  {% load static %} 
+  {% include 'layout/style.html' %}
+
+<body>
+  <div id="app">
+    <div class="main-wrapper">
+      {% include 'layout/header.html' %}
+      {% include 'layout/sidebar.html' %}
+      <div class="main-content">
+        <section class="section">
+          <h1 class="section-header">
+            <div>Add Sub Heading</div>
+          </h1>
+          <div class="col-md-6 col-md-offset-4 mx-auto">
+            <div class="card card-primary">
+                <div class="card-header"><h4>Add</h4></div>
+                <div class="card-body">
+                  <form method="POST" action="save_sub_heading">
+                    {% csrf_token %}
+                    <div class="row">
+                      <div class="form-group col-md-6">
+                        <label for="frist_name">Tendor</label>
+                        <select class="form-control" id="tendor" name="tendor">
+                          <option value="">-- Select --</option>
+                          {% for tendor in tendors %}
+                              <option value="{{ tendor.id }}">{{ tendor.title }}</option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                      <div class="form-group col-md-6">
+                        <label for="frist_name">Heading</label>
+                        <select class="form-control js-example-basic-multiple" id="heading" name="heading">
+                            <option value="">-- Select --</option>
+                            
+                        </select>
+                      </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-md-6">
+                            <label for="frist_name">Title</label>
+                            <input id="title" type="text" class="form-control" name="title">
+                        </div>
+                        <div class="form-group col-md-6">
+                          <label for="frist_name">IsGroup</label>
+                          <select class="form-control" id="isgroup" name="isgroup">
+                            <option value="">-- Select --</option>
+                            <option value="1">Yes</option>
+                            <option value="0">No</option>
+                          </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                      <button type="submit" class="btn btn-primary">
+                        Save
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+        </section>
+      </div>
+      {% include 'layout/footer.html' %}
+    </div>
+  </div>
+  {% include 'layout/script.html' %}
+  <script type="text/javascript">
+    $(document).ready(function () {
+        $('#tendor').change(function () {
+          if ($("#tendor").val() != '') {
+            var url = "{% url 'load_heading' %}";
+            var tendor = $(this).val();
+            var $heading = $('#heading');
+            $heading.empty();
+            $.ajax({
+                url: url,
+                data: {
+                    'tendor': tendor
+                },
+                traditional: true,
+                success: function (data) {
+                    $heading.empty();  // Clear existing options
+
+                    $.each(data, function (key, value) {
+                        var option = new Option(value.title, value.id, false, false);
+                        $heading.append(option);
+                    });
+
+                    $heading.trigger('change');  // Notify Select2 to update
+                },
+                error: function (error) {
+                  $heading.empty();
+                }
+            });
+          }
+          else{
+            var $heading = $('#heading');
+            $heading.empty();
+          }
+        });
+    });
+</script>
+</body>
+</html>

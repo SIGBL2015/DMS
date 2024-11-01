@@ -309,8 +309,8 @@ class Template_column(models.Model):
 
 class Document_type(models.Model): 
     title = models.CharField(max_length=100, null=True)
-    created_at = models.DateField(null=True)
-    updated_at = models.DateField(null=True)
+    created_at = models.DateField(auto_now_add=True, null=True)
+    updated_at = models.DateField(auto_now=True,null=True)
     deleted_at = models.DateField(null=True)
     status = models.IntegerField(default=1) 
     class Meta:  
@@ -321,6 +321,8 @@ class Project_document(models.Model):
     document_type = models.ForeignKey(Document_type, on_delete=models.CASCADE,null=True)
     doc_path = models.CharField(max_length=255, null=True, blank=True)
     remarks = models.CharField(max_length=255, null=True)
+    ref_no = models.CharField(max_length=100, null=True)
+    issuance_date = models.DateField(null=True)
     created_at = models.DateField(auto_now_add=True, null=True)
     updated_at = models.DateField(auto_now=True, null=True)
     deleted_at = models.DateField(null=True, blank=True)
@@ -366,3 +368,13 @@ class Sales(models.Model):
     status = models.IntegerField(default=1) 
     class Meta:  
         db_table = "sales"
+
+class Vendor(models.Model):  
+    vendor_name = models.CharField(max_length=100,null=True) 
+    email = models.CharField(max_length=100,null=True) 
+    phone = models.CharField(max_length=100,null=True) 
+    country = models.ForeignKey(Country, on_delete=models.CASCADE,null=True)
+    address = models.CharField(max_length=100,null=True)  
+    status = models.IntegerField(default=1) 
+    class Meta:  
+        db_table = "vendor"

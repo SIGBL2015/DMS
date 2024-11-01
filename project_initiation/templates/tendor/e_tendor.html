@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+  {% load static %} 
+  {% include 'layout/style.html' %}
+<body>
+  <div id="app">
+    <div class="main-wrapper">
+      {% include 'layout/header.html' %}
+      {% include 'layout/sidebar.html' %}
+      <div class="main-content">
+        <section class="section">
+          <h1 class="section-header">
+            <div>Edit Tendor</div>
+          </h1>
+          <div class="col-md-12">
+            <div class="card card-primary">
+                <div class="card-header"><h4>Edit</h4></div>
+                <div class="card-body">
+                  <form method="POST" action="/initiation/u_tendor/{{tendor.id}}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="row">
+                      <div class="form-group col-md-4">
+                        <label for="frist_name">Tendor No</label>
+                        <input type="text" id="tendor_no" name="tendor_no" class="form-control" value="{{ tendor.tendor_no }}">
+                      </div>
+                      <div class="form-group col-md-4">
+                        <label for="frist_name">Title</label>
+                        <input type="text" id="title" name="title" class="form-control" value="{{ tendor.title }}">
+                      </div>
+                      <div class="form-group col-md-4">
+                        <label for="frist_name">Department</label>
+                        <select class="form-control" id="department" name="department">
+                            <option value="">-- Select --</option>
+                            {% for depart in departments %}
+                                {% if tendor.department.id == depart.id %}                         
+                                    <option value="{{ depart.id }}" selected>{{ depart.depart_name }}</option>
+                                {% else %}
+                                    <option value="{{ depart.id }}">{{ depart.depart_name }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="form-group col-md-4">
+                        <label for="frist_name">Tendoring Authority/Client</label>
+                        <select class="form-control" id="client" name="client">
+                            <option value="">-- Select --</option>
+                            {% for client in clients %}
+                              {% if tendor.client.id == client.id %}                         
+                                  <option value="{{ client.id }}" selected>{{ client.client_name }}</option>
+                              {% else %}
+                                  <option value="{{ client.id }}">{{ client.client_name }}</option>
+                              {% endif %}
+                            {% endfor %}
+                        </select>
+                      </div>
+                      <div class="form-group col-md-4">
+                        <label for="frist_name">IsADPscheme</label>
+                        <select class="form-control" id="isadpscheme" name="isadpscheme">
+                            <option value="{{tendor.isadpscheme}}">{{tendor.isadpscheme}}</option>
+                            <option value="1">Yes</option>
+                            <option value="0">No</option>
+                        </select>
+                      </div>
+                      <div class="form-group col-md-4">
+                        <label for="frist_name">ADPscheme No</label>
+                        <input id="adpscheme_no" type="text" class="form-control" name="adpscheme_no" value="{{ tendor.adpscheme_no }}">
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="form-group col-md-4">
+                        <label for="frist_name">EM(%)</label>
+                        <input id="em_percentage" type="number" class="form-control" name="em_percentage" value="{{ tendor.em_percentage }}">
+                      </div>
+                      <div class="form-group col-md-4">
+                        <label for="frist_name">BG(%)</label>
+                        <input id="bg_percentage" type="number" class="form-control" name="bg_percentage" value="{{ tendor.bg_percentage }}">
+                      </div>
+                      <div class="form-group col-md-4">
+                        <label for="frist_name">Collection Date</label>
+                        <input id="lastdate_to_collect" type="date" class="form-control" name="lastdate_to_collect" value="{{ tendor.lastdate_to_collect|date:'Y-m-d'  }}">
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="form-group col-md-4">
+                        <label for="frist_name">Submission Date</label>
+                        <input id="lastdate_of_submission" type="date" class="form-control" name="lastdate_of_submission" value="{{ tendor.lastdate_of_submission|date:'Y-m-d'  }}">
+                      </div>
+                      <div class="form-group col-md-4">
+                        <label for="frist_name">Collected Date</label>
+                        <input id="date_of_collection" type="date" class="form-control" name="date_of_collection" value="{{ tendor.date_of_collection|date:'Y-m-d'  }}">
+                      </div>
+                      <div class="form-group col-md-4">
+                        <label for="frist_name">Submitted Date</label>
+                        <input id="date_of_submission" type="date" class="form-control" name="date_of_submission" value="{{ tendor.date_of_submission|date:'Y-m-d'  }}">
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="form-group col-md-4">
+                        <label for="frist_name">Special Instruction</label>
+                        <input id="special_instruction" type="text" class="form-control" name="special_instruction" value="{{ tendor.special_instruction }}"> 
+                      </div>
+                      <div class="form-group col-md-4">
+                        <label for="frist_name">Collected By</label>
+                        <input id="tendor_collected_by" type="text" class="form-control" name="tendor_collected_by" value="{{ tendor.tendor_collected_by }}">
+                      </div>
+                      <div class="form-group col-md-4">
+                        <label for="frist_name">Ad Image</label>
+                        <div class="row">
+                            <div class="form-group col-9">
+                                <input id="ad_image" type="file" class="form-control" name="ad_image">
+                            </div>
+                            <div class="form-group col-1">
+                              <a href="{{ MEDIA_URL }}{{ tendor.ad_image }}" target="_blank"><span class="ion-ios-eye" ></span></a>
+                            </div>
+                        </div> 
+                        
+                      </div>
+                      <div class="form-group col-md-4">
+                        <label for="frist_name">Ad Description</label>
+                        <textarea id="ad_description" name="ad_description" class="form-control" rows="4" cols="5">{{ tendor.ad_description }}</textarea>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <button type="submit" class="btn btn-primary">
+                        Update
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+        </section>
+      </div>
+      {% include 'layout/footer.html' %}
+    </div>
+  </div>
+  {% include 'layout/script.html' %}
+</body>
+</html>

@@ -198,8 +198,17 @@
             $('#detail_type').val('');
           }
         });
-      
-        $('#conversion_rate').change(function () {
+        
+        $('#amount').on('keyup change', function () {
+            var amount = $(this).val();
+            var rate = $('#conversion_rate').val();
+
+            var total = rate * amount
+            $('#total_amount').val(total);
+
+        });
+
+        $('#conversion_rate').on('keyup change', function () {
             var rate = $(this).val();
             var amount = $('#amount').val();
 

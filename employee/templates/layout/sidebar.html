@@ -50,6 +50,9 @@
             <li>
               <a href="{% url 'show_client' %}"><i class="ion ion-clipboard"></i><span>Client</span></a>
             </li>
+            <li>
+              <a href="{% url 'show_vendor' %}"><i class="ion ion-clipboard"></i><span>Vendor</span></a>
+            </li>
           </ul>
         </li>
 
@@ -86,6 +89,23 @@
             <li>
               <a href="{% url 'generate_cv' %}"><i class="ion ion-clipboard"></i><span>Generate CV</span></a>
             </li>
+          </ul>
+        </li> 
+        <li>
+          <a href="#" class="has-dropdown"><i class="ion ion-ios-nutrition"></i>Product</a>
+          <ul class="menu-dropdown">
+            <li><a href="{% url 'show_unit' %}"><i class="ion ion-ios-circle-outline"></i>Unit</a></li>
+            <li><a href="{% url 'show_category' %}"><i class="ion ion-ios-circle-outline"></i>Category</a></li>
+            <li><a href="{% url 'show_item' %}"><i class="ion ion-ios-circle-outline"></i>Item</a></li>
+          </ul>
+        </li>  
+        <li>
+          <a href="#" class="has-dropdown"><i class="ion ion-ios-nutrition"></i>Initiation</a>
+          <ul class="menu-dropdown">
+            <li><a href="{% url 'show_tendor' %}"><i class="ion ion-ios-circle-outline"></i>Tendor</a></li>
+            <li><a href="{% url 'show_heading' %}"><i class="ion ion-ios-circle-outline"></i>Heading</a></li>
+            <li><a href="{% url 'show_sub_heading' %}"><i class="ion ion-ios-circle-outline"></i>Sub Heading</a></li>
+            <li><a href="{% url 'show_boq_items' %}"><i class="ion ion-ios-circle-outline"></i>BOQ Item</a></li>
           </ul>
         </li>    
         <li>

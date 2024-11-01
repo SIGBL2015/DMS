@@ -1,8 +1,8 @@
 from pyexpat.errors import messages
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, render, redirect  
-from employee.forms import EmployeeForm, DepartmentForm, DesignationForm, RegionForm, EducationForm, Employment_RecordForm, CertificationsForm, SkillsForm, CompanyForm, Project_typeForm, ProjectForm, ModuleForm, MainmenuForm, SubmenuForm, RoleForm, Company_moduleForm, Role_permissionForm, CV_templateForm, Template_columnForm, BankForm, Bank_guarantyForm, Liquidity_damagesForm, Insurance_typeForm, Insurance_detailForm, CountryForm, ZoneForm, AreaForm, BranchForm, ClientForm, Document_typeForm, Project_documentForm, Employee_targetForm, SalesForm, QuartersForm, LeadsForm
-from employee.models import Employee, Department, Designation, Region, Education, Employment_Record, Certifications, Skills, Company, Module, Mainmenu, Submenu, Role, Company_module, Role_permission, CV_template, Template_column, Project_type, Project, Bank, Bank_guaranty, Liquidity_damages, Insurance_type, Insurance_detail, Country, Zone, Area, Branch, Client, Document_type, Project_document, Employee_target, Sales, Quarters, Leads
+from employee.forms import EmployeeForm, DepartmentForm, DesignationForm, RegionForm, EducationForm, Employment_RecordForm, CertificationsForm, SkillsForm, CompanyForm, Project_typeForm, ProjectForm, ModuleForm, MainmenuForm, SubmenuForm, RoleForm, Company_moduleForm, Role_permissionForm, CV_templateForm, Template_columnForm, BankForm, Bank_guarantyForm, Liquidity_damagesForm, Insurance_typeForm, Insurance_detailForm, CountryForm, ZoneForm, AreaForm, BranchForm, ClientForm, Document_typeForm, Project_documentForm, Employee_targetForm, SalesForm, QuartersForm, LeadsForm, VendorForm
+from employee.models import Employee, Department, Designation, Region, Education, Employment_Record, Certifications, Skills, Company, Module, Mainmenu, Submenu, Role, Company_module, Role_permission, CV_template, Template_column, Project_type, Project, Bank, Bank_guaranty, Liquidity_damages, Insurance_type, Insurance_detail, Country, Zone, Area, Branch, Client, Document_type, Project_document, Employee_target, Sales, Quarters, Leads, Vendor
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db import connection
 import json
@@ -2035,13 +2035,15 @@ def add_project_document(request):
         document_types = request.POST.getlist('document_type')
         doc_paths = request.FILES.getlist('doc_path')
         remarks = request.POST.getlist('remarks')
+        ref_nos = request.POST.getlist('ref_no')
+        issuance_dates = request.POST.getlist('issuance_date')
 
         # Check if the common project field is provided
         if not project:
             return render(request, 'project_document/add_project_document.html', {'error': 'Project is required'})
 
         # Ensure that all dynamic fields have values
-        if len(document_types) != len(doc_paths) or len(doc_paths) != len(remarks):
+        if len(document_types) != len(doc_paths) or len(doc_paths) != len(remarks) or len(ref_nos) != len(issuance_dates):
             return render(request, 'project_document/add_project_document.html', {'error': 'Mismatched form fields'})
 
         # Process and save the data 
@@ -2054,7 +2056,7 @@ def add_project_document(request):
                 print(f"An error occurred this path does not exist: {folder_path}")
 
             # Process dynamic fields and save them to the database
-            for document_type, doc_path, remark in zip(document_types, doc_paths, remarks):
+            for document_type, doc_path, remark, ref_no, issuance_date in zip(document_types, doc_paths, remarks, ref_nos, issuance_dates):
                # Generate the new file name
                 doc_type_title = Document_type.objects.get(id=document_type)
                 timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
@@ -2073,7 +2075,9 @@ def add_project_document(request):
                     project_id=project,
                     document_type_id=document_type,
                     doc_path=relative_file_path,
-                    remarks=remark
+                    remarks=remark,
+                    ref_no=ref_no,
+                    issuance_date=issuance_date
                     )
                 
             modalfield_value = request.POST.get('modalfield')
@@ -2353,7 +2357,7 @@ def load_employee(request):
         employees = Employee.objects.filter(status=1).order_by('ename')
     else:
         department = request.GET.getlist('department')
-        employees = Employee.objects.filter(department_id__in=department).order_by('ename')
+        employees = Employee.objects.filter(department_id__in=department,status=1).order_by('ename')
     return JsonResponse(list(employees.values('id', 'ename')), safe=False)
 
 # Leads
@@ -2478,3 +2482,51 @@ def dashboard(request):
     #     form = LeadsForm()
     #     employees = Employee.objects.filter(status=1).values('id','ename')
     # return render(request,'leads/add_leads.html',{'form':form,'employees':employees})  
+
+# Vendor
+@login_required 
+@permission_required('employee.add_vendor', raise_exception=True)
+def add_vendor(request):  
+    if request.method == "POST":  
+        form = VendorForm(request.POST) 
+        if form.is_valid():
+            try:  
+                form.save()  
+                return redirect('show_vendor')  
+            except Exception as e:  
+  
+                pass  
+    else:  
+        form = VendorForm()  
+        countries = Country.objects.filter(status=1).values('id','country_name')
+    return render(request,'vendor/add_vendor.html',{'form':form, 'countries':countries})  
+
+@login_required    
+@permission_required('employee.view_vendor', raise_exception=True)
+def show_vendor(request):  
+    vendors = Vendor.objects.filter(status=1) 
+    return render(request,"vendor/show_vendor.html",{'vendors':vendors})  
+
+@login_required  
+@permission_required('employee.change_vendor', raise_exception=True)
+def e_vendor(request, id):  
+    vendor = Vendor.objects.get(id=id)  
+    countries = Country.objects.filter(status=1).values('id','country_name')
+    return render(request,'vendor/e_vendor.html', {'vendor':vendor, 'countries':countries})  
+
+@login_required  
+def u_vendor(request, id):  
+    vendor = Vendor.objects.get(id=id)  
+    form = VendorForm(request.POST, instance = vendor)  
+    if form.is_valid():  
+        form.save()  
+        return redirect("show_vendor")  
+    return render(request, 'vendor/e_vendor.html', {'vendor': vendor})  
+
+@login_required  
+@permission_required('employee.delete_vendor', raise_exception=True)
+def d_vendor(request, id):  
+    vendor = Vendor.objects.get(id=id)  
+    vendor.status=0  
+    vendor.save()
+    return redirect("show_vendor")

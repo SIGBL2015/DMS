@@ -211,6 +211,13 @@ urlpatterns = [
     path('d_leads/<int:id>', views.d_leads, name="d_leads"),
     path('save_sales', views.add_sales, name="save_sales"),  
 
+    #Vendor
+    path('save_vendor', views.add_vendor, name="save_vendor"),  
+    path('show_vendor',views.show_vendor, name="show_vendor"),  
+    path('e_vendor/<int:id>', views.e_vendor, name="e_vendor"),  
+    path('u_vendor/<int:id>', views.u_vendor, name="u_vendor"),  
+    path('d_vendor/<int:id>', views.d_vendor, name="d_vendor"),
+
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 

@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-4v@r1@d%74#p*wu$jn_c=y(sjxhy@gl=&=+_hrpu($k1!*oa26
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', '172.16.10.197']
+ALLOWED_HOSTS = ['127.0.0.1', '172.16.10.17']
 
 
 # Application definition
@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django_crontab',
     'django.contrib.humanize',
     'finance',
+    'project_initiation',
 ]
 
 MIDDLEWARE = [
@@ -77,7 +78,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'doc_management_system.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
@@ -88,7 +88,10 @@ DATABASES = {
         'USER':'root',  
         'PASSWORD':'',  
         'HOST':'localhost',  
-        'PORT':'3306'  
+        'PORT':'3306',
+        'OPTIONS': {
+            'ssl': {'disabled': True},
+        }
     }
 }
 
@@ -176,11 +179,11 @@ CRONJOBS = [
     ('*/5 * * * *', 'employee.cron.em_expiry_check_job'),  # Runs every 5 minutes
 ]
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = ''
-EMAIL_PORT = 465
-EMAIL_USE_SSL = True
-EMAIL_USE_TLS = False
-EMAIL_HOST_USER = ''
-EMAIL_HOST_PASSWORD = ''
-DEFAULT_FROM_EMAIL = ''
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = ''
+# EMAIL_PORT = 465
+# EMAIL_USE_SSL = True
+# EMAIL_USE_TLS = False
+# EMAIL_HOST_USER = ''
+# EMAIL_HOST_PASSWORD = ''
+# DEFAULT_FROM_EMAIL = ''

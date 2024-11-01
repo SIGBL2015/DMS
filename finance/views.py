@@ -139,7 +139,6 @@ def d_journal_entry(request, id):
 
 def generate_refno(request):
     ref = Journal_entry.objects.filter(status=1).values('ref_no').last()
-    print(ref)
     # Get the current date in 'YYYYMMDD' format
     current_date = datetime.now().strftime('%Y%m%d')
     if(ref != None):
@@ -183,10 +182,10 @@ def generate_pnl(request):
 
 def load_detail(request):
     account_type = request.GET.get('account_type')
-    detail_type = Detail_type.objects.filter(account_type=account_type).order_by('title')
+    detail_type = Detail_type.objects.filter(account_type=account_type,status=1).order_by('title')
     return JsonResponse(list(detail_type.values('id', 'title')), safe=False)
 
 def load_account(request):
     coaid = request.GET.get('coaid')
-    account = Chart_of_accounts.objects.get(id=coaid)
+    account = Chart_of_accounts.objects.get(id=coaid,status=1)
     return JsonResponse({"account":account.account_type.title,"detail":account.detail_type.title}, safe=False)

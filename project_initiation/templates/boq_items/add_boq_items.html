@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+  {% load static %} 
+  {% include 'layout/style.html' %}
+
+<body>
+  <div id="app">
+    <div class="main-wrapper">
+      {% include 'layout/header.html' %}
+      {% include 'layout/sidebar.html' %}
+      <div class="main-content">
+        <section class="section">
+          <h1 class="section-header">
+            <div>Add BoQ Items</div>
+          </h1>
+          <div class="col-md-12">
+            <div class="card card-primary">
+                <div class="card-header"><h4>Add</h4></div>
+                <div class="card-body">
+                  <form method="POST" id="boq">
+                    {% csrf_token %}
+                    <div class="row">
+                      <div class="form-group col-md-4">
+                        <label for="frist_name">Tendor</label>
+                        <select class="form-control" id="tendor" name="tendor">
+                          <option value="">-- Select --</option>
+                          {% for tendor in tendors %}
+                              <option value="{{ tendor.id }}">{{ tendor.title }}</option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                      <div class="form-group col-md-4">
+                        <label for="frist_name">Heading</label>
+                        <select class="form-control js-example-basic-multiple" id="heading" name="heading">
+                            <option value="">-- Select --</option>
+                            
+                        </select>
+                      </div>
+                      <div class="form-group col-md-4">
+                        <label for="frist_name">Sub Heading</label>
+                        <select class="form-control js-example-basic-multiple" id="sub_heading" name="sub_heading">
+                            <option value="">-- Select --</option>
+                            
+                        </select>
+                      </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-md-4">
+                            <label for="frist_name">Item</label>
+                            <select class="form-control" id="item" name="item">
+                              <option value="">-- Select --</option>
+                              {% for item in items %}
+                                  <option value="{{ item.id }}">{{ item.name }}</option>
+                              {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label for="frist_name">Unit</label>
+                            <select class="form-control" id="unit" name="unit">
+                              <option value="">-- Select --</option>
+                              {% for unit in units %}
+                                  <option value="{{ unit.id }}">{{ unit.name }}</option>
+                              {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group col-md-4">
+                          <label for="frist_name">Unit Price</label>
+                          <input id="unit_price" type="number" class="form-control" name="unit_price">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-md-4">
+                            <label for="frist_name">Quantity</label>
+                            <input id="quantity" type="number" class="form-control" name="quantity" value="1">
+                        </div>
+                        <div class="form-group col-md-4">
+                          <label for="frist_name">Total Amount</label>
+                          <input id="total_amount" type="number" class="form-control" name="total_amount" readonly>
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label for="frist_name">IsImported</label>
+                            <select class="form-control" id="is_imported" name="is_imported">
+                                <option value="">-- Select --</option>
+                                <option value="1">Yes</option>
+                                <option value="0">No</option>
+                              </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-md-4">
+                          <label for="frist_name">Currency</label>
+                          <select class="form-control" id="currency" name="currency">
+                            <option value="">-- Select --</option>
+                            {% for currency in currencies %}
+                                <option value="{{ currency.id }}">{{ currency.name }}</option>
+                            {% endfor %}
+                          </select>
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label for="frist_name">Conversion Rate</label>
+                            <input id="conversion_rate" type="number" class="form-control" name="conversion_rate">
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label for="frist_name">Group ID</label>
+                            <input id="groupid" type="text" class="form-control" name="groupid">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                      <input type="submit" value="save" class="btn btn-primary" />
+                        
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-12">
+              <div class="card">
+                  <div class="card-header">
+                    <h3 class="card-title">BoQ Item Details</h3>
+                  </div>
+                  <!-- /.card-header -->
+                  <div class="card-body">
+                    <table id="example1" class="table table-bordered table-striped">
+                    </table>
+                  </div>
+                  <!-- /.card-body -->
+                </div>
+                <!-- /.card -->
+            </div>
+
+        </section>
+      </div>
+      {% include 'layout/footer.html' %}
+    </div>
+  </div>
+  {% include 'layout/script.html' %}
+  <script type="text/javascript">
+    $(document).ready(function () {
+        $('#tendor').change(function () {
+          if ($("#tendor").val() != '') {
+            var url = "{% url 'load_heading' %}";
+            var tendor = $(this).val();
+            var $heading = $('#heading');
+            var $sub_heading = $('#sub_heading');
+            $heading.empty();
+            $sub_heading.empty();
+            $.ajax({
+                url: url,
+                data: {
+                    'tendor': tendor
+                },
+                traditional: true,
+                success: function (data) {
+                    $heading.empty();  // Clear existing options
+                    $sub_heading.empty();
+
+                    $.each(data, function (key, value) {
+                        var option = new Option(value.title, value.id, false, false);
+                        $heading.append(option);
+                    });
+
+                    $heading.trigger('change');  // Notify Select2 to update
+                },
+                error: function (error) {
+                  $heading.empty();
+                  $sub_heading.empty();
+                }
+            });
+          }
+          else{
+            var $heading = $('#heading');
+            var $sub_heading = $('#sub_heading');
+            $heading.empty();
+            $sub_heading.empty();
+          }
+        });
+        $('#heading').change(function () {
+          if ($("#heading").val() != '') {
+            var url = "{% url 'load_sub_heading' %}";
+            var heading = $(this).val();
+            var $sub_heading = $('#sub_heading');
+            $sub_heading.empty();
+            $.ajax({
+                url: url,
+                data: {
+                    'heading': heading
+                },
+                traditional: true,
+                success: function (data) {
+                    $sub_heading.empty();  // Clear existing options
+
+                    $.each(data, function (key, value) {
+                        var option = new Option(value.title, value.id, false, false);
+                        $sub_heading.append(option);
+                    });
+
+                    $sub_heading.trigger('change');  // Notify Select2 to update
+                },
+                error: function (error) {
+                  $sub_heading.empty();
+                }
+            });
+          }
+          else{
+            var $sub_heading = $('#sub_heading');
+            $sub_heading.empty();
+          }
+        });
+        $('#unit_price').on('keyup change',function () {
+            var unit_price = $(this).val();
+            var qty = $('#quantity').val();
+
+            var total = qty * unit_price
+            $('#total_amount').val(total);
+
+        });
+        $('#quantity').on('keyup change',function () {
+            var qty = $(this).val();
+            var unit_price = $('#unit_price').val();
+
+            var total = qty * unit_price
+            $('#total_amount').val(total);
+
+        });
+
+        // Variable to hold request
+        var request;
+
+        // Bind to the submit event of our form
+        $("#boq").submit(function(event){
+
+            // Prevent default posting of form - put here to work in case of errors
+            event.preventDefault();
+
+            // Abort any pending request
+            if (request) {
+                request.abort();
+            }
+            // setup some local variables
+            var $form = $(this);
+
+            // Let's select and cache all the fields
+            var $inputs = $form.find("input, select, button, textarea");
+
+            // Serialize the data in the form
+            var serializedData = $form.serialize();
+
+            // Let's disable the inputs for the duration of the Ajax request.
+            // Note: we disable elements AFTER the form data has been serialized.
+            // Disabled form elements will not be serialized.
+            $inputs.prop("disabled", true);
+
+            // Fire off the request to /form.php
+            request = $.ajax({
+                url: "{% url 'save_boq_items' %}",
+                type: "post",
+                data: serializedData
+            });
+
+            // Callback handler that will be called on success
+            request.done(function (response, textStatus, jqXHR){
+                // Log a message to the console
+                $.ajax({
+                    'url': "{% url 'load_boq_items' %}",
+                    'method': "GET",
+                    'contentType': 'application/json'
+                }).done( function(data) {
+                  console.log(data)
+                    $('#example1').dataTable( {
+                        "aaData": data,
+                        "columns": [
+                            { "data": "id" },
+                            { "data": "tendor.title" },
+                            { "data": "heading.title" },
+                            { "data": "unit_price" }
+                        ]
+                    })
+                })
+            });
+
+            // Callback handler that will be called on failure
+            request.fail(function (jqXHR, textStatus, errorThrown){
+                // Log the error to the console
+                console.error(
+                    "The following error occurred: "+
+                    textStatus, errorThrown
+                );
+            });
+
+            // Callback handler that will be called regardless
+            // if the request failed or succeeded
+            request.always(function () {
+                // Reenable the inputs
+                $inputs.prop("disabled", false);
+            });
+
+        });
+    });
+</script>
+</body>
+</html>

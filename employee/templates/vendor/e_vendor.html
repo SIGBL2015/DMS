@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+  {% load static %} 
+  {% include 'layout/style.html' %}
+<body>
+  <div id="app">
+    <div class="main-wrapper">
+      {% include 'layout/header.html' %}
+      {% include 'layout/sidebar.html' %}
+      <div class="main-content">
+        <section class="section">
+          <h1 class="section-header">
+            <div>Edit Vendor</div>
+          </h1>
+          <div class="card card-primary">
+            <div class="card-header"><h4>Edit</h4></div>
+            <div class="card-body">
+              <form method="POST" action="/employee/u_vendor/{{vendor.id}}">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="form-group col-6">
+                      <label for="frist_name">Vendor Name</label>
+                      <input id="vendor_name" type="text" class="form-control" name="vendor_name" value="{{ vendor.vendor_name }}">
+                    </div>
+                    <div class="form-group col-6">
+                      <label for="frist_name">Email</label>
+                      <input id="email" type="email" class="form-control" name="email" value="{{ vendor.email }}">
+                    </div>
+                  </div>
+                  <div class="row">
+                      <div class="form-group col-6">
+                        <label for="frist_name">Phone</label>
+                        <input id="phone" type="text" class="form-control" name="phone" value="{{ vendor.phone }}">
+                      </div>
+                      <div class="form-group col-6">
+                        <label for="email">Country</label>
+                        <select class="form-control" id="country" name="country">
+                            {% for country in countries %}
+                            {% if vendor.country.id == country.id %}                         
+                                <option value="{{ country.id }}" selected>{{ country.country_name }}</option>
+                            {% else %}
+                                <option value="{{ country.id }}">{{ country.country_name }}</option>
+                            {% endif %}
+                            {% endfor %}
+                        </select>
+                      </div>
+                  </div>
+                  <div class="row">
+                      <div class="form-group col-6">
+                        <label for="frist_name">Address</label>
+                        <input id="address" type="text" class="form-control" name="address" value="{{ vendor.address }}">
+                      </div>
+                  </div>
+                <div class="form-group">
+                  <button type="submit" class="btn btn-primary">
+                    Update
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </section>
+      </div>
+      {% include 'layout/footer.html' %}
+    </div>
+  </div>
+  {% include 'layout/script.html' %}
+</body>
+</html>
