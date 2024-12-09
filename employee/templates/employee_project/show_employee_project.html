@@ -40,8 +40,12 @@
                                     <td>{{ forloop.counter }}</td>  
                                     <td>{{ employee_project.employee.ename }}</td>
                                     <td>{{ employee_project.project.title }}</td> 
-                                    <td>{{ employee_project.is_key_acc_mgr }}</td>      
-                                    <td>{{ employee_project.status }}</td>  
+                                    <td>{{ employee_project.is_key_acc_mgr }}</td>
+                                    {% if employee_project.status == 1 %}
+                                      <td>Active</td>  
+                                    {% else %}
+                                      <td>Deactive</td>
+                                    {% endif %}
                                     <td>  
                                         <a href="/employee/e_employee_project/{{ employee_project.id }}"><span class="ion-ios-compose" ></span></a>  
                                         <a href="/employee/d_employee_project/{{ employee_project.id }}" onclick="return confirm('Are you sure you want to delete this?')"><span class="ion-ios-trash" ></span></a>  

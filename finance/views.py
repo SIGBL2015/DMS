@@ -173,7 +173,7 @@ def generate_pnl(request):
         query = Journal_entry.objects.filter(created_at__range=[from_date, to_date],project=project)
         cost = Project.objects.get(id=project)
 
-        total = sum([item.amount for item in query])
+        total = sum([item.total_amount for item in query])
         pnl= cost.amount - total
         return render(request, 'journal_entry/generate_pnl.html', {'data': query, 'cost':cost.amount,'pnl':pnl, 'project':cost})
     else:  

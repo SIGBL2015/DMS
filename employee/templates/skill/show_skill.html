@@ -38,8 +38,12 @@
                                 <tr>  
                                     <td>{{ forloop.counter }}</td>  
                                     <td>{{ skill.employee.ename }}</td>
-                                    <td>{{ skill.skill_name }}</td>    
-                                    <td>{{ skill.status }}</td>  
+                                    <td>{{ skill.skill_name }}</td>
+                                    {% if skill.status == 1 %}
+                                      <td>Active</td>  
+                                    {% else %}
+                                      <td>Deactive</td>
+                                    {% endif %}
                                     <td>  
                                         <a href="/employee/e_skill/{{ skill.id }}"><span class="ion-ios-compose" ></span></a>  
                                         <a href="/employee/d_skill/{{ skill.id }}" onclick="return confirm('Are you sure you want to delete this?')"><span class="ion-ios-trash" ></span></a>  

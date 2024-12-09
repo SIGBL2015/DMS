@@ -43,8 +43,12 @@
                                     <td>{{ vendor.email }}</td>
                                     <td>{{ vendor.phone }}</td>
                                     <td>{{ vendor.country.country_name }}</td>
-                                    <td>{{ vendor.address }}</td>
-                                    <td>{{ vendor.status }}</td>  
+                                    <td>{{ vendor.address }}</td>  
+                                    {% if vendor.status == 1 %}
+                                      <td>Active</td>  
+                                    {% else %}
+                                      <td>Deactive</td>
+                                    {% endif %}
                                     <td>  
                                         <a href="/employee/e_vendor/{{ vendor.id }}"><span class="ion-ios-compose" ></span></a>  
                                         <a href="/employee/d_vendor/{{ vendor.id }}" onclick="return confirm('Are you sure you want to delete this?')"><span class="ion-ios-trash" ></span></a>  

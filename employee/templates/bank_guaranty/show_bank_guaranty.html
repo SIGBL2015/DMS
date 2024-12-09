@@ -54,8 +54,12 @@
                                     <td>{{ bank_guaranty.bg_validity }}</td> 
                                     <td>{{ bank_guaranty.bg_percentage }}</td>
                                     <td>{{ bank_guaranty.bg_amount }}</td> 
-                                    <td><a href="{{ MEDIA_URL }}{{ bank_guaranty.bg_doc }}" target="_blank">BG Document</a></td>   
-                                    <td>{{ bank_guaranty.status }}</td>  
+                                    <td><a href="{{ MEDIA_URL }}{{ bank_guaranty.bg_doc }}" target="_blank">BG Document</a></td>    
+                                    {% if bank_guaranty.status == 1 %}
+                                      <td>Active</td>  
+                                    {% else %}
+                                      <td>Deactive</td>
+                                    {% endif %}
                                     <td>  
                                         <!-- <a href="/employee/e_bank_guaranty/{{ bank_guaranty.id }}"><span class="ion-ios-compose" ></span></a>   -->
                                         <a href="/employee/d_bank_guaranty/{{ bank_guaranty.id }}" onclick="return confirm('Are you sure you want to delete this?')"><span class="ion-ios-trash" ></span></a>  

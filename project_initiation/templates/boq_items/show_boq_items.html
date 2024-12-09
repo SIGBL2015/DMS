@@ -27,7 +27,7 @@
                         <thead>
                         <tr>
                           <th>S.No</th>
-                          <th>Tendor</th>
+                          <th>Tender</th>
                           <th>Heading</th>
                           <th>Sub Heading</th>
                           <th>Item</th>
@@ -58,8 +58,12 @@
                                     <td>{{ boq_item.is_imported }}</td> 
                                     <td>{{ boq_item.currency.name }}</td>
                                     <td>{{ boq_item.conversion_rate }}</td> 
-                                    <td>{{ boq_item.groupid }}</td>
-                                    <td>{{ boq_item.status }}</td>  
+                                    <td>{{ boq_item.groupid }}</td> 
+                                    {% if boq_item.status == 1 %}
+                                      <td>Active</td>  
+                                    {% else %}
+                                      <td>Deactive</td>
+                                    {% endif %}
                                     <td>  
                                         <a href="/initiation/e_boq_item/{{ boq_item.id }}"><span class="ion-ios-compose" ></span></a>  
                                         <a href="/initiation/d_boq_item/{{ boq_item.id }}" onclick="return confirm('Are you sure you want to delete this?')"><span class="ion-ios-trash" ></span></a>  
@@ -70,7 +74,7 @@
                         <tfoot>
                         <tr>
                           <th>S.No</th>
-                          <th>Tendor</th>
+                          <th>Tender</th>
                           <th>Heading</th>
                           <th>Sub Heading</th>
                           <th>Item</th>

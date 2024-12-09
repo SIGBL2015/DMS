@@ -12,6 +12,21 @@
         <section class="section">
           <h1 class="section-header">
             <div>Project Details</div>
+            {% if permission == 'disabled' %}                         
+              {% if project.project_status == 'In Progress' %} 
+                <div style="float: right;">Project {{project.project_status}}</div>
+              {% elif project.project_status == 'Completed' or  project.project_status == 'Cancel'%}
+                <div style="float: right;">Project {{project.project_status}}</div>
+              {% endif %}
+            {% else %}
+              {% if project.project_status == 'In Progress' %} 
+                <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#closeProject" style="float: right;">
+                  Close Project
+                </button>
+              {% elif project.project_status == 'Completed' or  project.project_status == 'Cancel'%}
+              <div style="float: right;">Project {{project.project_status}}</div>
+              {% endif %}
+            {% endif %}
           </h1>
           <div class="card card-primary">
             <div class="card-header"><h4>Details</h4></div>
@@ -116,7 +131,7 @@
                                   <input id="end_date" type="date" class="form-control" name="end_date" value="{{ project.end_date|date:'Y-m-d' }}" {{ permission }}>
                                 </div>
                                 <div class="form-group col-4"> 
-                                  <label for="email">Duration</label>
+                                  <label for="email">Duration(Month)</label>
                                   <input id="duration" type="number" class="form-control" name="duration" value="{{ project.duration }}" {{ permission }}>
                                 </div>
                                 <div class="form-group col-4"> 
@@ -151,19 +166,19 @@
                             <div class="row">
                               <div class="form-group col-3"> 
                                 <label for="email">Amount</label>
-                                <input id="amount" type="number" class="form-control" name="amount" value="{{ project.amount }}" {{ permission }}>
+                                <input id="amount" type="number" class="form-control" name="amount" value="{{ project.amount }}" step="0.01" {{ permission }}>
                               </div>
                               <div class="form-group col-3"> 
                                 <label for="email">Advance Amount</label>
-                                <input id="advance_amount" type="number" class="form-control" name="advance_amount" value="{{ project.advance_amount }}" {{ permission }}>
+                                <input id="advance_amount" type="number" class="form-control" name="advance_amount" value="{{ project.advance_amount }}" step="0.01" {{ permission }}>
                               </div>
                               <div class="form-group col-3"> 
                                 <label for="email">Tax(%)</label>
-                                <input id="tax" type="number" class="form-control" name="tax" value="{{ project.tax }}" {{ permission }}>
+                                <input id="tax" type="number" class="form-control" name="tax" value="{{ project.tax }}" step="0.01" {{ permission }}>
                               </div>
                               <div class="form-group col-3"> 
                                 <label for="email">Advance Tax(%)</label>
-                                <input id="advance_tax" type="number" class="form-control" name="advance_tax" value="{{ project.advance_tax }}" {{ permission }}>
+                                <input id="advance_tax" type="number" class="form-control" name="advance_tax" value="{{ project.advance_tax }}" step="0.01" {{ permission }}>
                               </div>
                             </div>
                             <h4>Earnest Money</h4>
@@ -171,7 +186,7 @@
                             <div class="row">           
                               <div class="form-group col-3"> 
                                 <label for="email">Earnest Money</label>
-                                <input id="earnest_money" type="number" class="form-control" name="earnest_money" value="{{ project.earnest_money }}" {{ permission }}>
+                                <input id="earnest_money" type="number" class="form-control" name="earnest_money" value="{{ project.earnest_money }}" step="0.01" {{ permission }}>
                               </div>
                               <div class="form-group col-3"> 
                                 <label for="email">EM Instrument No</label>
@@ -226,11 +241,11 @@
                             <div class="row">
                               <div class="form-group col-4"> 
                                 <label for="email">Perf.G Percentage(%)</label>
-                                <input id="pg_percentage" type="number" class="form-control" name="pg_percentage" value="{{ project.pg_percentage }}" {{ permission }}>
+                                <input id="pg_percentage" type="number" class="form-control" name="pg_percentage" value="{{ project.pg_percentage }}" step="0.01" {{ permission }}>
                               </div>
                               <div class="form-group col-4"> 
                                 <label for="email">Perf.G Amount</label>
-                                <input id="pg_amount" type="number" class="form-control" name="pg_amount" value="{{ project.pg_amount }}" {{ permission }}>
+                                <input id="pg_amount" type="number" class="form-control" name="pg_amount" value="{{ project.pg_amount }}" step="0.01" {{ permission }}>
                               </div>
                               <div class="form-group col-4"> 
                                 <label for="email">Perf.G Document</label>
@@ -414,7 +429,7 @@
                 
                                 <div class="row">
                                   <div class="form-group col-6">
-                                    <label for="frist_name">Duration</label>
+                                    <label for="frist_name">Duration(Month)</label>
                                     <input id="duration" type="number" class="form-control" name="duration" value="{{ bank.duration }}" {{ permission }}>
                                   </div>
                                   <div class="form-group col-6">
@@ -441,14 +456,14 @@
                                     </div>
                                     <div class="form-group col-6"> 
                                       <label for="email">Bank.G Percentage(%)</label>
-                                      <input id="bg_percentage" type="number" class="form-control" name="bg_percentage" value="{{ bank.bg_percentage }}" {{ permission }}>
+                                      <input id="bg_percentage" type="number" class="form-control" name="bg_percentage" value="{{ bank.bg_percentage }}" step="0.01" {{ permission }}>
                                     </div>
                                   </div>
                   
                                   <div class="row">
                                     <div class="form-group col-6"> 
                                       <label for="email">Bank.G Amount</label>
-                                      <input id="bg_amount" type="number" class="form-control" name="bg_amount" value="{{ bank.bg_amount }}" {{ permission }}>
+                                      <input id="bg_amount" type="number" class="form-control" name="bg_amount" value="{{ bank.bg_amount }}" step="0.01" {{ permission }}>
                                     </div>
                                     <div class="form-group col-6"> 
                                       <label for="email">Bank.G Document</label>
@@ -504,11 +519,11 @@
                               <div class="row">
                                   <div class="form-group col-6"> 
                                     <label for="email">Percentage(%)</label>
-                                    <input id="percentage" type="number" class="form-control" name="percentage" value="{{ liquidity_damage.percentage }}" {{ permission }}>
+                                    <input id="percentage" type="number" class="form-control" name="percentage" value="{{ liquidity_damage.percentage }}" step="0.01" {{ permission }}>
                                   </div>
                                   <div class="form-group col-6"> 
                                     <label for="email">Max Percentage(%)</label>
-                                    <input id="max_percentage" type="number" class="form-control" name="max_percentage" value="{{ liquidity_damage.max_percentage }}" {{ permission }}>
+                                    <input id="max_percentage" type="number" class="form-control" name="max_percentage" value="{{ liquidity_damage.max_percentage }}" step="0.01" {{ permission }}>
                                   </div>
                               </div>
                 
@@ -589,7 +604,7 @@
                                 <div class="row">
                                   <div class="form-group col-6"> 
                                     <label for="email">Amount</label>
-                                    <input id="amount" type="number" class="form-control" name="amount" value="{{ insurance.amount }}" {{ permission }}>
+                                    <input id="amount" type="number" class="form-control" name="amount" value="{{ insurance.amount }}" step="0.01" {{ permission }}>
                                   </div>
                                   <div class="form-group col-6"> 
                                     <label for="email">Vendor</label>
@@ -714,7 +729,7 @@
   
                   <div class="row">
                     <div class="form-group col-6">
-                      <label for="frist_name">Duration</label>
+                      <label for="frist_name">Duration(Month)</label>
                       <input id="duration" type="number" class="form-control" name="duration">
                     </div>
                     <div class="form-group col-6">
@@ -741,14 +756,14 @@
                       </div>
                       <div class="form-group col-6"> 
                         <label for="email">Bank.G Percentage(%)</label>
-                        <input id="bg_percentage" type="number" class="form-control" name="bg_percentage">
+                        <input id="bg_percentage" type="number" class="form-control" name="bg_percentage" step="0.01">
                       </div>
                     </div>
     
                     <div class="row">
                       <div class="form-group col-6"> 
                         <label for="email">Bank.G Amount</label>
-                        <input id="bg_amount" type="number" class="form-control" name="bg_amount">
+                        <input id="bg_amount" type="number" class="form-control" name="bg_amount" step="0.01">
                       </div>
                       <div class="form-group col-6"> 
                         <label for="email">Bank.G Document</label>
@@ -795,11 +810,11 @@
                   <div class="row">
                     <div class="form-group col-6"> 
                       <label for="email">Percentage(%)</label>
-                      <input id="percentage" type="number" class="form-control" name="percentage">
+                      <input id="percentage" type="number" class="form-control" name="percentage" step="0.01">
                     </div>
                     <div class="form-group col-6"> 
                       <label for="email">Max Percentage(%)</label>
-                      <input id="max_percentage" type="number" class="form-control" name="max_percentage">
+                      <input id="max_percentage" type="number" class="form-control" name="max_percentage" step="0.01">
                     </div>
                   </div>
   
@@ -864,7 +879,7 @@
                   <div class="row">
                     <div class="form-group col-6"> 
                       <label for="email">Amount</label>
-                      <input id="amount" type="number" class="form-control" name="amount">
+                      <input id="amount" type="number" class="form-control" name="amount" step="0.01">
                     </div>
                     <div class="form-group col-6"> 
                       <label for="email">Vendor</label>
@@ -891,6 +906,60 @@
           </div>
         </div>
         <!-- Insurance Modal -->
+         <!-- Closing Modal -->
+        <div class="modal fade" id="closeProject" tabindex="-1" aria-labelledby="closeProjectLabel" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="closeProjectLabel">Close Project</h5>
+                <button type="button" class="btn-close-project" data-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <form class="formnew" method="POST" data-url="{% url 'manual_update_project' project.id %}" id="myForm5" enctype="multipart/form-data">
+                  {% csrf_token %}
+                  <div class="row">
+                    <div class="form-group col-6">
+                      <label for="frist_name">Project</label>
+                      <select class="form-control" id="project" name="project" readonly>
+                          <option value="{{ project.id }}" selected>{{ project.title }}</option>
+                      </select>
+                    </div>
+                    <div class="form-group col-6">
+                      <label for="id_issuance_date">Closing Date</label>
+                      <input id="close_date" type="text" class="form-control" name="close_date" value="{% now 'Y-m-d' %}" required readonly>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="form-group col-6">
+                      <label for="id_project_status">Project Status</label>
+                      <select class="form-control" id="id_project_status" name="project_status" required>
+                          <option value="">-- Select Type --</option>
+                          <option value="Completed">Completed</option>
+                          <option value="Cancel">Cancel</option>
+                      </select>
+                    </div>
+                    <div class="form-group col-6">
+                      <label for="id_closing_doc">Closing File</label>
+                      <input id="closing_doc" type="file" class="form-control" name="closing_doc" required>
+                    </div>
+                    <div class="form-group col-6">
+                      <label for="id_closing_remarks">Closing Remarks</label>
+                      <textarea id="id_closing_remarks" name="closing_remarks" class="form-control" rows="4" cols="50" required></textarea>
+                      <input id="modalfield" type="text" value="1" hidden class="form-control" name="modalfield">
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <button type="submit"  value="save" class="btn btn-primary submit-btn">
+                      Save
+                    </button>
+                    <button type="button" class="btn btn-secondary btn-close-project" data-dismiss="modal">Cancel</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Closing Modal -->
       </div>
       {% include 'layout/footer.html' %}
     </div>
@@ -912,7 +981,9 @@
     $(".btn-close-insurance").on('click',function() {
       $("#insuranceModal").modal('toggle');
     });
-
+    $(".btn-close-project").on('click',function() {
+      $("#closeProject").modal('toggle');
+    });
     $(document).ready(function() {
             //$('.submit-btn').click(function(e) {
             $(".formnew").on('submit',function(e) {

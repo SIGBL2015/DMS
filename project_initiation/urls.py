@@ -18,6 +18,13 @@ urlpatterns = [
     path('e_unit/<int:id>', views.e_unit, name="e_unit"),  
     path('u_unit/<int:id>', views.u_unit, name="u_unit"),  
     path('d_unit/<int:id>', views.d_unit, name="d_unit"),
+
+    #tax
+    path('save_tax', views.add_tax, name="save_tax"),  
+    path('show_tax',views.show_tax, name="show_tax"),  
+    path('e_tax/<int:id>', views.e_tax, name="e_tax"),  
+    path('u_tax/<int:id>', views.u_tax, name="u_tax"),  
+    path('d_tax/<int:id>', views.d_tax, name="d_tax"),
     
     #category
     path('save_category', views.add_category, name="save_category"),  
@@ -57,5 +64,6 @@ urlpatterns = [
     path('d_boq_items/<int:id>', views.d_boq_items, name="d_boq_items"),
     path('load_sub_heading', views.load_sub_heading, name="load_sub_heading"),
     path('load_boq_items', views.load_boq_items, name="load_boq_items"),
+    path('test', views.test, name="test"),
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

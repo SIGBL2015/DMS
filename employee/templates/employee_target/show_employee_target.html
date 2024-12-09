@@ -50,8 +50,12 @@
                                     <td>{{ employee_target.quarter_second_target }}</td>
                                     <td>{{ employee_target.quarter_third_target }}</td>
                                     <td>{{ employee_target.quarter_fourth_target }}</td>
-                                    <td>{{ employee_target.year_target }}</td>    
-                                    <td>{{ employee_target.status }}</td>  
+                                    <td>{{ employee_target.year_target }}</td> 
+                                    {% if employee_target.status == 1 %}
+                                      <td>Active</td>  
+                                    {% else %}
+                                      <td>Deactive</td>
+                                    {% endif %}
                                     <td>  
                                         <a href="/employee/e_employee_target/{{ employee_target.id }}"><span class="ion-ios-compose" ></span></a>  
                                         <a href="/employee/d_employee_target/{{ employee_target.id }}" onclick="return confirm('Are you sure you want to delete this?')"><span class="ion-ios-trash" ></span></a>  

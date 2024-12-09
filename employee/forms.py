@@ -54,7 +54,7 @@ class Project_typeForm(forms.ModelForm):
 class ProjectForm(forms.ModelForm):  
     class Meta:  
         model = Project  
-        fields = ('id','branch','project_type','title','client','start_date','end_date','duration','amount','tax','advance_tax','advance_amount','earnest_money','em_instrument_no','em_expire_date','pg_start_date','pg_end_date','pg_validity','pg_percentage','pg_amount','pg_instrument_no','keywords','project_status','scope','sector','initiated_by')
+        fields = ('id','branch','project_type','title','client','start_date','end_date','duration','amount','tax','advance_tax','advance_amount','earnest_money','em_instrument_no','em_expire_date','pg_start_date','pg_end_date','pg_validity','pg_percentage','pg_amount','pg_instrument_no','keywords','project_status','scope','sector','initiated_by','em_receive_date','em_received','country','close_date','closing_doc','closing_remarks')
 
 class BankForm(forms.ModelForm):  
     class Meta:  
@@ -179,7 +179,7 @@ class LeadsForm(forms.ModelForm):
 class SalesForm(forms.ModelForm):  
     class Meta:  
         model = Sales  
-        fields = ('id','lead','sale_person','amount')
+        fields = ('id','lead','sale_person','amount','sale_date')
 
 # SELECT table_name FROM information_schema.tables
 # WHERE table_schema = 'your_database_name';

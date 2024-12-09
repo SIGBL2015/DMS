@@ -2,7 +2,8 @@
 <div class="main-sidebar">
     <aside id="sidebar-wrapper">
       <div class="sidebar-brand">
-        <a href="{% url 'dashboard' %}">DMSYSTEM</a>
+          <img alt="image" style="width: 150px;" src="{% static 'dist/img/black_logo.png' %}"><br>
+          <!-- <a href="{% url 'dashboard' %}">ERP-System</a> -->
       </div>
       <div class="sidebar-user">
         <div class="sidebar-user-picture">
@@ -11,11 +12,13 @@
         <div class="sidebar-user-details">
           <div class="user-name">
             {% if user.is_authenticated %}
-              {{user.username|title }}
+              {{ user.username|title }}
             {% endif %}
           </div>
           <div class="user-role">
-            Administrator
+            {% if user.is_authenticated %}
+              {{ user.groups.all.0|title }}
+            {% endif %}
           </div>
         </div>
       </div>
@@ -25,104 +28,68 @@
           <a href="{% url 'dashboard' %}"><i class="ion ion-speedometer"></i><span>Dashboard</span></a>
         </li>
 
-        <li class="menu-header">Components</li>
+        <li class="menu-header">Menu</li>
         <li>
-          <a href="#" class="has-dropdown"><i class="ion ion-ios-nutrition"></i>Administration</a>
+          <a href="#" class="has-dropdown"><i class="ion ion-ios-people"></i>Human Resource</a>
           <ul class="menu-dropdown">
             <li>
-              <a href="{% url 'show_company' %}"><i class="ion ion-clipboard"></i><span>Company</span></a>
+              <a href="{% url 'view_employee' %}"><i class="ion ion-person-stalker"></i><span>Employee</span></a>
             </li>
             <li>
-              <a href="{% url 'show_country' %}"><i class="ion ion-clipboard"></i><span>Country</span></a>
+              <a href="{% url 'show_employee_target' %}"><i class="ion ion-arrow-graph-up-right"></i><span>Employee Target</span></a>
             </li>
             <li>
-              <a href="{% url 'show_zone' %}"><i class="ion ion-clipboard"></i><span>Zone</span></a>
+              <a href="{% url 'show_depart' %}"><i class="ion ion-aperture"></i><span>Department</span></a>
             </li>
             <li>
-              <a href="{% url 'show_region' %}"><i class="ion ion-clipboard"></i><span>Region</span></a>
+              <a href="{% url 'show_design' %}"><i class="ion ion-man"></i><span>Designation</span></a>
             </li>
             <li>
-              <a href="{% url 'show_area' %}"><i class="ion ion-clipboard"></i><span>Area</span></a>
+              <a href="{% url 'show_education' %}"><i class="ion ion-university"></i><span>Education</span></a>
             </li>
             <li>
-              <a href="{% url 'show_branch' %}"><i class="ion ion-clipboard"></i><span>Branch</span></a>
+              <a href="{% url 'show_employement_record' %}"><i class="ion ion-ionic"></i><span>Employement_Record</span></a>
             </li>
             <li>
-              <a href="{% url 'show_client' %}"><i class="ion ion-clipboard"></i><span>Client</span></a>
+              <a href="{% url 'show_certification' %}"><i class="ion ion-ribbon-b"></i><span>Certifications</span></a>
             </li>
             <li>
-              <a href="{% url 'show_vendor' %}"><i class="ion ion-clipboard"></i><span>Vendor</span></a>
-            </li>
-          </ul>
-        </li>
-
-        <li>
-          <a href="#" class="has-dropdown"><i class="ion ion-ios-nutrition"></i>Employment</a>
-          <ul class="menu-dropdown">
-            <li>
-              <a href="{% url 'view_employee' %}"><i class="ion ion-clipboard"></i><span>Employee</span></a>
+              <a href="{% url 'show_skill' %}"><i class="ion ion-asterisk"></i><span>Skills</span></a>
             </li>
             <li>
-              <a href="{% url 'show_employee_target' %}"><i class="ion ion-clipboard"></i><span>Employee Target</span></a>
+              <a href="{% url 'show_cv_template' %}"><i class="ion ion-document-text"></i><span>CV Templates</span></a>
             </li>
             <li>
-              <a href="{% url 'show_depart' %}"><i class="ion ion-clipboard"></i><span>Department</span></a>
-            </li>
-            <li>
-              <a href="{% url 'show_design' %}"><i class="ion ion-clipboard"></i><span>Designation</span></a>
-            </li>
-            <li>
-              <a href="{% url 'show_education' %}"><i class="ion ion-clipboard"></i><span>Education</span></a>
-            </li>
-            <li>
-              <a href="{% url 'show_employement_record' %}"><i class="ion ion-clipboard"></i><span>Employement_Record</span></a>
-            </li>
-            <li>
-              <a href="{% url 'show_certification' %}"><i class="ion ion-clipboard"></i><span>Certifications</span></a>
-            </li>
-            <li>
-              <a href="{% url 'show_skill' %}"><i class="ion ion-clipboard"></i><span>Skills</span></a>
-            </li>
-            <li>
-              <a href="{% url 'show_cv_template' %}"><i class="ion ion-clipboard"></i><span>CV Templates</span></a>
-            </li>
-            <li>
-              <a href="{% url 'generate_cv' %}"><i class="ion ion-clipboard"></i><span>Generate CV</span></a>
+              <a href="{% url 'generate_cv' %}"><i class="ion ion-document"></i><span>Generate CV</span></a>
             </li>
           </ul>
         </li> 
+        
         <li>
-          <a href="#" class="has-dropdown"><i class="ion ion-ios-nutrition"></i>Product</a>
-          <ul class="menu-dropdown">
-            <li><a href="{% url 'show_unit' %}"><i class="ion ion-ios-circle-outline"></i>Unit</a></li>
-            <li><a href="{% url 'show_category' %}"><i class="ion ion-ios-circle-outline"></i>Category</a></li>
-            <li><a href="{% url 'show_item' %}"><i class="ion ion-ios-circle-outline"></i>Item</a></li>
-          </ul>
-        </li>  
+          <a href="#" class="has-dropdown"><i class="ion ion-ios-cart"></i>CRM</a>
+          <ul class="menu-dropdown"> 
+            <li><a href="{% url 'show_leads' %}"><i class="ion ion-magnet"></i>Lead</a></li>
+          </ul>  
+        </li>
         <li>
-          <a href="#" class="has-dropdown"><i class="ion ion-ios-nutrition"></i>Initiation</a>
+          <a href="#" class="has-dropdown"><i class="ion ion-ios-briefcase"></i>Pre Tender</a>
           <ul class="menu-dropdown">
-            <li><a href="{% url 'show_tendor' %}"><i class="ion ion-ios-circle-outline"></i>Tendor</a></li>
-            <li><a href="{% url 'show_heading' %}"><i class="ion ion-ios-circle-outline"></i>Heading</a></li>
-            <li><a href="{% url 'show_sub_heading' %}"><i class="ion ion-ios-circle-outline"></i>Sub Heading</a></li>
-            <li><a href="{% url 'show_boq_items' %}"><i class="ion ion-ios-circle-outline"></i>BOQ Item</a></li>
+            <li><a href="{% url 'show_tendor' %}"><i class="ion ion-bookmark"></i>Tender</a></li>
+            <li><a href="{% url 'show_heading' %}"><i class="ion ion-edit"></i>Heading</a></li>
+            <li><a href="{% url 'show_sub_heading' %}"><i class="ion ion-compose"></i>Sub Heading</a></li>
+            <li><a href="{% url 'show_boq_items' %}"><i class="ion ion-clipboard"></i>BOQ Item</a></li>
           </ul>
         </li>    
         <li>
-          <a href="#" class="has-dropdown"><i class="ion ion-ios-nutrition"></i>Project</a>
+          <a href="#" class="has-dropdown"><i class="ion ion-ios-folder"></i>Project</a>
           <ul class="menu-dropdown">
-            <li><a href="{% url 'show_leads' %}"><i class="ion ion-ios-circle-outline"></i>Lead</a></li>
-            <li><a href="{% url 'show_project_type' %}"><i class="ion ion-ios-circle-outline"></i>Project Type</a></li>
-            <li><a href="{% url 'show_document_type' %}"><i class="ion ion-ios-circle-outline"></i>Document Type</a></li>
-            <li><a href="{% url 'show_project' %}"><i class="ion ion-ios-circle-outline"></i>Project</a></li>
-            <li><a href="{% url 'show_project_document' %}"><i class="ion ion-ios-circle-outline"></i>Project Documents</a></li>
-            <li><a href="{% url 'show_employee_project' %}"><i class="ion ion-ios-circle-outline"></i>Employee Project</a></li>
-            <li><a href="{% url 'show_bank' %}"><i class="ion ion-ios-circle-outline"></i>Bank</a></li>
-            <li><a href="{% url 'show_bank_guaranty' %}"><i class="ion ion-ios-circle-outline"></i>Bank Guaranty</a></li>
-            <li><a href="{% url 'show_liquidity_damages' %}"><i class="ion ion-ios-circle-outline"></i>Liquidity Damages</a></li>
-            <li><a href="{% url 'show_insurance_type' %}"><i class="ion ion-ios-circle-outline"></i>Insurance Type</a></li>
-            <li><a href="{% url 'show_insurance_detail' %}"><i class="ion ion-ios-circle-outline"></i>Insurance Detail</a></li>
-            <li><a href="{% url 'generate_report' %}"><i class="ion ion-ios-circle-outline"></i>Sale Report</a></li>
+            <li><a href="{% url 'show_leads' %}"><i class="ion ion-magnet"></i>Lead</a></li>
+            <li><a href="{% url 'show_project' %}"><i class="ion ion-folder"></i>Project</a></li>
+            <li><a href="{% url 'show_project_document' %}"><i class="ion ion-document-text"></i>Project Documents</a></li>
+            <li><a href="{% url 'show_employee_project' %}"><i class="ion ion-filing"></i>Employee Project</a></li>
+            <li><a href="{% url 'show_bank_guaranty' %}"><i class="ion ion-document-text"></i>Bank Guaranty</a></li>
+            <li><a href="{% url 'show_liquidity_damages' %}"><i class="ion ion-arrow-up-a"></i>Liquidity Damages</a></li>
+            <li><a href="{% url 'show_insurance_detail' %}"><i class="ion ion-medkit"></i>Insurance Detail</a></li>
             <!-- <li><a href="#" class="has-dropdown"><i class="ion ion-ios-circle-outline"></i> Menu 2</a>
               <ul class="menu-dropdown">
                 <li><a href="#"><i class="ion ion-ios-circle-outline"></i> Child Menu 1</a></li>
@@ -140,13 +107,62 @@
           </ul>
         </li>  
         <li>
-          <a href="#" class="has-dropdown"><i class="ion ion-ios-nutrition"></i>Finance</a>
+          <a href="#" class="has-dropdown"><i class="ion ion-ios-cart"></i>Product</a>
           <ul class="menu-dropdown">
-            <li><a href="{% url 'show_coa' %}"><i class="ion ion-ios-circle-outline"></i>ChartOfAccount</a></li>
-            <li><a href="{% url 'show_journal_entry' %}"><i class="ion ion-ios-circle-outline"></i>Journal Entry</a></li>
-            <li><a href="{% url 'generate_pnl' %}"><i class="ion ion-ios-circle-outline"></i>PnL Report</a></li>
+            <li><a href="{% url 'show_item' %}"><i class="ion ion-load-d"></i>Item</a></li>
+            <li><a href="{% url 'show_category' %}"><i class="ion ion-pie-graph"></i>Category</a></li>
+            <li><a href="{% url 'show_unit' %}"><i class="ion ion-cube"></i>Unit</a></li>
+            <li><a href="{% url 'show_tax' %}"><i class="ion ion-stats-bars"></i>Tax</a></li>
           </ul>
-        </li>         
+        </li>  
+        <li>
+          <a href="#" class="has-dropdown"><i class="ion ion-ios-calculator"></i>Finance</a>
+          <ul class="menu-dropdown">
+            <li><a href="{% url 'show_coa' %}"><i class="ion ion-filing"></i>ChartOfAccount</a></li>
+            <li><a href="{% url 'show_journal_entry' %}"><i class="ion ion-soup-can"></i>Journal Entry</a></li>
+            <li><a href="{% url 'generate_pnl' %}"><i class="ion ion-connection-bars"></i>PnL Report</a></li>
+          </ul>
+        </li> 
+        <li>
+          <a href="#" class="has-dropdown"><i class="ion ion-clipboard"></i>Report</a>
+          <ul class="menu-dropdown">
+            <li><a href="{% url 'project_summary' %}"><i class="ion ion-filing"></i>Project Summary</a></li>
+            <li><a href="{% url 'generate_report' %}"><i class="ion ion-podium"></i>Sale Report</a></li>
+          </ul>
+        </li> 
+        <li>
+          <a href="#" class="has-dropdown"><i class="ion ion-ios-cog"></i>Settings</a>
+          <ul class="menu-dropdown">
+            <li>
+              <a href="{% url 'show_company' %}"><i class="ion ion-pinpoint"></i><span>Company</span></a>
+            </li>
+            <li>
+              <a href="{% url 'show_country' %}"><i class="ion ion-flag"></i><span>Country</span></a>
+            </li>
+            <li>
+              <a href="{% url 'show_zone' %}"><i class="ion ion-network"></i><span>Zone</span></a>
+            </li>
+            <li>
+              <a href="{% url 'show_region' %}"><i class="ion ion-aperture"></i><span>Region</span></a>
+            </li>
+            <li>
+              <a href="{% url 'show_area' %}"><i class="ion ion-map"></i><span>Area</span></a>
+            </li>
+            <li>
+              <a href="{% url 'show_branch' %}"><i class="ion ion-contrast"></i><span>Branch</span></a>
+            </li>
+            <li>
+              <a href="{% url 'show_client' %}"><i class="ion ion-person-add"></i><span>Client</span></a>
+            </li>
+            <li>
+              <a href="{% url 'show_vendor' %}"><i class="ion ion-person"></i><span>Vendor</span></a>
+            </li>
+            <li><a href="{% url 'show_project_type' %}"><i class="ion ion-navicon-round"></i>Project Type</a></li>
+            <li><a href="{% url 'show_document_type' %}"><i class="ion ion-paperclip"></i>Document Type</a></li>
+            <li><a href="{% url 'show_insurance_type' %}"><i class="ion ion-paper-airplane"></i>Insurance Type</a></li>
+            <li><a href="{% url 'show_bank' %}"><i class="ion ion-connection-bars"></i>Bank</a></li>
+          </ul>
+        </li>
       </ul>
     </aside>
   </div>

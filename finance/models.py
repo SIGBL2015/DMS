@@ -58,9 +58,9 @@ class Chart_of_accounts(models.Model):
 class Journal_entry(models.Model): 
     coaid = models.ForeignKey(Chart_of_accounts, on_delete=models.CASCADE,null=True, blank=True)
     currency = models.ForeignKey(Currency, on_delete=models.CASCADE,null=True, blank=True)
-    amount = models.IntegerField(null=True) 
-    conversion_rate = models.IntegerField(null=True) 
-    total_amount = models.IntegerField(null=True) 
+    amount = models.FloatField(null=True) 
+    conversion_rate = models.FloatField(null=True) 
+    total_amount = models.FloatField(null=True) 
     payment_mode = models.ForeignKey(Payment_mode, on_delete=models.CASCADE,null=True, blank=True)
     project = models.ForeignKey(Project, on_delete=models.CASCADE,null=True, blank=True)
     bank = models.ForeignKey(Bank, on_delete=models.CASCADE,null=True, blank=True)

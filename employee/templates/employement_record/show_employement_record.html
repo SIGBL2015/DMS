@@ -57,7 +57,11 @@
                                     <td>{{ employement_Record.ref_name}}</td> 
                                     <td>{{ employement_Record.ref_email}}</td> 
                                     <td>{{ employement_Record.ref_contact}}</td>
-                                    <td>{{ employement_Record.status }}</td>  
+                                    {% if employement_Record.status == 1 %}
+                                      <td>Active</td>  
+                                    {% else %}
+                                      <td>Deactive</td>
+                                    {% endif %}
                                     <td>  
                                         <a href="/employee/e_employement_record/{{ employement_Record.id }}"><span class="ion-ios-compose" ></span></a>  
                                         <a href="/employee/d_employement_record/{{ employement_Record.id }}" onclick="return confirm('Are you sure you want to delete this?')"><span class="ion-ios-trash" ></span></a>  

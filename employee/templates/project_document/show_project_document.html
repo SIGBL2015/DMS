@@ -47,7 +47,11 @@
                                     <td>{{ project_document.ref_no }}</td>
                                     <td>{{ project_document.issuance_date }}</td>
                                     <td>{{ project_document.remarks }}</td>
-                                    <td>{{ project_document.status }}</td>  
+                                    {% if project_document.status == 1 %}
+                                      <td>Active</td>  
+                                    {% else %}
+                                      <td>Deactive</td>
+                                    {% endif %}
                                     <td>  
                                         <!-- <a href="/employee/e_project_document/{{ project_document.id }}"><span class="ion-ios-compose" ></span></a>   -->
                                         <a href="/employee/d_project_document/{{ project_document.id }}" onclick="return confirm('Are you sure you want to delete this?')"><span class="ion-ios-trash" ></span></a>  

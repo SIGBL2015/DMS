@@ -27,7 +27,7 @@
                         <thead>
                         <tr>
                           <th>S.No</th>
-                          <th>Tendor</th>
+                          <th>Tender</th>
                           <th>Title</th>
                           <th>Template_code</th>
                           <th>Status</th>
@@ -41,7 +41,11 @@
                                     <td>{{ cv_template.tendor }}</td>  
                                     <td>{{ cv_template.title }}</td>
                                     <td>{{ cv_template.templete_code }}</td>
-                                    <td>{{ cv_template.status }}</td>  
+                                    {% if cv_template.status == 1 %}
+                                      <td>Active</td>  
+                                    {% else %}
+                                      <td>Deactive</td>
+                                    {% endif %} 
                                     <td>  
                                         <!-- <a href="/employee/e_cv_template/{{ cv_template.id }}"><span class="ion-ios-compose" ></span></a>   -->
                                         <a href="/employee/d_cv_template/{{ cv_template.id }}" onclick="return confirm('Are you sure you want to delete this?')"><span class="ion-ios-trash" ></span></a>  
@@ -52,7 +56,7 @@
                         <tfoot>
                         <tr>
                           <th>S.No</th>
-                          <th>Tendor</th>
+                          <th>Tender</th>
                           <th>Title</th>
                           <th>Template_code</th>
                           <th>Status</th>

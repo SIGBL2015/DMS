@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  {% load static %} 
+  {% include 'layout/style.html' %}
+
+<body>
+  <div id="app">
+    <div class="main-wrapper">
+      {% include 'layout/header.html' %}
+      {% include 'layout/sidebar.html' %}
+      <div class="main-content">
+        <section class="section">
+          <h1 class="section-header">
+            <div>Edit Tax</div>
+          </h1>
+          <div class="col-md-6 col-md-offset-4 mx-auto">
+            <div class="card card-primary">
+                <div class="card-header"><h4>Edit</h4></div>
+                <div class="card-body">
+                  <form method="POST" action="/initiation/u_tax/{{tax.id}}">
+                    {% csrf_token %}
+                    <div class="row">
+                      <div class="form-group col-md-12">
+                        <label for="frist_name">Tax</label>
+                        <input id="name" type="text" class="form-control" name="name" value="{{ tax.name }}" autofocus>
+                      </div>
+                      <div class="form-group col-md-12">
+                        <label for="frist_name">Percentage(%)</label>
+                        <input id="percentage" type="number" class="form-control" name="percentage" value="{{ tax.percentage }}" step="0.01">
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <button type="submit" class="btn btn-primary">
+                        Update
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+        </section>
+      </div>
+      {% include 'layout/footer.html' %}
+    </div>
+  </div>
+  {% include 'layout/script.html' %}
+</body>
+</html>

@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+  {% load static %} 
+  {% include 'layout/style.html' %} 
+<body>
+  <div id="app">
+    <div class="main-wrapper">
+      {% include 'layout/header.html' %}
+      {% include 'layout/sidebar.html' %}
+      <div class="main-content">
+        <section class="section">
+          <h1 class="section-header">
+            <!-- <div>Summary</div> -->
+            <div class="col-md-12">
+              <div class="form-group col-6">
+                Project Summary
+              </div>
+              <div class="form-group col-4">
+                <select class="form-control" id="project" name="project">
+                <option value="">-- Select Project --</option>
+                {% for project in projects %}
+                    <option value="{{ project.id }}">{{ project.title }}</option>
+                {% endfor %}
+                </select>
+              </div>
+              <div class="form-group col-2">
+                <button class="btn btn-primary" id="generate">
+                  Generate
+              </button>
+              </div>
+          </h1>
+          <!-- <div class="col-md-6 col-md-offset-4 mx-auto">
+            <div class="card card-primary">
+              <div class="card-header">
+                <h4>Generate Report</h4>
+              </div>
+              <div class="card-body">
+                <form method="POST" action="generate_report">
+                    {% csrf_token %}
+                  <div class="row">
+                    <div class="form-group col-6">
+                      <label>Branch</label>
+                      <select class="form-control js-example-basic-multiple" id="branch" name="branch" multiple="multiple">
+                      <option value="all">-- Select All --</option>
+                      {% for branch in branches %}
+                          <option value="{{ branch.id }}">{{ branch.branch_name }}</option>
+                      {% endfor %}
+                      </select>
+                    </div>
+                    <div class="form-group col-6">
+                      <label>Department</label>
+                      <select class="form-control js-example-basic-multiple" id="department" name="department" multiple="multiple">
+                      <option value="all">-- Select All --</option>
+                      {% for depart in departs %}
+                          <option value="{{ depart.id }}">{{ depart.depart_name }}</option>
+                      {% endfor %}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="form-group col-6">
+                      <label for="frist_name">Employee</label>
+                      <select class="form-control js-example-basic-multiple" id="employees" name="employees" multiple="multiple">
+                          <option value="all">-- Select All --</option>
+                      </select>
+                    </div>
+                    <div class="form-group col-6">
+                      <label>Year</label>
+                      <select class="form-control js-example-basic-multiple" id="year" name="year" multiple="multiple">
+                      <option value="all">-- Select All --</option>
+                      {% for year in years %}
+                          <option value="{{ year.financial_year }}">{{ year.financial_year }}</option>
+                      {% endfor %}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <button type="submit" class="btn btn-primary">
+                        Generate
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div> -->
+        
+
+
+        <!-- project_summary.html -->
+          <div class="container mt-4" id="main">
+              <!-- Project Info -->
+              
+          </div>
+        </section>
+
+
+
+      </div>
+      {% include 'layout/footer.html' %}
+    </div>
+  </div>
+
+  {% include 'layout/script.html' %}
+  <script type="text/javascript">
+    $(document).ready(function () {
+        $('#generate').on('click',function () {
+            var url = "{% url 'project_summary' %}";
+            var project = $('#project').val();
+            $('#main').empty();
+            $.ajax({
+                type: 'POST',
+                url: url,
+                data: {
+                    'csrfmiddlewaretoken': '{{ csrf_token }}',
+                    'project': project
+                },
+                traditional: true,
+                success: function (data) {
+                  summary=data.project
+                  let htmlContent = `
+                   <div class="row mb-4">
+                    <div class="col-md-12">
+                      <div class="alert alert-primary">
+                         <h2 ><span style="width:100%;    font-size: 24px;
+    font-weight: 700;" class="text-left">${summary.project.title} <span style="float:right;    margin-top: 5px;" class='badge badge-warning'>In Progress...</span></span></h2>
+                      </div>
+                      
+                    </div>
+                  </div> 
+                  <div class="row mb-4">
+                    <div class="col-md-4">
+                      <div class="card">
+              <div class="card-header">
+                <h5 class="card-title">General Info</h5>
+              </div>
+              <div class="card-body">
+                <p><strong>Client:</strong> ${summary.client.client_name}</p>
+                <p><strong>Client's POC:</strong> Shoaib</p>
+                <p><strong>PM:</strong> project.project_manager</p>
+                
+                
+              </div>
+            </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="card">
+              <div class="card-header">
+                <h5 class="card-title">Progress</h5>
+              </div>
+              <div class="card-body">
+                                         <p><strong>Start Date:</strong> project.start_date</p>
+<p><strong>End Date:</strong> project.expected_end_date</p>
+                                          <p><strong>Completion Date:</strong> {% if project.actual_end_date %} project.actual_end_date {% else %} N/A {% endif %}</p>
+                                      </div>
+                                      </div></div>
+                                      <div class="col-md-4">
+                                          <div class="card">
+              <div class="card-header">
+                <h5 class="card-title">Budget Summary</h5>
+              </div>
+              <div class="card-body">
+                                                  
+                                                  <p><strong>Total Budget:</strong> $project.budget</p>
+                                                  <p><strong>Amount Spent:</strong> $project.amount_spent</p>
+                                                  <p><strong>Progress:</strong> project.progress%</p>
+                                                  <div class="progress">
+                                                      <div class="progress-bar" role="progressbar" style="width: 60%" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"></div>
+                                                  </div>
+                                              </div>
+                                          </div>
+                                      </div>
+                                  </div>
+                                  <div class="card">
+      <div class="card-header">
+        
+      </div>
+      <div class="card-body">
+        <h5 class="card-title">Finances</h5>
+        <p class="card-text">Here you will find all the details about the project financials</p>
+        
+        <!-- Nested Cards -->
+        <div class="row">
+          <!-- First Nested Card -->
+          <div class="col-md-6">
+            <div class="card">
+              <div class="card-header">
+                Project Financials
+              </div>
+              <div class="card-body">
+               <table class="table">
+                                      <thead>
+                                          <tr>
+                                            
+                                            <th scope="col">Cost</th>
+                                            <th scope="col">Expense</th>  
+                                              <th scope="col">Adv Amt</th>
+                                              <th scope="col">Tax(%)</th>
+                                              <th scope="col">Adv Tax(%)</th>
+                                             
+                                          </tr>
+                                      </thead>
+                                      <tbody>
+                                          
+                                          <tr>
+                                             <td>500000</td>
+                                            <td>400000</td>
+                                             
+                                              <td>12500</td>
+                                              <td>18%</td>
+                                              <td>3%</td>
+                                              
+                                          </tr>
+                                          
+                                      </tbody>
+                                  </table>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Second Nested Card -->
+          <div class="col-md-6">
+            <div class="card">
+              <div class="card-header">
+               Earnest Money
+              </div>
+              <div class="card-body">
+                <table class="table">
+                                      <thead>
+                                          <tr>
+                                              <th scope="col">EM</th>
+                                              <th scope="col">Inst No.</th>
+                                              <th scope="col">Expiry</th>
+                                              <th scope="col">Doc</th>
+                                             
+                                              <th scope="col">Rcvd Date</th>
+                                          </tr>
+                                      </thead>
+                                      <tbody>
+                                          
+                                          <tr>
+                                              <td>100000</td>
+                                              <td>tt442t</td>
+                                              <td>05/12/2024</td>
+                                              <td><a href="">View</a></td>
+                                              
+                                              <td>dd/mm/yyyy</td>
+                                          </tr>
+                                        
+                                      </tbody>
+                                  </table>
+              </div>
+            </div>
+          </div>
+          <!-- Third Nested Card -->
+          <div class="col-md-12">
+            <div class="card">
+              <div class="card-header">
+                Performance Gurantee (PG) | <span class="badge badge-primary">Total Amount: 25000 /-</span>
+              </div>
+              <div class="card-body">
+                <table class="table">
+                                      <thead>
+                                          <tr>
+                                            <th scope="col">Bank Name</th>
+                                              <th scope="col">Instr #.</th>
+                                              <th scope="col">Start Date</th>
+                                              <th scope="col">End Date</th>
+                                              <th scope="col">Duration</th>
+                                              <th scope="col">Validity</th>
+                                              <th scope="col">%Age</th>
+                                              <th scope="col">Amount</th>
+                                              <th scope="col">Document</th>
+                                          </tr>
+                                      </thead>
+                                      <tbody>
+                                        
+                                          <tr>
+                                            <td>HBL</td>
+                                              <td>gr34431e</td>
+                                              <td>01/05/2024</td>
+                                              <td>31/05/2024</td>
+                                              <td>05/06/2024</td>
+                                              <td>5 months</td>
+                                              <td>5.0</td>
+                                              <td>25000</td>
+                                              <td><a href="">View</a></td>
+                                          </tr>
+                                        
+                                      </tbody>
+                                  </table>
+              </div>
+            </div>
+          </div>
+          <!-- Fourth Nested Card -->
+          <div class="col-md-12">
+            <div class="card">
+              <div class="card-header">
+                Bank Gurantee (BG) | <span class="badge badge-primary">Total Amount: 25000 /-</span>
+              </div>
+              <div class="card-body">
+                <table class="table">
+                                      <thead>
+                                          <tr>
+                                              <th scope="col">Bank Name</th>         
+                                              <th scope="col">Instr No.</th>
+                                              <th scope="col">Start Date</th>
+                                              <th scope="col">End Date</th>
+                                              <th scope="col">Duration</th>
+                                              <th scope="col">Validity</th>
+                                              <th scope="col">%Age</th>
+                                              <th scope="col">Amount</th>
+                                              <th scope="col">Document</th>
+                                          </tr>
+                                      </thead>
+                                      <tbody>
+                                        
+                                          <tr>
+                                              <td>HBL</td>
+                                              <td>abcd1234</td>
+                                              <td>31/05/2024</td>
+                                              <td>05/06/2024</td>
+                                              <td>5 months</td>
+                                              <td>25000</td>
+                                              <td>5.0</td>
+                                              <td>25000</td>
+                                              <td><a href="">View</a></td>
+                                          </tr>
+                                        
+                                      </tbody>
+                                  </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card-footer">
+       All the financials are based on the input in the system.
+      </div>
+    </div>
+                                  
+                                  
+                              <div class="card">
+              <div class="card-header">
+                Project Employees
+              </div>
+              <div class="card-body">    
+
+                                  <table class="table">
+                                      <thead>
+                                          <tr>
+                                              <th scope="col">S.No</th>
+                                              <th scope="col">Employee</th>
+                                              <th scope="col">Designation</th>
+                                              <th scope="col">Is Key Acc Manager</th>
+                                              <th scope="col">Status</th>
+                                              
+                                          </tr>
+                                      </thead>
+                                      <tbody>
+                                        
+                                          <tr>
+                                              <td>1</td>
+                                              <td>Turab</td>
+                                              <td>Senior Backend Developer</td>
+                                              <td>Yes</td>
+                                              <td>Yes</td>
+                                              
+                                          </tr>
+                                        
+                                      </tbody>
+                                  </table>
+                                  </div></div>`;
+                                  // Append generated content to #main
+                                  $('#main').append(htmlContent);
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error:", error);
+                }
+            });
+        });
+    });
+</script>
+</body>
+</html>

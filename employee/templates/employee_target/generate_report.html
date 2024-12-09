@@ -3,7 +3,6 @@
   {% load static %} 
   {% include 'layout/style.html' %} 
   {% load humanize %}
-
 <body>
   <div id="app">
     <div class="main-wrapper">
@@ -30,26 +29,96 @@
               </ul>
             </div>
           </h1>
-          <div class="section-body">
+          <div class="col-md-12">
+            <div class="card card-primary">
+              <div class="card-body">
+                <form class="formnew" method="POST" data-url="{% url 'generate_report' %}" id="myForm4">
+                    {% csrf_token %}
+                  <div class="row">
+                    <div class="form-group col-2">
+                      <label>Region</label>
+                      <select class="form-control js-example-basic-multiple" id="region" name="region" multiple="multiple">
+                      <option value="all">-- Select All --</option>
+                      {% for region in regions %}
+                          <option value="{{ region.id }}">{{ region.region_name }}</option>
+                      {% endfor %}
+                      </select>
+                    </div>
+                    <div class="form-group col-2">
+                      <label>Branch</label>
+                      <select class="form-control js-example-basic-multiple" id="branch" name="branch" multiple="multiple">
+                      <option value="all">-- Select All --</option>
+                      <!-- {% for branch in branches %}
+                          <option value="{{ branch.id }}">{{ branch.branch_name }}</option>
+                      {% endfor %} -->
+                      </select>
+                    </div>
+                    <div class="form-group col-2">
+                      <label>Department</label>
+                      <select class="form-control js-example-basic-multiple" id="department" name="department" multiple="multiple">
+                      <option value="all">-- Select All --</option>
+                      {% for depart in departs %}
+                          <option value="{{ depart.id }}">{{ depart.depart_name }}</option>
+                      {% endfor %}
+                      </select>
+                    </div>
+                    <div class="form-group col-2">
+                      <label for="frist_name">Employee</label>
+                      <select class="form-control js-example-basic-multiple" id="employees" name="employees" multiple="multiple">
+                          <option value="all">-- Select All --</option>
+                      </select>
+                    </div>
+                    <div class="form-group col-2">
+                      <label>Year</label>
+                      <select class="form-control js-example-basic-multiple" id="year" name="year" multiple="multiple">
+                      <option value="all">-- Select All --</option>
+                      {% for year in years %}
+                          <option value="{{ year.financial_year }}">{{ year.financial_year }}</option>
+                      {% endfor %}
+                      </select>
+                    </div>
+                    <div class="form-group col-2">
+                      <label></label>
+                      <div class="form-group">
+                        <button type="submit" class="btn btn-primary">
+                            Generate
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- <div class="form-group">
+                    <button type="submit" class="btn btn-primary">
+                        Generate
+                    </button>
+                  </div> -->
+                </form>
+              </div>
+            </div>
+          </div> 
+        
+          <!-- Loading Spinner -->
+          <!-- <div id="loading-spinner" class="text-center my-3">
+              <div class="spinner-border text-primary" role="status">
+                  <span class="visually-hidden">Loading...</span>
+              </div>
+          </div> -->
+
+          <!-- <div class="section-body">
             {% for year, quarter_data in final_data %} 
               <div class="row mt-5">
                 <h1 class="section-header">
                   <div class="text-center">Year {{ year }}</div>
                 </h1>
                 {% for quarter in quarter_data %} 
-                  <!-- Quater1 -->
+               
                   <div class="col-12">
                     <div class="card">
                       <div class="card-header">
                         <p class="text-center font-weight-bold"></p>
                         <div class="float-right">
                           <form>
-                            <!-- <div class="input-group">
-                              <input type="text" class="form-control" placeholder="Search">
-                              <div class="input-group-btn">
-                                <button class="btn btn-secondary"><i class="ion ion-search"></i></button>
-                              </div>
-                            </div> -->
+                           
                           </form>
                         </div>
                         <h4 class="">{{quarter.quarters}}</h4>
@@ -60,7 +129,7 @@
                             <tr>
                               <th>S.No</th>
                               <th>Employee Name</th>
-                              <!-- <th>Members</th> -->
+                           
                               <th>Joining Date</th>
                               <th>Target</th>
                               <th>Achieved</th>
@@ -73,11 +142,9 @@
                                 <tr>  
                                     <td>{{ forloop.counter }}</td>  
                                     <td><img alt="image" src="/static/dist/img/avatar/avatar-1.jpeg" class="img_sales_person" /> | {{ sale.sales_person_name }}</td>
-                                    <!-- <td>
-                                      <img alt="image" src="../dist/img/avatar/avatar-5.jpeg" class="rounded-circle" width="35" data-toggle="title" title="Wildan Ahdian">
-                                    </td> -->
+                                   
                                     <td>{{ sale.joining_date }}</td> 
-                                    <!-- <td><a href="{{ MEDIA_URL }}{{ row.doc_path }}" target="_blank">{{row.document_type.title}}</a></td>    -->
+              
                                     <td>{{ sale.sales_target|intcomma }}</td>
                                     <td>{{ sale.sales_amount|intcomma }}</td>
                                     <td class="align-middle">
@@ -118,7 +185,8 @@
                 {% endfor %}
               </div>
             {% endfor %}
-          </div>
+          </div> -->
+         <div class="section-body" id="main"></div>
         </section>
       </div>
       {% include 'layout/footer.html' %}
@@ -126,6 +194,244 @@
   </div>
 
   {% include 'layout/script.html' %}
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+  
+  <script>
+    //$(document).on('ready',function() {
+        $('.js-example-basic-multiple').select2();
+    //});
+  </script>
+  <script type="text/javascript">
+    $(document).ready(function () {
+        $('#department').change(function () {
+            var url = "{% url 'load_employee' %}";
+            var department = $(this).val();
+
+            $.ajax({
+                url: url,
+                data: {
+                    'department': department
+                },
+                traditional: true,
+                success: function (data) {
+                    var $employees = $('#employees');
+                    $employees.empty();  // Clear existing options
+
+                    $.each(data, function (key, value) {
+                        var option = new Option(value.ename, value.id, false, false);
+                        $employees.append(option);
+                    });
+
+                    $employees.trigger('change');  // Notify Select2 to update
+                }
+            });
+        });
+
+        $('#region').change(function () {
+            var url = "{% url 'load_branch' %}";
+            var region = $(this).val();
+
+            $.ajax({
+                url: url,
+                data: {
+                    'region': region
+                },
+                traditional: true,
+                success: function (data) {
+                    var $branch = $('#branch');
+                    $branch.empty();  // Clear existing options
+
+                    $.each(data, function (key, value) {
+                        var option = new Option(value.branch_name, value.id, false, false);
+                        $branch.append(option);
+                    });
+
+                    $branch.trigger('change');  // Notify Select2 to update
+                }
+            });
+        });
+
+        $('.formnew').on('submit',function (e) {
+            e.preventDefault();
+            var form = $(this)[0];
+            var formData = new FormData(form); 
+            var url = $(this).data('url');
+            $('#main').empty();
+            $.ajax({
+                type: 'POST',
+                url: '{{ HOST }}'+url,
+                data: formData,
+                traditional: true,
+                processData: false,
+                contentType: false,
+                success: function (data) {
+            if (data.status === "success") {
+                const finalData = data.final_data;
+                let htmlContent = `  <div class="row mt-5">
+              <div class="col-12">
+                <div class="card">
+                  <div class="card-header">
+                    <p class="text-center font-weight-bold"></p>
+                    <div class="float-right">
+                      <form>
+                       
+                      </form>
+                    </div>
+                    <h4 class="">Report</h4>
+                  </div>
+                  <div class="card-body">
+                    <div class="table-responsive">
+                      <table class="table table-striped">
+                        <tr>
+                          <th>S.No</th>
+                          <th>Employee</th>
+                          <th>Year</th>
+                          <th>Q1(Target|Sales)</th>
+                          <th>Q2(Target|Sales)</th>
+                          <th>Q3(Target|Sales)</th>
+                          <th>Q4(Target|Sales)</th>
+                          <th>Year Target</th>
+                          <th>Year Sales</th>
+                          
+                        </tr>`;
+                        finalData.forEach((data, index) => {
+                        htmlContent += ` <tr>  
+                                <td>${index + 1}</td>  
+                                <td><img alt="image" src="/static/dist/img/avatar/avatar-1.jpeg" class="img_sales_person" /> | ${ data.employee_name }</td>
+                                <td>${ data.year }</td> 
+                                <td>${ data.q1_target }|${ data.q1_sales }</td>
+                                <td>${ data.q2_target }|${ data.q2_sales }</td>
+                                <td>${ data.q3_target }|${ data.q3_sales }</td>
+                                <td>${ data.q4_target }|${ data.q4_sales }</td>
+                                <td>${ data.total_year_target }</td>
+                                <td>${ data.total_year_sales }</td>
+                                <!-- <td class="align-middle">
+                                  <div class="progress" style="height: 14px;" data-toggle="tooltip" title="100%">
+                                    <div class="progress-bar 
+                                        {% if sale.percentage < 50 %}
+                                            bg-danger
+                                        {% elif sale.percentage >= 50 and sale.percentage <= 99 %}
+                                            bg-warning
+                                        {% else %}
+                                            bg-success
+                                        {% endif %}
+                                    " style="width: {{ sale.percentage }}%;">
+                                        {{ sale.percentage }}%
+                                    </div>
+                                  </div>
+                                </td>
+                                <td>{{ sale.remaining|intcomma }}</td>
+                                <td><div class="badge {% if sale.percentage < 50 %}
+                                  badge-danger
+                              {% elif sale.percentage >= 50 and sale.percentage <= 99 %}
+                                  badge-warning
+                              {% else %}
+                                  badge-success
+                              {% endif %}">{% if sale.percentage > 100 %}
+                              <span class="fa fa-star checked">{{ sale.status }}</span>
+                                           {% else %}
+                                            {{ sale.status }}
+                                           {% endif %}
+                                          </div></td> -->
+                            </tr> `;
+                    });
+
+                // finalData.forEach(([year, quarters]) => {
+                //     htmlContent += `
+                //         <div class="row mt-5">
+                //             <h1 class="section-header">
+                //                 <div class="text-center">Year ${year}</div>
+                //             </h1>`;
+
+                //     quarters.forEach(quarter => {
+                //         htmlContent += `
+                //             <div class="col-12">
+                //                 <div class="card">
+                //                     <div class="card-header">
+                //                         <h4>${quarter.quarters}</h4>
+                //                     </div>
+                //                     <div class="card-body">
+                //                         <div class="table-responsive">
+                //                             <table class="table table-striped">
+                //                                 <thead>
+                //                                     <tr>
+                //                                         <th>S.No</th>
+                //                                         <th>Employee Name</th>
+                //                                         <th>Joining Date</th>
+                //                                         <th>Target</th>
+                //                                         <th>Achieved</th>
+                //                                         <th>% Achieve</th>
+                //                                         <th>Remaining Target</th>
+                //                                         <th>Status</th>
+                //                                     </tr>
+                //                                 </thead>
+                //                                 <tbody>`;
+
+                //         quarter.sales.forEach((sale, index) => {
+                //             htmlContent += `
+                //                 <tr>
+                //                     <td>${index + 1}</td>
+                //                     <td><img alt="image" src="/static/dist/img/avatar/avatar-1.jpeg" class="img_sales_person" /> | ${sale.sales_person_name}</td>
+                //                     <td>${sale.joining_date}</td>
+                //                     <td>${sale.sales_target.toLocaleString()}</td>
+                //                     <td>${sale.sales_amount.toLocaleString()}</td>
+                //                     <td>
+                //                         <div class="progress" style="height: 14px;" data-toggle="tooltip" title="${sale.percentage}%">
+                //                             <div class="progress-bar 
+                //                                 ${sale.percentage < 50 ? 'bg-danger' : sale.percentage < 100 ? 'bg-warning' : 'bg-success'}"
+                //                                 style="width: ${sale.percentage}%;">
+                //                                 ${sale.percentage}%
+                //                             </div>
+                //                         </div>
+                //                     </td>
+                //                     <td>${sale.remaining.toLocaleString()}</td>
+                //                     <td>
+                //                         <div class="badge ${
+                //                             sale.percentage < 50
+                //                                 ? 'badge-danger'
+                //                                 : sale.percentage < 100
+                //                                 ? 'badge-warning'
+                //                                 : 'badge-success'
+                //                         }">${sale.status}</div>
+                //                     </td>
+                //                 </tr>`;
+                //         });
+
+                //         htmlContent += `
+                //                                 </tbody>
+                //                             </table>
+                //                         </div>
+                //                     </div>
+                //                 </div>
+                //             </div>`;
+                //     });
+
+                //     htmlContent += `</div>`;
+                // });
+
+                htmlContent += `</table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+          </div>`;
+
+                // Append the generated HTML to #main
+                $('#main').append(htmlContent);
+            } else {
+                console.error("Unexpected status:", data.status);
+            }
+        },
+                error: function (xhr, status, error) {
+                    console.error("Error:", error);
+                }
+            });
+        });
+    
+    });
+</script>
 </body>
 <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js">             </script> -->
 <!-- <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />

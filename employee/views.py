@@ -1,4 +1,5 @@
 from pyexpat.errors import messages
+from django.forms import model_to_dict
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, render, redirect  
 from employee.forms import EmployeeForm, DepartmentForm, DesignationForm, RegionForm, EducationForm, Employment_RecordForm, CertificationsForm, SkillsForm, CompanyForm, Project_typeForm, ProjectForm, ModuleForm, MainmenuForm, SubmenuForm, RoleForm, Company_moduleForm, Role_permissionForm, CV_templateForm, Template_columnForm, BankForm, Bank_guarantyForm, Liquidity_damagesForm, Insurance_typeForm, Insurance_detailForm, CountryForm, ZoneForm, AreaForm, BranchForm, ClientForm, Document_typeForm, Project_documentForm, Employee_targetForm, SalesForm, QuartersForm, LeadsForm, VendorForm
@@ -1268,7 +1269,6 @@ def u_project(request, id):
         form = ProjectForm(request.POST, request.FILES, instance=project_instance)
         try:
             if form.is_valid():
-                print(form)
                 file_instance = form.save(commit=False)
                 # Loop through each file field in the form
                 for field_name in request.FILES:
@@ -1336,12 +1336,17 @@ def project_details(request, id):
     # countries = Country.objects.filter(status=1).values('id','country_name')
     # return render(request,'project/project_details.html', {'document_types':document_types,'project_document':project_document,'types':types,'banks':banks,'bank_guaranty':bank_guaranty,'liquidity_damages':liquidity_damages,'insurance_detail':insurance_detail,'permission':permission,'project':project, 'branches':branches, 'project_types':project_types, 'clients':clients, 'countries':countries})  
     context = {}
+    context['project'] = get_object_or_404(Project, id=id)
+
     if user.has_perm('employee.change_project'):
-        context['permission'] = ''
+        if(context['project'].project_status == 'Cancel' or context['project'].project_status == 'Completed'):
+            context['permission'] = 'disabled'
+        else:
+            context['permission'] = ''
     else:
         context['permission'] = 'disabled'
     # Use get_object_or_404 for Project as it is likely required
-    context['project'] = get_object_or_404(Project, id=id)
+    
 
     # Use try-except for optional single object queries
     try:
@@ -1370,6 +1375,52 @@ def project_details(request, id):
     context['countries'] = Country.objects.filter(status=1).values('id', 'country_name')
 
     return render(request, 'project/project_details.html', context)
+
+def manual_update_project(request, id):
+    project_instance = get_object_or_404(Project, id=id)
+
+    if request.method == 'POST':
+        try:
+            # Update fields from request.POST
+            for field, value in request.POST.items():
+                if hasattr(project_instance, field):
+                    setattr(project_instance, field, value)
+
+            # Handle file uploads from request.FILES
+            for field_name, uploaded_file in request.FILES.items():
+                if hasattr(project_instance, field_name):
+                    # Create a folder path
+                    folder_name = str(project_instance.pk)
+                    folder_path = os.path.join(settings.MEDIA_ROOT, 'project', folder_name)
+
+                    if not os.path.exists(folder_path):
+                        os.makedirs(folder_path)
+
+                    # Generate a unique file name
+                    timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+                    new_file_name = f"{project_instance.pk}_{timestamp}{os.path.splitext(uploaded_file.name)[1]}"
+                    file_path = os.path.join(folder_path, new_file_name)
+
+                    # Save the file to disk
+                    with open(file_path, 'wb') as f:
+                        for chunk in uploaded_file.chunks():
+                            f.write(chunk)
+
+                    # Update the model field with the file's relative path
+                    setattr(project_instance, field_name, os.path.relpath(file_path, settings.MEDIA_ROOT))
+
+            # Save the updated instance
+            project_instance.save()
+
+            # Return success response
+            return JsonResponse({'status': 'success', 'id': project_instance.id}, status=200)
+
+        except Exception as e:
+            logger.exception("Error updating project: %s", e)
+            return JsonResponse({'status': 'error', 'error': str(e)}, status=400)
+
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
+
 
 # Bank
 @login_required 
@@ -2289,67 +2340,126 @@ def generate_report(request):
             years = f'WHERE q.year in ({",".join(fin_years)})'
 
         cursor1 = connection.cursor()
-        cursor1.execute('''SELECT 
-                    q.year,
-                    CONCAT('[', GROUP_CONCAT(
-                        CONCAT('{{"quarters":"', q.title, '", "sales":', (
-                            SELECT CONCAT(
-                                '[', GROUP_CONCAT(
-                                    CONCAT(
-                                        '{{"sales_person_id":', e.id,
-                                        ', "sales_person_name":"', e.ename,
-                                        '", "joining_date":"', e.date_of_joining,
-                                        '", "sales_target":', et.sales_target,
-                                        ', "sales_amount":', IFNULL(s.amount, 0),
-                                        ', "remaining":', (et.sales_target - IFNULL(s.amount, 0)),
-                                        ', "percentage":', ROUND((s.amount * 100 / et.sales_target)),
-                                        ', "status":"', IF(IFNULL(s.amount, 0) < et.sales_target, 'Not Achieved', (IF(IFNULL(s.amount, 0) = et.sales_target, 'Achieved','Above Target'))), '"}}'
-                                    )
-                                    SEPARATOR ','
-                                ), ']'
-                            )
-                            FROM employee_target et
-                            JOIN employee e ON et.employee_id = e.id
-                            LEFT JOIN sales s ON et.employee_id = s.sale_person_id AND et.quarter_id = s.quarter_id
-                            WHERE et.quarter_id = q.id {where1}
-                        ), '}}')
-                    SEPARATOR ','
-                    ), ']') AS quarter_sales
-                FROM quarters q
-                {where2}
-                GROUP BY q.year
-                ORDER BY q.year DESC'''.format(
-                                where1=where,
-                                where2=years
-                            ))
+        # cursor1.execute('''SELECT 
+        #             q.year,
+        #             CONCAT('[', GROUP_CONCAT(
+        #                 CONCAT('{{"quarters":"', q.title, '", "sales":', (
+        #                     SELECT CONCAT(
+        #                         '[', GROUP_CONCAT(
+        #                             CONCAT(
+        #                                 '{{"sales_person_id":', e.id,
+        #                                 ', "sales_person_name":"', e.ename,
+        #                                 '", "joining_date":"', e.date_of_joining,
+        #                                 '", "sales_target":', et.sales_target,
+        #                                 ', "sales_amount":', IFNULL(s.amount, 0),
+        #                                 ', "remaining":', (et.sales_target - IFNULL(s.amount, 0)),
+        #                                 ', "percentage":', ROUND((s.amount * 100 / et.sales_target)),
+        #                                 ', "status":"', IF(IFNULL(s.amount, 0) < et.sales_target, 'Not Achieved', (IF(IFNULL(s.amount, 0) = et.sales_target, 'Achieved','Above Target'))), '"}}'
+        #                             )
+        #                             SEPARATOR ','
+        #                         ), ']'
+        #                     )
+        #                     FROM employee_target et
+        #                     JOIN employee e ON et.employee_id = e.id
+        #                     LEFT JOIN sales s ON et.employee_id = s.sale_person_id AND et.quarter_id = s.quarter_id
+        #                     WHERE et.quarter_id = q.id {where1}
+        #                 ), '}}')
+        #             SEPARATOR ','
+        #             ), ']') AS quarter_sales
+        #         FROM quarters q
+        #         {where2}
+        #         GROUP BY q.year
+        #         ORDER BY q.year DESC'''.format(
+        #                         where1=where,
+        #                         where2=years
+        #                     ))
+
+        cursor1.execute('''SELECT CONCAT('[',
+    GROUP_CONCAT(
+        CONCAT(
+            '{"employee_name":"', e.ename, '",',
+            '"q1_target":', COALESCE(t.q1_target, 0), ',',
+            '"q1_sales":', COALESCE(s.q1_sales, 0), ',',
+            '"q2_target":', COALESCE(t.q2_target, 0), ',',
+            '"q2_sales":', COALESCE(s.q2_sales, 0), ',',
+            '"q3_target":', COALESCE(t.q3_target, 0), ',',
+            '"q3_sales":', COALESCE(s.q3_sales, 0), ',',
+            '"q4_target":', COALESCE(t.q4_target, 0), ',',
+            '"q4_sales":', COALESCE(s.q4_sales, 0), ',',
+            '"total_year_target":', COALESCE(t.total_target, 0), ',',
+            '"total_year_sales":', COALESCE(s.total_sales, 0),
+            '}'
+        )
+    ),']') AS employee_data
+FROM 
+    employee e
+LEFT JOIN (
+    SELECT 
+        employee_id,
+        SUM(CASE WHEN quarter_id = 1 THEN sales_target ELSE 0 END) AS q1_target,
+        SUM(CASE WHEN quarter_id = 2 THEN sales_target ELSE 0 END) AS q2_target,
+        SUM(CASE WHEN quarter_id = 3 THEN sales_target ELSE 0 END) AS q3_target,
+        SUM(CASE WHEN quarter_id = 4 THEN sales_target ELSE 0 END) AS q4_target,
+        SUM(sales_target) AS total_target
+    FROM 
+        employee_target
+    WHERE employee_target.financial_year IN (2024)
+    GROUP BY 
+        employee_id
+) t ON e.id = t.employee_id
+LEFT JOIN (
+    SELECT 
+        sale_person_id,
+        SUM(CASE WHEN quarter_id = 1 THEN amount ELSE 0 END) AS q1_sales,
+        SUM(CASE WHEN quarter_id = 2 THEN amount ELSE 0 END) AS q2_sales,
+        SUM(CASE WHEN quarter_id = 3 THEN amount ELSE 0 END) AS q3_sales,
+        SUM(CASE WHEN quarter_id = 4 THEN amount ELSE 0 END) AS q4_sales,
+        SUM(amount) AS total_sales
+    FROM 
+        sales
+    WHERE YEAR(sales.sale_date) IN (2024)
+    GROUP BY 
+        sale_person_id
+) s ON e.id = s.sale_person_id
+LIMIT 0, 25;''')
 
         rows2 = cursor1.fetchall()
         # Print raw JSON for debugging
-        for row in rows2:
-            print('Raw JSON:', row[1])  # Print the JSON string
+        # for row in rows2:
+        #     print('Raw JSON:', row[1])  # Print the JSON string
 
         # Continue with parsing after confirming the JSON structure
         parsed_data = []
 
+        # for row in rows2:
+        #     year = row[0]  # The year value
+        #     quarter_sales_json = row[1]  # The JSON string
+
+        #     # Parse the JSON string into a Python object
+        #     try:
+        #         quarter_sales = json.loads(quarter_sales_json)
+        #         parsed_data.append((year, quarter_sales))
+        #     except json.JSONDecodeError as e:
+        #         print(f"Error decoding JSON for year {year}: {e}")
+        #         print(f"Faulty JSON: {quarter_sales_json}")
         for row in rows2:
             year = row[0]  # The year value
-            quarter_sales_json = row[1]  # The JSON string
 
             # Parse the JSON string into a Python object
             try:
-                quarter_sales = json.loads(quarter_sales_json)
-                parsed_data.append((year, quarter_sales))
+                quarter_sales = json.loads(year)
+                parsed_data.append(quarter_sales)
             except json.JSONDecodeError as e:
                 print(f"Error decoding JSON for year {year}: {e}")
-                print(f"Faulty JSON: {quarter_sales_json}")
-
-        return render(request, 'employee_target/generate_report.html', {'final_data': parsed_data})
+        return JsonResponse({'status': 'success', 'final_data': quarter_sales}, status=200)
+        # return render(request, 'employee_target/generate_report.html', {'final_data': parsed_data})
     else:  
+        regions = Region.objects.filter(status=1).values('id','region_name')
         branches = Branch.objects.filter(status=1).values('id','branch_name')
         employees = Employee.objects.filter(status=1).values('id','ename')
         departs = Department.objects.filter(status=1).values('id','depart_name')
         financial_years = Employee_target.objects.values('financial_year').distinct()
-    return render(request,'employee_target/sale_report.html',{'employees':employees,'branches':branches,'departs':departs, 'years':financial_years})  
+    return render(request,'employee_target/generate_report.html',{'employees':employees,'branches':branches,'departs':departs, 'years':financial_years,'regions':regions})  
 
 
 def load_employee(request):
@@ -2359,6 +2469,14 @@ def load_employee(request):
         department = request.GET.getlist('department')
         employees = Employee.objects.filter(department_id__in=department,status=1).order_by('ename')
     return JsonResponse(list(employees.values('id', 'ename')), safe=False)
+
+def load_branch(request):
+    if len(request.GET.getlist('region')) == 0 or request.GET.getlist('region')[0] == 'all' :
+        branch = Branch.objects.filter(status=1).order_by('branch_name')
+    else:
+        region = request.GET.getlist('region')
+        branch = Branch.objects.filter(region_id__in=region,status=1).order_by('branch_name')
+    return JsonResponse(list(branch.values('id', 'branch_name')), safe=False)
 
 # Leads
 @login_required 
@@ -2443,6 +2561,11 @@ def dashboard(request):
     today = datetime.now().date()
     # Subquery to filter quarters with the year 2024
     quarters_2024 = Quarters.objects.filter(year=today.year).values('id')
+    projects = Project.objects.filter(status=1).count()
+    inprogress = Project.objects.filter(status=1,project_status="In Progress").count()
+    completed = Project.objects.filter(status=1,project_status="Completed").count()
+    cancelled = Project.objects.filter(status=1,project_status="Cancel").count()
+
     # Main query to sum the amount for each quarter_id
     sales_summary = (
         Sales.objects
@@ -2477,7 +2600,7 @@ def dashboard(request):
         # Update the dictionary with the count
         weekly_data_count.append(daily_data_count)
 
-    return render(request,"dashboard.html",{'leads':leads, 'quarterly':amount_list, 'days_of_week':days_of_week, 'weekly_data_count':weekly_data_count})
+    return render(request,"dashboard.html",{'leads':leads, 'quarterly':amount_list, 'days_of_week':days_of_week, 'weekly_data_count':weekly_data_count,'projects':projects,'inprogress':inprogress, 'completed':completed, 'cancelled':cancelled})
     # else:  
     #     form = LeadsForm()
     #     employees = Employee.objects.filter(status=1).values('id','ename')
@@ -2530,3 +2653,21 @@ def d_vendor(request, id):
     vendor.status=0  
     vendor.save()
     return redirect("show_vendor")
+
+@login_required 
+def project_summary(request):  
+    if request.method == "POST": 
+        project = Project.objects.get(id=request.POST.get('project'))
+        # projects = Project.objects.filter(status=1).values('id','title')
+        # return render(request,'employee_target/summary.html',{'projects':projects,'project':project})
+         # Return success response
+        project_data = {
+            'project':model_to_dict(project),
+            'client':model_to_dict(project.client)
+        }
+        final=dict(project_data)
+        print(final)
+        return JsonResponse({'status': 'success', 'project': final}, status=200)
+    else:  
+        projects = Project.objects.filter(status=1).values('id','title')
+    return render(request,'employee_target/summary.html',{'projects':projects})  

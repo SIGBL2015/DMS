@@ -59,7 +59,11 @@
                                     <td>{{ journal_entry.receive_person }}</td>
                                     <td>{{ journal_entry.description }}</td>
                                     <td><a href="{{ MEDIA_URL }}{{ journal_entry.doc_path }}" target="_blank">{{journal_entry.coaid.title}}</a></td>
-                                    <td>{{ journal_entry.status }}</td>  
+                                    {% if journal_entry.status == 1 %}
+                                      <td>Active</td>  
+                                    {% else %}
+                                      <td>Deactive</td>
+                                    {% endif %}
                                     <td>  
                                         <!-- <a href="/finance/e_journal_entry/{{ journal_entry.id }}"><span class="ion-ios-compose" ></span></a>   -->
                                         <a href="/finance/d_journal_entry/{{ journal_entry.id }}" onclick="return confirm('Are you sure you want to delete this?')"><span class="ion-ios-trash" ></span></a>  

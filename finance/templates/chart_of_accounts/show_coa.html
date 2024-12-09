@@ -45,7 +45,11 @@
                                     <td>{{ coa.title }}</td> 
                                     <td>{{ coa.short_code }}</td>
                                     <td>{{ coa.parent.title }}</td>
-                                    <td>{{ coa.status }}</td>  
+                                    {% if coa.status == 1 %}
+                                      <td>Active</td>  
+                                    {% else %}
+                                      <td>Deactive</td>
+                                    {% endif %}
                                     <td>  
                                         <a href="/finance/e_coa/{{ coa.id }}"><span class="ion-ios-compose" ></span></a>  
                                         <a href="/finance/d_coa/{{ coa.id }}" onclick="return confirm('Are you sure you want to delete this?')"><span class="ion-ios-trash" ></span></a>  

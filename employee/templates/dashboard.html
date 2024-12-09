@@ -24,7 +24,7 @@
                     <h4>Total Project</h4>
                   </div>
                   <div class="card-body">
-                    100
+                    {{projects}}
                   </div>
                 </div>
               </div>
@@ -36,10 +36,10 @@
                 </div>
                 <div class="card-wrap">
                   <div class="card-header">
-                    <h4>Beyond Time</h4>
+                    <h4>Cancel</h4>
                   </div>
                   <div class="card-body">
-                    20
+                    {{cancelled}}
                   </div>
                 </div>
               </div>
@@ -54,7 +54,7 @@
                     <h4>In progress</h4>
                   </div>
                   <div class="card-body">
-                    33
+                    {{inprogress}}
                   </div>
                 </div>
               </div>
@@ -69,7 +69,7 @@
                     <h4>Completed</h4>
                   </div>
                   <div class="card-body">
-                    47
+                    {{completed}}
                   </div>
                 </div>
               </div>
@@ -261,7 +261,11 @@
                                   <td>{{ lead.lead_type }}</td> 
                                   <td>{{ lead.convert_date }}</td>  
                                   <td>{{ lead.created_at }}</td>  
-                                  <td>{{ lead.status }}</td>  
+                                  {% if lead.status == 1 %}
+                                    <td>Active</td>  
+                                  {% else %}
+                                    <td>Deactive</td>
+                                  {% endif %}
                               </tr>  
                           {% endfor %}
                       </tbody>

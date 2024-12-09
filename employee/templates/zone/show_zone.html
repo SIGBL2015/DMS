@@ -35,8 +35,12 @@
                             {% for zone in zones %}  
                                 <tr>  
                                     <td>{{ forloop.counter }}</td>  
-                                    <td>{{ zone.zone_name }}</td>  
-                                    <td>{{ zone.status }}</td>  
+                                    <td>{{ zone.zone_name }}</td>
+                                    {% if zone.status == 1 %}
+                                      <td>Active</td>  
+                                    {% else %}
+                                      <td>Deactive</td>
+                                    {% endif %}
                                     <td>  
                                         <a href="/employee/e_zone/{{ zone.id }}"><span class="ion-ios-compose" ></span></a>  
                                         <a href="/employee/d_zone/{{ zone.id }}" onclick="return confirm('Are you sure you want to delete this?')"><span class="ion-ios-trash" ></span></a>  

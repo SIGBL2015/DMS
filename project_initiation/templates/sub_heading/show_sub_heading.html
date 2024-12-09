@@ -27,7 +27,7 @@
                         <thead>
                         <tr>
                           <th>S.No</th>
-                          <th>Tendor</th>
+                          <th>Tender</th>
                           <th>Heading</th>
                           <th>Title</th>
                           <th>IsGroup</th>
@@ -42,8 +42,12 @@
                                     <td>{{ sub_heading.tendor.title }}</td> 
                                     <td>{{ sub_heading.heading.title }}</td> 
                                     <td>{{ sub_heading.title }}</td> 
-                                    <td>{{ sub_heading.isgroup }}</td> 
-                                    <td>{{ sub_heading.status }}</td>  
+                                    <td>{{ sub_heading.isgroup }}</td>
+                                    {% if sub_heading.status == 1 %}
+                                      <td>Active</td>  
+                                    {% else %}
+                                      <td>Deactive</td>
+                                    {% endif %}
                                     <td>  
                                         <a href="/initiation/e_sub_heading/{{ sub_heading.id }}"><span class="ion-ios-compose" ></span></a>  
                                         <a href="/initiation/d_sub_heading/{{ sub_heading.id }}" onclick="return confirm('Are you sure you want to delete this?')"><span class="ion-ios-trash" ></span></a>  
@@ -54,7 +58,7 @@
                         <tfoot>
                         <tr>
                           <th>S.No</th>
-                          <th>Tendor</th>
+                          <th>Tender</th>
                           <th>Heading</th>
                           <th>Title</th>
                           <th>IsGroup</th>

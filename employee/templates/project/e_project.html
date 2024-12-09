@@ -73,34 +73,34 @@
 
                 <div class="row">
                   <div class="form-group col-6"> 
-                    <label for="email">Duration</label>
+                    <label for="email">Duration(Month)</label>
                     <input id="duration" type="number" class="form-control" name="duration" value="{{ project.duration }}">
                   </div>
                   <div class="form-group col-6"> 
                     <label for="email">Amount</label>
-                    <input id="amount" type="number" class="form-control" name="amount" value="{{ project.amount }}">
+                    <input id="amount" type="number" class="form-control" name="amount" value="{{ project.amount }}" step="0.01">
                   </div>
                 </div>
 
                 <div class="row">
                   <div class="form-group col-6"> 
                     <label for="email">Tax(%)</label>
-                    <input id="tax" type="number" class="form-control" name="tax" value="{{ project.tax }}">
+                    <input id="tax" type="number" class="form-control" name="tax" value="{{ project.tax }}" step="0.01">
                   </div>
                   <div class="form-group col-6"> 
                     <label for="email">Advance Tax(%)</label>
-                    <input id="advance_tax" type="number" class="form-control" name="advance_tax" value="{{ project.advance_tax }}">
+                    <input id="advance_tax" type="number" class="form-control" name="advance_tax" value="{{ project.advance_tax }}" step="0.01">
                   </div>
                 </div>
 
                 <div class="row">
                   <div class="form-group col-6"> 
                     <label for="email">Advance Amount</label>
-                    <input id="advance_amount" type="number" class="form-control" name="advance_amount" value="{{ project.advance_amount }}">
+                    <input id="advance_amount" type="number" class="form-control" name="advance_amount" value="{{ project.advance_amount }}" step="0.01">
                   </div>
                   <div class="form-group col-6"> 
                     <label for="email">Earnest Money</label>
-                    <input id="earnest_money" type="number" class="form-control" name="earnest_money" value="{{ project.earnest_money }}">
+                    <input id="earnest_money" type="number" class="form-control" name="earnest_money" value="{{ project.earnest_money }}" step="0.01">
                   </div>
                 </div>
 
@@ -144,14 +144,14 @@
                   </div>
                   <div class="form-group col-6"> 
                     <label for="email">Perf.G Percentage(%)</label>
-                    <input id="pg_percentage" type="number" class="form-control" name="pg_percentage" value="{{ project.pg_percentage }}">
+                    <input id="pg_percentage" type="number" class="form-control" name="pg_percentage" value="{{ project.pg_percentage }}" step="0.01">
                   </div>
                 </div>
 
                 <div class="row">
                   <div class="form-group col-6"> 
                     <label for="email">Perf.G Amount</label>
-                    <input id="pg_amount" type="number" class="form-control" name="pg_amount" value="{{ project.pg_amount }}">
+                    <input id="pg_amount" type="number" class="form-control" name="pg_amount" value="{{ project.pg_amount }}" step="0.01">
                   </div>
                   <div class="form-group col-6"> 
                     <label for="email">Perf.G Document</label>

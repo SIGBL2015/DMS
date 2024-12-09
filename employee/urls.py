@@ -143,6 +143,7 @@ urlpatterns = [
     path('u_project/<int:id>', views.u_project, name="u_project"),  
     path('d_project/<int:id>', views.d_project, name="d_project"),
     path('project_details/<int:id>', views.project_details, name="project_details"),
+    path('manual_update_project/<int:id>', views.manual_update_project, name="manual_update_project"), 
 
     #Bank
     path('save_bank', views.add_bank, name="save_bank"),  
@@ -195,6 +196,8 @@ urlpatterns = [
     path('d_employee_target/<int:id>', views.d_employee_target, name="d_employee_target"),
     path('generate_report', views.generate_report, name="generate_report"),
     path('load_employee', views.load_employee, name="load_employee"),
+    path('project_summary', views.project_summary, name="project_summary"),
+    path('load_branch', views.load_branch, name="load_branch"),
 
     #Employee_project
     path('save_employee_project', views.add_employee_project, name="save_employee_project"),  

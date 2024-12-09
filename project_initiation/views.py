@@ -5,8 +5,8 @@ import os
 from django.conf import settings
 from employee.models import Client, Department
 from finance.models import Currency
-from project_initiation.forms import TendorForm, UnitForm, CategoryForm, ItemForm, HeadingForm, Sub_headingForm, Boq_itemsForm
-from project_initiation.models import Tendor, Unit, Category, Item, Heading, Sub_heading, Boq_items
+from project_initiation.forms import TaxForm, TendorForm, UnitForm, CategoryForm, ItemForm, HeadingForm, Sub_headingForm, Boq_itemsForm
+from project_initiation.models import Tax, Tendor, Unit, Category, Item, Heading, Sub_heading, Boq_items
 from django.contrib.auth.decorators import login_required, permission_required
 
 # Create your views here.
@@ -109,7 +109,7 @@ def d_tendor(request, id):
 
 # Unit
 @login_required 
-@permission_required('employee.add_unit', raise_exception=True)
+@permission_required('project_initiation.add_unit', raise_exception=True)
 def add_unit(request): 
     if request.method == "POST":  
         form = UnitForm(request.POST) 
@@ -125,13 +125,13 @@ def add_unit(request):
     return render(request,'unit/add_unit.html',{'form':form})  
 
 @login_required    
-@permission_required('employee.view_unit', raise_exception=True)
+@permission_required('project_initiation.view_unit', raise_exception=True)
 def show_unit(request):  
     units = Unit.objects.filter(status=1)  
     return render(request,"unit/show_unit.html",{'units':units})  
 
 @login_required  
-@permission_required('employee.change_unit', raise_exception=True)
+@permission_required('project_initiation.change_unit', raise_exception=True)
 def e_unit(request, id):  
     unit = Unit.objects.get(id=id) 
     return render(request,'unit/e_unit.html', {'unit':unit})  
@@ -146,7 +146,7 @@ def u_unit(request, id):
     return render(request, 'unit/e_unit.html', {'unit': unit})  
 
 @login_required  
-@permission_required('employee.delete_unit', raise_exception=True)
+@permission_required('project_initiation.delete_unit', raise_exception=True)
 def d_unit(request, id):  
     unit = Unit.objects.get(id=id)  
     unit.status=0  
@@ -154,9 +154,56 @@ def d_unit(request, id):
     return redirect("show_unit")
 
 
+# Tax
+@login_required 
+@permission_required('project_initiation.add_tax', raise_exception=True)
+def add_tax(request): 
+    if request.method == "POST":  
+        form = TaxForm(request.POST) 
+        if form.is_valid():
+            try:  
+                form.save()  
+                return redirect('show_tax')  
+            except Exception as e:  
+  
+                pass  
+    else:  
+        form = TaxForm() 
+    return render(request,'tax/add_tax.html',{'form':form})  
+
+@login_required    
+@permission_required('project_initiation.view_tax', raise_exception=True)
+def show_tax(request):  
+    taxes = Tax.objects.filter(status=1)  
+    return render(request,"tax/show_tax.html",{'taxes':taxes})  
+
+@login_required  
+@permission_required('project_initiation.change_tax', raise_exception=True)
+def e_tax(request, id):  
+    tax = Tax.objects.get(id=id) 
+    return render(request,'tax/e_tax.html', {'tax':tax})  
+
+@login_required  
+def u_tax(request, id):  
+    tax = Tax.objects.get(id=id)  
+    form = TaxForm(request.POST, instance = tax)  
+    if form.is_valid():  
+        form.save()  
+        return redirect("show_tax")  
+    return render(request, 'tax/e_tax.html', {'tax': tax})  
+
+@login_required  
+@permission_required('project_initiation.delete_tax', raise_exception=True)
+def d_tax(request, id):  
+    tax = Tax.objects.get(id=id)  
+    tax.status=0  
+    tax.save()
+    return redirect("show_tax")
+
+
 # Category
 @login_required 
-@permission_required('employee.add_category', raise_exception=True)
+@permission_required('project_initiation.add_category', raise_exception=True)
 def add_category(request): 
     if request.method == "POST":  
         form = CategoryForm(request.POST) 
@@ -172,13 +219,13 @@ def add_category(request):
     return render(request,'category/add_category.html',{'form':form})  
 
 @login_required    
-@permission_required('employee.view_category', raise_exception=True)
+@permission_required('project_initiation.view_category', raise_exception=True)
 def show_category(request):  
     categories = Category.objects.filter(status=1)  
     return render(request,"category/show_category.html",{'categories':categories})  
 
 @login_required  
-@permission_required('employee.change_category', raise_exception=True)
+@permission_required('project_initiation.change_category', raise_exception=True)
 def e_category(request, id):  
     category = Category.objects.get(id=id) 
     return render(request,'category/e_category.html', {'category':category})  
@@ -193,7 +240,7 @@ def u_category(request, id):
     return render(request, 'category/e_category.html', {'category': category})  
 
 @login_required  
-@permission_required('employee.delete_category', raise_exception=True)
+@permission_required('project_initiation.delete_category', raise_exception=True)
 def d_category(request, id):  
     category = Category.objects.get(id=id)  
     category.status=0  
@@ -203,7 +250,7 @@ def d_category(request, id):
 
 # Item
 @login_required 
-@permission_required('employee.add_item', raise_exception=True)
+@permission_required('project_initiation.add_item', raise_exception=True)
 def add_item(request): 
     if request.method == "POST":  
         form = ItemForm(request.POST) 
@@ -221,13 +268,13 @@ def add_item(request):
     return render(request,'item/add_item.html',{'form':form, 'units':units, 'categories':categories})  
 
 @login_required    
-@permission_required('employee.view_item', raise_exception=True)
+@permission_required('project_initiation.view_item', raise_exception=True)
 def show_item(request):  
     items = Item.objects.filter(status=1)  
     return render(request,"item/show_item.html",{'items':items})  
 
 @login_required  
-@permission_required('employee.change_item', raise_exception=True)
+@permission_required('project_initiation.change_item', raise_exception=True)
 def e_item(request, id):  
     item = Item.objects.get(id=id) 
     units = Unit.objects.filter(status=1).values('id','name')
@@ -244,7 +291,7 @@ def u_item(request, id):
     return render(request, 'item/e_item.html', {'item': item})  
 
 @login_required  
-@permission_required('employee.delete_item', raise_exception=True)
+@permission_required('project_initiation.delete_item', raise_exception=True)
 def d_item(request, id):  
     item = Item.objects.get(id=id)  
     item.status=0  
@@ -254,7 +301,7 @@ def d_item(request, id):
 
 # Heading
 @login_required 
-@permission_required('employee.add_heading', raise_exception=True)
+@permission_required('project_initiation.add_heading', raise_exception=True)
 def add_heading(request): 
     if request.method == "POST":  
         form = HeadingForm(request.POST) 
@@ -271,13 +318,13 @@ def add_heading(request):
     return render(request,'heading/add_heading.html',{'form':form, 'tendors':tendors})  
 
 @login_required    
-@permission_required('employee.view_heading', raise_exception=True)
+@permission_required('project_initiation.view_heading', raise_exception=True)
 def show_heading(request):  
     headings = Heading.objects.filter(status=1)  
     return render(request,"heading/show_heading.html",{'headings':headings})  
 
 @login_required  
-@permission_required('employee.change_heading', raise_exception=True)
+@permission_required('project_initiation.change_heading', raise_exception=True)
 def e_heading(request, id):  
     heading = Heading.objects.get(id=id) 
     tendors = Tendor.objects.filter(status=1).values('id','title')
@@ -293,7 +340,7 @@ def u_heading(request, id):
     return render(request, 'heading/e_heading.html', {'heading': heading})  
 
 @login_required  
-@permission_required('employee.delete_heading', raise_exception=True)
+@permission_required('project_initiation.delete_heading', raise_exception=True)
 def d_heading(request, id):  
     heading = Heading.objects.get(id=id)  
     heading.status=0  
@@ -303,7 +350,7 @@ def d_heading(request, id):
 
 # Sub_Heading
 @login_required 
-@permission_required('employee.add_sub_heading', raise_exception=True)
+@permission_required('project_initiation.add_sub_heading', raise_exception=True)
 def add_sub_heading(request): 
     if request.method == "POST":  
         form = Sub_headingForm(request.POST) 
@@ -321,13 +368,13 @@ def add_sub_heading(request):
     return render(request,'sub_heading/add_sub_heading.html',{'form':form, 'tendors':tendors, 'headings':headings})  
 
 @login_required    
-@permission_required('employee.view_sub_heading', raise_exception=True)
+@permission_required('project_initiation.view_sub_heading', raise_exception=True)
 def show_sub_heading(request):  
     sub_headings = Sub_heading.objects.filter(status=1)  
     return render(request,"sub_heading/show_sub_heading.html",{'sub_headings':sub_headings})  
 
 @login_required  
-@permission_required('employee.change_sub_heading', raise_exception=True)
+@permission_required('project_initiation.change_sub_heading', raise_exception=True)
 def e_sub_heading(request, id):  
     sub_heading = Sub_heading.objects.get(id=id) 
     tendors = Tendor.objects.filter(status=1).values('id','title')
@@ -344,7 +391,7 @@ def u_sub_heading(request, id):
     return render(request, 'sub_heading/e_sub_heading.html', {'sub_heading': sub_heading})  
 
 @login_required  
-@permission_required('employee.delete_sub_heading', raise_exception=True)
+@permission_required('project_initiation.delete_sub_heading', raise_exception=True)
 def d_sub_heading(request, id):  
     sub_heading = Sub_heading.objects.get(id=id)  
     sub_heading.status=0  
@@ -358,7 +405,7 @@ def load_heading(request):
 
 # Boq_items
 @login_required 
-@permission_required('employee.add_boq_items', raise_exception=True)
+@permission_required('project_initiation.add_boq_items', raise_exception=True)
 def add_boq_items(request): 
     if request.method == "POST":  
         form = Boq_itemsForm(request.POST) 
@@ -380,13 +427,13 @@ def add_boq_items(request):
     return render(request,'boq_items/add_boq_items.html',{'form':form, 'tendors':tendors, 'headings':headings, 'subheadings':subheadings, 'items':items, 'units':units, 'currencies':currencies})  
 
 @login_required    
-@permission_required('employee.view_boq_items', raise_exception=True)
+@permission_required('project_initiation.view_boq_items', raise_exception=True)
 def show_boq_items(request):  
     boq_items = Boq_items.objects.filter(status=1)  
     return render(request,"boq_items/show_boq_items.html",{'boq_items':boq_items})  
 
 @login_required  
-@permission_required('employee.change_boq_items', raise_exception=True)
+@permission_required('project_initiation.change_boq_items', raise_exception=True)
 def e_boq_items(request, id):  
     boq_items = Boq_items.objects.get(id=id) 
     tendors = Tendor.objects.filter(status=1).values('id','title')
@@ -407,7 +454,7 @@ def u_boq_items(request, id):
     return render(request, 'boq_items/e_boq_items.html', {'boq_items': boq_items})  
 
 @login_required  
-@permission_required('employee.delete_boq_items', raise_exception=True)
+@permission_required('project_initiation.delete_boq_items', raise_exception=True)
 def d_boq_items(request, id):  
     boq_items = Boq_items.objects.get(id=id)  
     boq_items.status=0  
@@ -422,3 +469,21 @@ def load_sub_heading(request):
 def load_boq_items(request):
     boq_items = Boq_items.objects.filter(status=1) 
     return JsonResponse(list(boq_items.values('id', 'tendor', 'heading')), safe=False)
+
+def test(request):  
+    tendors = Tendor.objects.filter(status=1).values('id','title')
+    items = Item.objects.filter(status=1).values('id','name')
+    units = Unit.objects.filter(status=1).values('id','name')
+    taxes = Tax.objects.filter(status=1).values('id','name')
+    currencies = Currency.objects.filter(status=1).values('id','name')
+    return render(request,"boq_items/test.html", {'tendors':tendors, 'items':items, 'units':units, 'taxes':taxes, 'currencies':currencies})  
+
+
+
+# SELECT 
+#         id, unit_price, quantity, total_amount, tendor_id, parent_id
+#     FROM 
+#         boq_items
+#     WHERE 
+#         id >= (SELECT MIN(id) FROM boq_items WHERE tendor_id = 2) 
+#     ORDER BY id,parent_id;

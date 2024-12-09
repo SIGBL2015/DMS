@@ -50,8 +50,12 @@
                                     <td>{{ education.from_date }}</td> 
                                     <td>{{ education.to_date }}</td> 
                                     <td>{{ education.grade }}</td> 
-                                    <td><a href="{{ MEDIA_URL }}{{ education.degree_doc }}" target="_blank">Degree Doc</a></td>      
-                                    <td>{{ education.status }}</td>  
+                                    <td><a href="{{ MEDIA_URL }}{{ education.degree_doc }}" target="_blank">Degree Doc</a></td>
+                                    {% if education.status == 1 %}
+                                      <td>Active</td>  
+                                    {% else %}
+                                      <td>Deactive</td>
+                                    {% endif %}
                                     <td>  
                                         <a href="/employee/e_education/{{ education.id }}"><span class="ion-ios-compose" ></span></a>  
                                         <a href="/employee/d_education/{{ education.id }}" onclick="return confirm('Are you sure you want to delete this?')"><span class="ion-ios-trash" ></span></a>  

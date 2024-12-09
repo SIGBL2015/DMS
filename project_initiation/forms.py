@@ -1,5 +1,5 @@
 from django import forms  
-from project_initiation.models import Tendor, Unit, Category, Item, Heading, Sub_heading, Boq_items
+from project_initiation.models import Tax, Tendor, Unit, Category, Item, Heading, Sub_heading, Boq_items
 
 class TendorForm(forms.ModelForm):  
     class Meta:  
@@ -10,6 +10,11 @@ class UnitForm(forms.ModelForm):
     class Meta:  
         model = Unit  
         fields = ('id','name')
+
+class TaxForm(forms.ModelForm):  
+    class Meta:  
+        model = Tax  
+        fields = ('id','name','percentage')
 
 class CategoryForm(forms.ModelForm):  
     class Meta:  

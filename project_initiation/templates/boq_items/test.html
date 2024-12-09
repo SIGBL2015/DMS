@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+  {% load static %} 
+  {% include 'layout/style.html' %}
+   <!-- jQuery Library -->
+   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+   <!-- jQuery UI for Drag and Drop -->
+   <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+
+   <!-- jQuery UI CSS (for better styling of draggable elements) -->
+   <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css">
+   <style>
+       .boq-item, .boq-sub-item, .boq-sub-sub-item {
+           padding: 10px;
+           margin: 5px;
+           border: 1px solid #ccc;
+       }
+       .boq-item { background-color: #f9f9f9; }
+       .boq-sub-item { background-color: #e9f7ef; }
+       .boq-sub-sub-item { background-color: #d0ebf2; }
+   </style>
+
+<body>
+  <div id="app">
+    <div class="main-wrapper">
+      {% include 'layout/header.html' %}
+      {% include 'layout/sidebar.html' %}
+      <div class="main-content">
+        <section class="section">
+          <h1 class="section-header">
+            <div>BoQ</div>
+          </h1>
+          <div class="section-body">
+            <div class="card">
+                <div class="card-header">
+                  <h3 class="card-title">Add Items</h3>
+                </div>
+                <div class="card-body">
+                    <div id="boq-container">
+                        <button id="add-main-item">Add Main Item</button>
+                        <div id="boq-list"></div>
+                    </div>
+                </div>
+            </div>
+          </div>
+        </section>
+      </div>
+      {% include 'layout/footer.html' %}
+    </div>
+  </div>
+
+  {% include 'layout/script.html' %}
+  <script>
+    $(document).ready(function() {
+        let mainItemCount = 0;
+        let subItemDepthLevel = 5; // Global variable to control maximum sub-item depth level
+
+        // Function to add main items
+        $('#add-main-item').on('click', function() {
+            mainItemCount++;
+            const mainItemNumber = mainItemCount;
+
+            $('#boq-list').append(`
+                <div class="boq-item" data-level="1" data-main-item="${mainItemNumber}">
+                    <span class="item-number">${mainItemNumber}.</span>
+                    <select class="js-example-basic-multiple" id="item" name="item">
+                        <option value="">-- Select Item --</option>
+                        {% for item in items %}
+                            <option value="{{ item.id }}">{{ item.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <select class="unit js-example-basic-multiple" id="unit" name="unit">
+                        <option value="">-- Select Unit --</option>
+                        {% for unit in units %}
+                            <option value="{{ unit.id }}">{{ unit.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <input type="number" class="quantity" placeholder="Quantity" value="1">
+                    <input type="number" class="unit-price" placeholder="Unit Price" value="0" step="0.01">
+                    <input type="checkbox" class="imported-item"> Imported
+                    <select class="currency js-example-basic-multiple" style="display:none;" id="currency" name="currency">
+                        <option value="">-- Select Currency --</option>
+                        {% for currency in currencies %}
+                            <option value="{{ currency.id }}">{{ currency.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <input type="number" class="exchange-rate" placeholder="Exchange Rate" style="display:none;" value="1" step="0.01">
+                    <span class="total-price">Total: 0</span>
+                    <!-- <div class="buttons-container"> -->
+                        <button class="add-details">Add Details</button>
+                        <button class="add-sub-item">Add Sub-Item</button>
+                        <button class="remove-item">Remove</button>
+                    <!-- </div> -->
+                    <div class="feature-container">
+                        <textarea class="details-textarea" placeholder="Enter item details here..." style="display:none;"></textarea>
+                    </div>
+                    <div class="sub-item-list"></div>
+                </div>
+            `);
+            $('.js-example-basic-multiple').select2();
+            updateItemNumbers();
+        });
+        
+        // Delegate events for adding sub-items and removing items dynamically
+        $('#boq-list').on('click', '.add-sub-item', function() {
+            const parent = $(this).closest('[data-level]');
+            const currentLevel = parseInt(parent.data('level'), 10);
+            const parentNumber = parent.find('> .item-number').text().trim();
+
+            if (currentLevel < subItemDepthLevel) {
+                let newSubItemNumber = parent.find(`.sub-item-list > [data-level="${currentLevel + 1}"]`).length + 1;
+                let newItemNumber = `${parentNumber}${newSubItemNumber}.`;
+
+                parent.find('.sub-item-list').first().append(`
+                    <div class="boq-sub-item" data-level="${currentLevel + 1}">
+                        <span class="item-number">${newItemNumber}</span>
+                        <select class="js-example-basic-multiple" id="item" name="item">
+                            <option value="">-- Select Item --</option>
+                            {% for item in items %}
+                                <option value="{{ item.id }}">{{ item.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <select class="unit js-example-basic-multiple" id="unit" name="unit">
+                            <option value="">-- Select Unit --</option>
+                            {% for unit in units %}
+                                <option value="{{ unit.id }}">{{ unit.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <input type="number" class="quantity" placeholder="Quantity" value="1">
+                        <input type="number" class="unit-price" placeholder="Unit Price" value="0" step="0.01">
+                        <input type="checkbox" class="imported-item"> Imported
+                        <select class="currency js-example-basic-multiple" style="display:none;" id="currency" name="currency">
+                            <option value="">-- Select Currency --</option>
+                            {% for currency in currencies %}
+                                <option value="{{ currency.id }}">{{ currency.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <input type="number" class="exchange-rate" placeholder="Exchange Rate" style="display:none;" value="1" step="0.01">
+                        <span class="total-price">Total: 0</span>
+                        <!-- <div class="buttons-container"> -->
+                            <button class="add-details">Add Details</button>
+                            ${currentLevel + 1 < subItemDepthLevel ? `<button class="add-sub-item">Add Sub-Item</button>` : ''}
+                            <button class="remove-item">Remove</button>
+                        <!-- </div> -->
+                        <div class="feature-container">
+                            <textarea class="details-textarea" placeholder="Enter sub-item details here..." style="display:none;"></textarea>
+                        </div>
+                        <div class="sub-item-list"></div>
+                    </div>
+                `);
+                $('.js-example-basic-multiple').select2();
+                updateItemNumbers();
+            }
+        });
+
+        // Remove item on click
+        $('#boq-list').on('click', '.remove-item', function() {
+            $(this).closest('.boq-item, .boq-sub-item').remove();
+            updateItemNumbers();
+            calculateTotal();
+        });
+
+        // Show/hide currency and exchange rate fields based on 'Imported' checkbox
+        $('#boq-list').on('change', '.imported-item', function() {
+            const item = $(this).closest('[data-level]');
+            if ($(this).is(':checked')) {
+                item.find('.currency').show();
+                item.find('.exchange-rate').show();
+            } else {
+                item.find('.currency').hide();
+                item.find('.exchange-rate').hide();
+                item.find('.exchange-rate').val(1); // reset exchange rate to 1 if unchecked
+            }
+            calculateTotal();
+        });
+
+        // Show details textarea when "Add Details" is clicked
+        $('#boq-list').on('click', '.add-details', function() {
+            const detailsTextarea = $(this).closest('.boq-item, .boq-sub-item').find('.details-textarea');
+            detailsTextarea.toggle();
+        });
+
+        // Real-time calculation for total price
+        $('#boq-list').on('input', '.quantity, .unit-price, .exchange-rate', function() {
+            calculateTotal();
+        });
+
+        // Calculate total for all items
+        function calculateTotal() {
+            let totalBeforeTaxes = 0;
+            $('#boq-list [data-level="1"]').each(function() {
+                const quantity = parseFloat($(this).find('.quantity').val()) || 0;
+                const unitPrice = parseFloat($(this).find('.unit-price').val()) || 0;
+                const exchangeRate = parseFloat($(this).find('.exchange-rate').val()) || 1;
+                const total = quantity * unitPrice * exchangeRate;
+
+                $(this).find('.total-price').text(`Total: ${total.toFixed(2)}`);
+                totalBeforeTaxes += total;
+            });
+            $('#total-before-taxes').text(`Total Before Taxes: ${totalBeforeTaxes.toFixed(2)}`);
+            updateTaxValues(totalBeforeTaxes);
+        }
+
+        // Function to update numbering for all items up to the specified depth level
+        function updateItemNumbers() {
+            $('#boq-list > .boq-item').each(function(index) {
+                const mainItemNumber = index + 1;
+                $(this).attr('data-main-item', mainItemNumber);
+                $(this).find('> .item-number').text(`${mainItemNumber}.`);
+
+                updateSubItemNumbers($(this), mainItemNumber, 2);
+            });
+        }
+
+        // Recursive function to update sub-item numbers dynamically
+        function updateSubItemNumbers(parent, parentNumber, level) {
+            if (level > subItemDepthLevel) return;
+
+            parent.find(`.sub-item-list > .boq-sub-item[data-level="${level}"]`).each(function(subIndex) {
+                const subItemNumber = subIndex + 1;
+                const currentItemNumber = `${parentNumber}.${subItemNumber}`;
+                $(this).find('> .item-number').text(`${currentItemNumber}.`);
+
+                updateSubItemNumbers($(this), currentItemNumber, level + 1);
+            });
+        }
+
+        // Add display for "Total Before Taxes" and "Grand Total (After Taxes)"
+        $('#boq-container').append(`
+            <div id="total-before-taxes">Total Before Taxes: 0</div>
+            <button id="add-tax">Add Tax</button>
+            <div id="tax-list"></div>
+            <div id="grand-total">Grand Total (After Taxes): 0</div>
+        `);
+
+        // Add tax row
+        let taxCount = 0;
+        $('#add-tax').on('click', function() {
+            taxCount++;
+            $('#tax-list').append(`
+                <div class="tax-item" data-tax="${taxCount}">
+                    <span class="item-number">Tax ${taxCount}:</span>
+                    <select class="tax-type js-example-basic-multiple" id="tax" name="tax">
+                        <option value="">-- Select Tax --</option>
+                        {% for tax in taxes %}
+                            <option value="{{ tax.id }}">{{ tax.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <input type="number" class="tax-percentage" placeholder="%" step="0.01">
+                    <span class="tax-value">Value: 0</span>
+                    <button class="remove-tax">Remove</button>
+                </div>
+            `);
+            $('.js-example-basic-multiple').select2();
+        });
+
+        // Calculate tax values and update Grand Total (After Taxes)
+        function updateTaxValues(totalBeforeTaxes) {
+            let totalTaxValue = 0;
+            $('#tax-list .tax-item').each(function() {
+                const percentage = parseFloat($(this).find('.tax-percentage').val()) || 0;
+                const taxValue = (percentage / 100) * totalBeforeTaxes;
+                $(this).find('.tax-value').text(`Value: ${taxValue.toFixed(2)}`);
+                totalTaxValue += taxValue;
+            });
+            $('#grand-total').text(`Grand Total (After Taxes): ${(totalBeforeTaxes + totalTaxValue).toFixed(2)}`);
+        }
+
+        // Remove tax item
+        $('#tax-list').on('click', '.remove-tax', function() {
+            $(this).closest('.tax-item').remove();
+            calculateTotal();
+        });
+
+        // Update tax calculations whenever a tax percentage is entered
+        $('#tax-list').on('input', '.tax-percentage', function() {
+            calculateTotal();
+        });
+    });
+
+    
+</script>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+</body>
+</html>

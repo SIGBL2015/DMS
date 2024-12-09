@@ -21,7 +21,7 @@
                     {% csrf_token %}
                     <div class="row">
                       <div class="form-group col-md-4">
-                        <label for="frist_name">Tendor</label>
+                        <label for="frist_name">Tender</label>
                         <select class="form-control" id="tendor" name="tendor">
                           <option value="">-- Select --</option>
                           {% for tendor in tendors %}
@@ -65,7 +65,7 @@
                         </div>
                         <div class="form-group col-md-4">
                           <label for="frist_name">Unit Price</label>
-                          <input id="unit_price" type="number" class="form-control" name="unit_price">
+                          <input id="unit_price" type="number" class="form-control" name="unit_price" step="0.01">
                         </div>
                     </div>
                     <div class="row">
@@ -75,7 +75,7 @@
                         </div>
                         <div class="form-group col-md-4">
                           <label for="frist_name">Total Amount</label>
-                          <input id="total_amount" type="number" class="form-control" name="total_amount" readonly>
+                          <input id="total_amount" type="number" class="form-control" name="total_amount" step="0.01" readonly>
                         </div>
                         <div class="form-group col-md-4">
                             <label for="frist_name">IsImported</label>
@@ -98,7 +98,7 @@
                         </div>
                         <div class="form-group col-md-4">
                             <label for="frist_name">Conversion Rate</label>
-                            <input id="conversion_rate" type="number" class="form-control" name="conversion_rate">
+                            <input id="conversion_rate" type="number" class="form-control" name="conversion_rate" step="0.01">
                         </div>
                         <div class="form-group col-md-4">
                             <label for="frist_name">Group ID</label>
