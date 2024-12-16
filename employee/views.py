@@ -2,8 +2,8 @@ from pyexpat.errors import messages
 from django.forms import model_to_dict
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, render, redirect  
-from employee.forms import EmployeeForm, DepartmentForm, DesignationForm, RegionForm, EducationForm, Employment_RecordForm, CertificationsForm, SkillsForm, CompanyForm, Project_typeForm, ProjectForm, ModuleForm, MainmenuForm, SubmenuForm, RoleForm, Company_moduleForm, Role_permissionForm, CV_templateForm, Template_columnForm, BankForm, Bank_guarantyForm, Liquidity_damagesForm, Insurance_typeForm, Insurance_detailForm, CountryForm, ZoneForm, AreaForm, BranchForm, ClientForm, Document_typeForm, Project_documentForm, Employee_targetForm, SalesForm, QuartersForm, LeadsForm, VendorForm
-from employee.models import Employee, Department, Designation, Region, Education, Employment_Record, Certifications, Skills, Company, Module, Mainmenu, Submenu, Role, Company_module, Role_permission, CV_template, Template_column, Project_type, Project, Bank, Bank_guaranty, Liquidity_damages, Insurance_type, Insurance_detail, Country, Zone, Area, Branch, Client, Document_type, Project_document, Employee_target, Sales, Quarters, Leads, Vendor
+from employee.forms import Employee_projectForm, EmployeeForm, DepartmentForm, DesignationForm, RegionForm, EducationForm, Employment_RecordForm, CertificationsForm, SkillsForm, CompanyForm, Project_typeForm, ProjectForm, ModuleForm, MainmenuForm, SubmenuForm, RoleForm, Company_moduleForm, Role_permissionForm, CV_templateForm, Template_columnForm, BankForm, Bank_guarantyForm, Liquidity_damagesForm, Insurance_typeForm, Insurance_detailForm, CountryForm, ZoneForm, AreaForm, BranchForm, ClientForm, Document_typeForm, Project_documentForm, Employee_targetForm, SalesForm, QuartersForm, LeadsForm, VendorForm
+from employee.models import Employee, Department, Designation, Employee_project, Region, Education, Employment_Record, Certifications, Skills, Company, Module, Mainmenu, Submenu, Role, Company_module, Role_permission, CV_template, Template_column, Project_type, Project, Bank, Bank_guaranty, Liquidity_damages, Insurance_type, Insurance_detail, Country, Zone, Area, Branch, Client, Document_type, Project_document, Employee_target, Sales, Quarters, Leads, Vendor
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db import connection
 import json
@@ -18,6 +18,8 @@ from datetime import datetime, timedelta
 from django.utils import timezone
 import logging
 from django.db.models import Sum, Subquery, Count
+
+from finance.models import Journal_entry
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -274,7 +276,6 @@ def add_education(request):
     if request.method == "POST":  
         form = EducationForm(request.POST, request.FILES) 
         try:
-            print(form)
             if form.is_valid():
                 file_instance = form.save(commit=False)
                 if 'degree_doc' in request.FILES:
@@ -1239,7 +1240,8 @@ def add_project(request):
         project_types = Project_type.objects.filter(status=1).values('id','type_name')
         clients = Client.objects.filter(status=1).values('id','client_name')
         countries = Country.objects.filter(status=1).values('id','country_name')
-    return render(request,'project/add_project.html',{'form':form, 'branches':branches, 'project_types':project_types, 'clients':clients, 'countries':countries})  
+        leads = Leads.objects.filter(status=1).values('id','title')
+    return render(request,'project/add_project.html',{'form':form, 'branches':branches, 'project_types':project_types, 'clients':clients, 'countries':countries, 'leads':leads})  
 
 @login_required   
 @permission_required('employee.view_project', raise_exception=True) 
@@ -1350,30 +1352,37 @@ def project_details(request, id):
 
     # Use try-except for optional single object queries
     try:
-        context['bank_guaranty'] = Bank_guaranty.objects.filter(project=id)
+        context['bank_guaranty'] = Bank_guaranty.objects.filter(project=id,status=1)
     except Bank_guaranty.DoesNotExist:
         context['bank_guaranty'] = None
 
     try:
-        context['liquidity_damages'] = Liquidity_damages.objects.filter(project_id=id)
+        context['liquidity_damages'] = Liquidity_damages.objects.filter(project_id=id,status=1)
     except Liquidity_damages.DoesNotExist:
         context['liquidity_damages'] = None
 
     try:
-        context['insurance_detail'] = Insurance_detail.objects.filter(project_id=id)
+        context['insurance_detail'] = Insurance_detail.objects.filter(project_id=id,status=1)
     except Insurance_detail.DoesNotExist:
         context['insurance_detail'] = None
+    
+    try:
+        context['employee_projects'] = Employee_project.objects.filter(project_id=id,status=1)
+    except Employee_project.DoesNotExist:
+        context['employee_projects'] = None
 
     # QuerySets are handled normally as empty QuerySets are fine
     context['banks'] = Bank.objects.filter(status=1)
     context['types'] = Insurance_type.objects.filter(status=1)
     context['document_types'] = Document_type.objects.filter(status=1)
-    context['project_document'] = Project_document.objects.filter(project=id)
+    context['project_document'] = Project_document.objects.filter(project=id,status=1)
     context['branches'] = Branch.objects.filter(status=1).values('id', 'branch_name')
     context['project_types'] = Project_type.objects.filter(status=1).values('id', 'type_name')
     context['clients'] = Client.objects.filter(status=1).values('id', 'client_name')
     context['countries'] = Country.objects.filter(status=1).values('id', 'country_name')
-
+    context['employees'] = Employee.objects.filter(status=1).values('id', 'ename')
+    context['leads'] = Leads.objects.filter(status=1).values('id', 'title')
+    
     return render(request, 'project/project_details.html', context)
 
 def manual_update_project(request, id):
@@ -1478,7 +1487,6 @@ def add_bank_guaranty(request):
             if form.is_valid():
                 file_instance = form.save(commit=False)
                 if 'bg_doc' in request.FILES:
-                    print(request.FILES['bg_doc'].name)
                     # Generate folder path dynamically
                     folder_name = str(file_instance.project.id)
                     folder_path = os.path.join(settings.MEDIA_ROOT,'project',folder_name,'bank_guarantee')
@@ -2177,7 +2185,6 @@ def u_project_document(request, id):
                     
                     if not os.path.exists(folder_path):
                         print(f"An error occurred this path does not exist: {folder_path}")
-                    print(file_instance.document_type.id,'-------->')
                     # Generate the new file name
                     doc_type_title = Document_type.objects.get(id=file_instance.document_type.id)
                     timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
@@ -2219,14 +2226,39 @@ def d_project_document(request, id):
 @permission_required('employee.add_employee_target', raise_exception=True)
 def add_employee_target(request):  
     if request.method == "POST":  
-        form = Employee_targetForm(request.POST) 
-        if form.is_valid():
-            try:  
-                form.save()  
-                return redirect('show_employee_target')  
-            except Exception as e:  
-  
-                pass  
+        form = Employee_targetForm(request.POST)
+        employee_target = Employee_target.objects.filter(financial_year=request.POST.get('financial_year'),employee=request.POST.get('employee'),status=1)  
+        if employee_target.exists():
+            form = Employee_targetForm()
+            employees = Employee.objects.filter(status=1).values('id','ename')
+            return render(request,'employee_target/add_employee_target.html',{'form':form,'employees':employees,'error_message': "This employee target is already set."})  
+        else:
+            if form.is_valid():
+                try:
+                    if(request.POST.get('whole_year')=='1'):
+                        quarter = Quarters.objects.filter(status=1).values('id')
+                    else:    
+                        # Current date
+                        today = datetime.now().date()
+                        current_month = today.month
+                        current_year = today.year
+                        # Query to filter quarters
+                        quarter = Quarters.objects.filter(
+                            start_date__month__lte=current_month,
+                            end_date__month__gte=current_month,
+                            status=1
+                        ).values('id')
+                    for id in quarter:
+                        print(id['id'])
+                        file_instance=form.save(commit=False)  
+                        file_instance.quarter_id=id['id']
+                        file_instance.financial_year=current_year
+                        file_instance.pk = None
+                        file_instance.save()
+                    return redirect('show_employee_target')  
+                except Exception as e:  
+    
+                    pass  
     else:  
         form = Employee_targetForm()
         employees = Employee.objects.filter(status=1).values('id','ename')
@@ -2267,47 +2299,87 @@ def d_employee_target(request, id):
 @permission_required('employee.add_employee_project', raise_exception=True)
 def add_employee_project(request):  
     if request.method == "POST":  
-        form = SalesForm(request.POST) 
-        if form.is_valid():
-            try:  
-                form.save()  
-                return redirect('show_employee_project')  
-            except Exception as e:  
-  
-                pass  
+        form = Employee_projectForm(request.POST) 
+        employee_projects = Employee_project.objects.filter(project=request.POST.get('project'),employee=request.POST.get('employee'),status=1)  
+        if employee_projects.exists():
+            form = Employee_projectForm()  
+            projects = Project.objects.filter(status=1).values('id','title')
+            employees = Employee.objects.filter(status=1).values('id','ename')
+            modalfield_value = request.POST.get('modalfield')
+            if modalfield_value == '1':
+                return JsonResponse({'status': 'error','error_message': "This employee is already assigned to the selected project."}, status=402)
+            else:
+                return render(request,'employee_project/add_employee_project.html',{'form':form,'projects':projects,'employees':employees,'error_message': "This employee is already assigned to the selected project."})  
+        else:
+            if form.is_valid():
+                    try:  
+                        form.save()  
+                        modalfield_value = request.POST.get('modalfield')
+                        if modalfield_value == '1':
+                            return JsonResponse({'status': 'success'}, status=200)
+                        else:
+                            return redirect('show_employee_project')  
+                    except Exception as e:  
+        
+                        pass
     else:  
-        form = SalesForm()  
+        form = Employee_projectForm()  
         projects = Project.objects.filter(status=1).values('id','title')
         employees = Employee.objects.filter(status=1).values('id','ename')
-    return render(request,'employee_project/add_employee_project.html',{'form':form,'projects':projects,'employees':employees})  
+        return render(request,'employee_project/add_employee_project.html',{'form':form,'projects':projects,'employees':employees})  
+    return JsonResponse({'status': 'error', 'message': 'Unhandled request method'}, status=400)
 
 @login_required  
 @permission_required('employee.view_employee_project', raise_exception=True)  
 def show_employee_project(request):  
-    employee_projects = Sales.objects.filter(status=1)  
+    employee_projects = Employee_project.objects.filter(status=1)  
     return render(request,"employee_project/show_employee_project.html",{'employee_projects':employee_projects})  
 
 @login_required  
 @permission_required('employee.change_employee_project', raise_exception=True)
 def e_employee_project(request, id):  
-    employee_project = Sales.objects.get(id=id)  
-    projects = Project.objects.filter(status=1).values('id','title')
-    employees = Employee.objects.filter(status=1).values('id','ename')
-    return render(request,'employee_project/e_employee_project.html', {'employee_project':employee_project,'projects':projects,'employees':employees})  
+    employee_project = Employee_project.objects.get(id=id)  
+    employee_project_data = {
+            'id': employee_project.id,
+            'project': {
+                'id': employee_project.project.id,
+                'title': employee_project.project.title,
+            },
+            'employee': {
+                'id': employee_project.employee.id,
+                'ename': employee_project.employee.ename,
+            },
+            'is_key_acc_mgr': employee_project.is_key_acc_mgr,
+        }
+    projects = list(Project.objects.filter(status=1).values('id', 'title'))
+    employees = list(Employee.objects.filter(status=1).values('id', 'ename'))
+
+    data = {
+        'employee_project': employee_project_data,
+        'projects': projects,
+        'employees': employees,
+    }
+    return JsonResponse({'status': 'success', 'data':data}, status=200)
+    # return render(request,'employee_project/e_employee_project.html', {'employee_project':employee_project,'projects':projects,'employees':employees})  
 
 @login_required  
 def u_employee_project(request, id):  
-    employee_project = Sales.objects.get(id=id)  
-    form = SalesForm(request.POST, instance = employee_project)  
-    if form.is_valid():  
-        form.save()  
-        return redirect("show_employee_project")  
+    employee_project = Employee_project.objects.get(id=id)  
+    form = Employee_projectForm(request.POST, instance = employee_project)  
+    employee_projects = Employee_project.objects.filter(project=request.POST.get('project'),employee=request.POST.get('employee'),status=1)  
+    if employee_projects.exists():
+        return JsonResponse({'status': 'error','error_message': "This employee is already assigned to the selected project."}, status=402)
+    else:
+        if form.is_valid():  
+            form.save()  
+            return JsonResponse({'status': 'success'}, status=200)
+            # return redirect("show_employee_project")  
     return render(request, 'employee_project/e_employee_project.html', {'employee_project': employee_project})  
 
 @login_required  
 @permission_required('employee.delete_employee_project', raise_exception=True)
 def d_employee_project(request, id):  
-    employee_project = Sales.objects.get(id=id)  
+    employee_project = Employee_project.objects.get(id=id)  
     employee_project.status=0  
     employee_project.save()
     return redirect("show_employee_project")
@@ -2326,18 +2398,19 @@ def generate_report(request):
         # Apply filters based on the input
         where = ''
         years = ''
+        sale_year = ''
 
-        if employee_ids and 'all' not in employee_ids:
-            where += f' and e.id in ({",".join(employee_ids)})'
+        # if employee_ids and 'all' not in employee_ids:
+        #     where += f' and e.id in ({",".join(employee_ids)})'
 
-        if branch_ids and 'all' not in branch_ids:
-            where += f' and e.branch_id in ({",".join(branch_ids)})'
+        # if branch_ids and 'all' not in branch_ids:
+        #     where += f' and e.branch_id in ({",".join(branch_ids)})'
 
-        if department_ids and 'all' not in department_ids:
-            where += f' and e.department_id in ({",".join(department_ids)})'
+        # if department_ids and 'all' not in department_ids:
+        #     where += f' and e.department_id in ({",".join(department_ids)})'
 
-        if fin_years and 'all' not in fin_years:
-            years = f'WHERE q.year in ({",".join(fin_years)})'
+        # if fin_years and 'all' not in fin_years:
+        #     years = f'WHERE q.year in ({",".join(fin_years)})'
 
         cursor1 = connection.cursor()
         # cursor1.execute('''SELECT 
@@ -2374,55 +2447,74 @@ def generate_report(request):
         #                         where2=years
         #                     ))
 
-        cursor1.execute('''SELECT CONCAT('[',
-    GROUP_CONCAT(
-        CONCAT(
-            '{"employee_name":"', e.ename, '",',
-            '"q1_target":', COALESCE(t.q1_target, 0), ',',
-            '"q1_sales":', COALESCE(s.q1_sales, 0), ',',
-            '"q2_target":', COALESCE(t.q2_target, 0), ',',
-            '"q2_sales":', COALESCE(s.q2_sales, 0), ',',
-            '"q3_target":', COALESCE(t.q3_target, 0), ',',
-            '"q3_sales":', COALESCE(s.q3_sales, 0), ',',
-            '"q4_target":', COALESCE(t.q4_target, 0), ',',
-            '"q4_sales":', COALESCE(s.q4_sales, 0), ',',
-            '"total_year_target":', COALESCE(t.total_target, 0), ',',
-            '"total_year_sales":', COALESCE(s.total_sales, 0),
-            '}'
-        )
-    ),']') AS employee_data
-FROM 
-    employee e
-LEFT JOIN (
-    SELECT 
-        employee_id,
-        SUM(CASE WHEN quarter_id = 1 THEN sales_target ELSE 0 END) AS q1_target,
-        SUM(CASE WHEN quarter_id = 2 THEN sales_target ELSE 0 END) AS q2_target,
-        SUM(CASE WHEN quarter_id = 3 THEN sales_target ELSE 0 END) AS q3_target,
-        SUM(CASE WHEN quarter_id = 4 THEN sales_target ELSE 0 END) AS q4_target,
-        SUM(sales_target) AS total_target
-    FROM 
-        employee_target
-    WHERE employee_target.financial_year IN (2024)
-    GROUP BY 
-        employee_id
-) t ON e.id = t.employee_id
-LEFT JOIN (
-    SELECT 
-        sale_person_id,
-        SUM(CASE WHEN quarter_id = 1 THEN amount ELSE 0 END) AS q1_sales,
-        SUM(CASE WHEN quarter_id = 2 THEN amount ELSE 0 END) AS q2_sales,
-        SUM(CASE WHEN quarter_id = 3 THEN amount ELSE 0 END) AS q3_sales,
-        SUM(CASE WHEN quarter_id = 4 THEN amount ELSE 0 END) AS q4_sales,
-        SUM(amount) AS total_sales
-    FROM 
-        sales
-    WHERE YEAR(sales.sale_date) IN (2024)
-    GROUP BY 
-        sale_person_id
-) s ON e.id = s.sale_person_id
-LIMIT 0, 25;''')
+        if employee_ids and 'all' not in employee_ids:
+            where += f' and e.id in ({",".join(employee_ids)})'
 
+        if branch_ids and 'all' not in branch_ids:
+            where += f' and e.branch_id in ({",".join(branch_ids)})'
+
+        if department_ids and 'all' not in department_ids:
+            where += f' and e.department_id in ({",".join(department_ids)})'
+
+        if fin_years and 'all' not in fin_years:
+            years = f'WHERE employee_target.financial_year in ({",".join(fin_years)})'
+            sale_year = f'WHERE YEAR(sales.sale_date) in ({",".join(fin_years)})'
+
+        query= f'''
+        SELECT CONCAT('[',
+                            GROUP_CONCAT(
+                                CONCAT(
+                                    '{{"employee_name":"', e.ename, '",',
+                                    '"Year":', COALESCE(t.financial_year), ',',
+                                    '"q1_target":', COALESCE(t.q1_target, 0), ',',
+                                    '"q1_sales":', COALESCE(s.q1_sales, 0), ',',
+                                    '"q2_target":', COALESCE(t.q2_target, 0), ',',
+                                    '"q2_sales":', COALESCE(s.q2_sales, 0), ',',
+                                    '"q3_target":', COALESCE(t.q3_target, 0), ',',
+                                    '"q3_sales":', COALESCE(s.q3_sales, 0), ',',
+                                    '"q4_target":', COALESCE(t.q4_target, 0), ',',
+                                    '"q4_sales":', COALESCE(s.q4_sales, 0), ',',
+                                    '"total_year_target":', COALESCE(t.total_target, 0), ',',
+                                    '"total_year_sales":', COALESCE(s.total_sales, 0),
+                                    '}}'
+                                )
+                            ),']') AS employee_data
+                        FROM 
+                            employee e
+                        LEFT JOIN (
+                            SELECT 
+                                employee_id,
+                                financial_year,
+                                SUM(CASE WHEN quarter_id = 1 THEN sales_target ELSE 0 END) AS q1_target,
+                                SUM(CASE WHEN quarter_id = 2 THEN sales_target ELSE 0 END) AS q2_target,
+                                SUM(CASE WHEN quarter_id = 3 THEN sales_target ELSE 0 END) AS q3_target,
+                                SUM(CASE WHEN quarter_id = 4 THEN sales_target ELSE 0 END) AS q4_target,
+                                SUM(sales_target) AS total_target
+                            FROM 
+                                employee_target
+                            {years}
+                            GROUP BY 
+                                employee_id
+                        ) t ON e.id = t.employee_id
+                        LEFT JOIN (
+                            SELECT 
+                                sale_person_id,
+                                SUM(CASE WHEN quarter_id = 1 THEN amount ELSE 0 END) AS q1_sales,
+                                SUM(CASE WHEN quarter_id = 2 THEN amount ELSE 0 END) AS q2_sales,
+                                SUM(CASE WHEN quarter_id = 3 THEN amount ELSE 0 END) AS q3_sales,
+                                SUM(CASE WHEN quarter_id = 4 THEN amount ELSE 0 END) AS q4_sales,
+                                SUM(amount) AS total_sales
+                            FROM 
+                                sales
+                           {sale_year}
+                            GROUP BY 
+                                sale_person_id
+                        ) s ON e.id = s.sale_person_id
+                        WHERE 1=1 {where}
+                        LIMIT 0, 25
+                        '''
+        # Execute the query
+        cursor1.execute(query)
         rows2 = cursor1.fetchall()
         # Print raw JSON for debugging
         # for row in rows2:
@@ -2493,8 +2585,9 @@ def add_leads(request):
                 pass  
     else:  
         form = LeadsForm()
+        clients = Client.objects.filter(status=1).values('id','client_name')
         employees = Employee.objects.filter(status=1).values('id','ename')
-    return render(request,'leads/add_leads.html',{'form':form,'employees':employees})  
+    return render(request,'leads/add_leads.html',{'form':form,'employees':employees, 'clients':clients})  
 
 @login_required  
 @permission_required('employee.view_leads', raise_exception=True)  
@@ -2509,7 +2602,8 @@ def show_leads(request):
 def e_leads(request, id):  
     leads = Leads.objects.get(id=id)  
     employees = Employee.objects.filter(status=1).values('id','ename')
-    return render(request,'leads/e_leads.html', {'leads':leads,'employees':employees})  
+    clients = Client.objects.filter(status=1).values('id','client_name')
+    return render(request,'leads/e_leads.html', {'leads':leads,'employees':employees, 'clients':clients})  
 
 @login_required  
 def u_leads(request, id):  
@@ -2539,22 +2633,23 @@ def add_sales(request):
                 file_instance=form.save(commit=False)  
                 # Current date
                 today = datetime.now().date()
-
+                current_month = today.month
                 # Query to filter quarters
                 quarter = Quarters.objects.get(
-                    year=today.year,
-                    start_date__lte=today,
-                    end_date__gte=today
+                    start_date__month__lte=current_month,
+                    end_date__month__gte=current_month
                 )
-                file_instance.quarter=quarter
-                file_instance.save()
                 leads = Leads.objects.get(id=file_instance.lead.id)  
                 leads.convert_date = today
                 leads.save()
+                file_instance.quarter=quarter
+                file_instance.sale_date=today
+                file_instance.sale_person_id=leads.sale_person_id
+                file_instance.save()
                 return JsonResponse({'status': 'success'}, status=200)  
             except Exception as e:  
                 return JsonResponse({'status': 'Failed','Error': e}, status=400)
-
+        return JsonResponse({'status': 'error', 'message': 'Unhandled request method'}, status=400)
     # Create your views here. 
 @login_required    
 def dashboard(request):
@@ -2658,15 +2753,45 @@ def d_vendor(request, id):
 def project_summary(request):  
     if request.method == "POST": 
         project = Project.objects.get(id=request.POST.get('project'))
-        # projects = Project.objects.filter(status=1).values('id','title')
-        # return render(request,'employee_target/summary.html',{'projects':projects,'project':project})
+        employee_projects = Employee_project.objects.filter(project=request.POST.get('project'),status=1)
+        project_documents= Project_document.objects.filter(project=request.POST.get('project'),status=1)
+        bgs= Bank_guaranty.objects.filter(project=request.POST.get('project'),status=1)
+         # Use a list comprehension to include related fields
+        employee_projects_data = [
+            {
+                **model_to_dict(emp_proj),  # Base fields from the model
+                'employee_name': emp_proj.employee.ename  # Add the related field explicitly
+            }
+            for emp_proj in employee_projects
+        ]
+        project_document_data = [
+            {
+                **model_to_dict(doc_proj),  # Base fields from the model
+                'doc_type': doc_proj.document_type.title  # Add the related field explicitly
+            }
+            for doc_proj in project_documents
+        ]
+        bgs_data = [
+            {
+                **model_to_dict(bg_proj),  # Base fields from the model
+                'bank': bg_proj.bank.bank_name  # Add the related field explicitly
+            }
+            for bg_proj in bgs
+        ]
+        query = Journal_entry.objects.filter(project=request.POST.get('project'),status=1)
+        total = sum([item.total_amount for item in query])
+        perc = total/project.amount * 100 
          # Return success response
         project_data = {
             'project':model_to_dict(project),
-            'client':model_to_dict(project.client)
+            'client':model_to_dict(project.client),
+            'employee_projects': employee_projects_data,
+            'project_documents': project_document_data,
+            'bank_guarantees': bgs_data,
+            'expense' : total,
+            'perc' : perc
         }
         final=dict(project_data)
-        print(final)
         return JsonResponse({'status': 'success', 'project': final}, status=200)
     else:  
         projects = Project.objects.filter(status=1).values('id','title')

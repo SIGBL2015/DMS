@@ -21,6 +21,15 @@
                 {% csrf_token %}
                 <div class="row">
                   <div class="form-group col-6">
+                    <label for="frist_name">Lead</label>
+                    <select class="form-control" id="lead" name="lead" onchange="updateTextInput()">
+                        <option value="" disabled selected>-- Select Lead --</option>
+                        {% for lead in leads %}
+                            <option value="{{ lead.id }}">{{ lead.title }}</option>
+                        {% endfor %}
+                      </select>
+                  </div>
+                  <div class="form-group col-6">
                     <label for="frist_name">Branch</label>
                     <select class="form-control" id="branch" name="branch">
                         <option value="">-- Select Branch --</option>
@@ -29,7 +38,9 @@
                         {% endfor %}
                       </select>
                   </div>
+                </div>
 
+                <div class="row">
                   <div class="form-group col-6">
                     <label for="frist_name">Project Type</label>
                     <select class="form-control" id="project_type" name="project_type">
@@ -39,13 +50,13 @@
                         {% endfor %}
                     </select>
                   </div>
+                  <div class="form-group col-6"> 
+                    <label for="email">Project Name</label>
+                    <input id="title" type="text" class="form-control" name="title" readonly>
+                  </div>
                 </div>
 
                 <div class="row">
-                  <div class="form-group col-6"> 
-                    <label for="email">Project Name</label>
-                    <input id="title" type="text" class="form-control" name="title">
-                  </div>
                   <div class="form-group col-6"> 
                     <label for="email">Client</label>
                     <select class="form-control" id="client" name="client">
@@ -53,11 +64,8 @@
                       {% for client in clients %}
                           <option value="{{ client.id }}">{{ client.client_name }}</option>
                       {% endfor %}
-                  </select>
+                    </select>
                   </div>
-                </div>
-
-                <div class="row">
                   <div class="form-group col-6"> 
                     <label for="email">Country</label>
                     <select class="form-control" id="country" name="country">
@@ -65,114 +73,114 @@
                       {% for country in countries %}
                           <option value="{{ country.id }}">{{ country.country_name }}</option>
                       {% endfor %}
-                  </select>
+                    </select>
                   </div>
+                </div>
+
+                <div class="row">
                   <div class="form-group col-6"> 
                     <label for="email">Start Date</label>
                     <input id="start_date" type="date" class="form-control" name="start_date">
                   </div>
-                </div>
-
-                <div class="row">
                   <div class="form-group col-6"> 
                     <label for="email">End Date</label>
                     <input id="end_date" type="date" class="form-control" name="end_date">
                   </div>
+                </div>
+
+                <div class="row">
                   <div class="form-group col-6"> 
                     <label for="email">Duration(Month)</label>
                     <input id="duration" type="number" class="form-control" name="duration">
                   </div>
-                </div>
-
-                <div class="row">
                   <div class="form-group col-6"> 
                     <label for="email">Amount</label>
                     <input id="amount" type="number" class="form-control" name="amount" step="0.01">
                   </div>
+                </div>
+
+                <div class="row">
                   <div class="form-group col-6"> 
                     <label for="email">Tax(%)</label>
                     <input id="tax" type="number" class="form-control" name="tax" step="0.01">
                   </div>
-                </div>
-
-                <div class="row">
                   <div class="form-group col-6"> 
                     <label for="email">Advance Tax(%)</label>
                     <input id="advance_tax" type="number" class="form-control" name="advance_tax" step="0.01">
                   </div>
+                </div>
+
+                <div class="row">
                   <div class="form-group col-6"> 
                     <label for="email">Advance Amount</label>
                     <input id="advance_amount" type="number" class="form-control" name="advance_amount" step="0.01">
-                  </div>
-                </div>
-
-                <div class="row">           
+                  </div>           
                   <div class="form-group col-6"> 
                     <label for="email">Earnest Money</label>
                     <input id="earnest_money" type="number" class="form-control" name="earnest_money" step="0.01">
                   </div>
+                </div>
+
+                <div class="row">
                   <div class="form-group col-6"> 
                     <label for="email">EM Instrument No</label>
                     <input id="em_instrument_no" type="text" class="form-control" name="em_instrument_no">
                   </div>
-                </div>
-
-                <div class="row">
                   <div class="form-group col-6"> 
                     <label for="email">PG Instrument No</label>
                     <input id="pg_instrument_no" type="text" class="form-control" name="pg_instrument_no">
                   </div>
+                </div>
+
+                <div class="row">
                   <div class="form-group col-6"> 
                     <label for="email">EM Expire Date</label>
                     <input id="em_expire_date" type="date" class="form-control" name="em_expire_date">
                   </div>
-                </div>
-
-                <div class="row">
                   <div class="form-group col-6"> 
                     <label for="email">EM Document</label>
                     <input id="em_doc" type="file" class="form-control" name="em_doc">
                   </div>
+                </div>
+
+                <div class="row">
                   <div class="form-group col-6"> 
                     <label for="email">Perf.G Start Date</label>
                     <input id="pg_start_date" type="date" class="form-control" name="pg_start_date">
                   </div>
-                </div>
-
-                <div class="row">
                   <div class="form-group col-6"> 
                     <label for="email">Perf.G End Date</label>
                     <input id="pg_end_date" type="date" class="form-control" name="pg_end_date">
                   </div>
+                </div>
+
+                <div class="row">
                   <div class="form-group col-6"> 
                     <label for="email">Perf.G Validity</label>
                     <input id="pg_validity" type="date" class="form-control" name="pg_validity">
                   </div>
-                </div>
-
-                <div class="row">
                   <div class="form-group col-6"> 
                     <label for="email">Perf.G Percentage(%)</label>
                     <input id="pg_percentage" type="number" class="form-control" name="pg_percentage" step="0.01">
                   </div>
+                </div>
+
+                <div class="row">
                   <div class="form-group col-6"> 
                     <label for="email">Perf.G Amount</label>
                     <input id="pg_amount" type="number" class="form-control" name="pg_amount" step="0.01">
                   </div>
-                </div>
-
-                <div class="row">
                   <div class="form-group col-6"> 
                     <label for="email">Perf.G Document</label>
                     <input id="pg_doc" type="file" class="form-control" name="pg_doc">
                   </div>
+                </div>
+
+                <div class="row">
                   <div class="form-group col-6"> 
                     <label for="email">Project Document</label>
                     <input id="project_doc" type="file" class="form-control" name="project_doc">
                   </div>
-                </div>
-
-                <div class="row">
                   <div class="form-group col-6"> 
                     <label for="email">Scope</label>
                     <select class="form-control" id="scope" name="scope">
@@ -181,6 +189,9 @@
                       <option value="Local">Local</option>
                     </select>
                   </div>
+                </div>
+
+                <div class="row">
                   <div class="form-group col-6"> 
                     <label for="email">Sector</label>
                     <select class="form-control" id="sector" name="sector">
@@ -189,13 +200,12 @@
                       <option value="Private">Private</option>
                     </select>
                   </div>
-                </div>
-
-                <div class="row">
                   <div class="form-group col-6"> 
                     <label for="email">PO Document</label>
                     <input id="po_scan_doc" type="file" class="form-control" name="po_scan_doc">
                   </div>
+                </div>
+                <div class="row">
                   <div class="form-group col-6"> 
                     <label for="email">Project Status</label>
                     <select class="form-control" id="project_status" name="project_status">
@@ -204,8 +214,6 @@
                       <option value="Completed">Completed</option>
                     </select>
                   </div>
-                </div>
-                <div class="row">
                   <div class="form-group col-6"> 
                     <label for="email">Initiated By</label>
                     <select class="form-control" id="initiated_by" name="initiated_by">
@@ -245,5 +253,17 @@
   </div>
 
   {% include 'layout/script.html' %}
+  <script>
+    function updateTextInput() {
+      const selectElement = document.getElementById('lead');
+
+      // Get the selected option
+      const selectedOption = selectElement.options[selectElement.selectedIndex];
+    
+      // Set the value and name in separate inputs
+      //document.getElementById('myTextInputID').value = selectedOption.value; // ID
+      document.getElementById('title').value = selectedOption.text; // Name
+    }
+  </script>
 </body>
 </html>

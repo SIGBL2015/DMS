@@ -1,5 +1,5 @@
 from django import forms  
-from employee.models import Employee, Department, Designation, Region, Education,Project, Employment_Record, Certifications, Skills, Company, Module, Mainmenu, Submenu, Role, Company_module, Role_permission, CV_template, Template_column, Project_type, Project, Bank, Bank_guaranty, Liquidity_damages, Insurance_type, Insurance_detail, Country, Zone, Area, Branch, Client, Document_type, Project_document, Sales, Leads,Quarters, Employee_target, Vendor
+from employee.models import Employee, Department, Designation, Region, Education,Project, Employment_Record, Certifications, Skills, Company, Module, Mainmenu, Submenu, Role, Company_module, Role_permission, CV_template, Template_column, Project_type, Project, Bank, Bank_guaranty, Liquidity_damages, Insurance_type, Insurance_detail, Country, Zone, Area, Branch, Client, Document_type, Project_document, Sales, Leads,Quarters, Employee_target, Vendor, Employee_project
 
 class EmployeeForm(forms.ModelForm):  
     class Meta:  
@@ -54,7 +54,7 @@ class Project_typeForm(forms.ModelForm):
 class ProjectForm(forms.ModelForm):  
     class Meta:  
         model = Project  
-        fields = ('id','branch','project_type','title','client','start_date','end_date','duration','amount','tax','advance_tax','advance_amount','earnest_money','em_instrument_no','em_expire_date','pg_start_date','pg_end_date','pg_validity','pg_percentage','pg_amount','pg_instrument_no','keywords','project_status','scope','sector','initiated_by','em_receive_date','em_received','country','close_date','closing_doc','closing_remarks')
+        fields = ('id','lead','branch','project_type','title','client','start_date','end_date','duration','amount','tax','advance_tax','advance_amount','earnest_money','em_instrument_no','em_expire_date','pg_start_date','pg_end_date','pg_validity','pg_percentage','pg_amount','pg_instrument_no','keywords','project_status','scope','sector','initiated_by','em_receive_date','em_received','country','close_date','closing_doc','closing_remarks')
 
 class BankForm(forms.ModelForm):  
     class Meta:  
@@ -169,17 +169,22 @@ class QuartersForm(forms.ModelForm):
 class Employee_targetForm(forms.ModelForm):  
     class Meta:  
         model = Employee_target  
-        fields = ('id','employee','financial_year','currency','quarter','sales_target')
+        fields = ('id','employee','currency','sales_target')
 
 class LeadsForm(forms.ModelForm):  
     class Meta:  
         model = Leads  
-        fields = ('id','sale_person','lead_date','lead_type')
+        fields = ('id','title','client','sale_person','lead_date','lead_type')
+
+class Employee_projectForm(forms.ModelForm):  
+    class Meta:  
+        model = Employee_project  
+        fields = ('id','employee','project','is_key_acc_mgr')
 
 class SalesForm(forms.ModelForm):  
     class Meta:  
         model = Sales  
-        fields = ('id','lead','sale_person','amount','sale_date')
+        fields = ('id','lead','amount')
 
 # SELECT table_name FROM information_schema.tables
 # WHERE table_schema = 'your_database_name';

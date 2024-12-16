@@ -119,12 +119,13 @@
                 traditional: true,
                 success: function (data) {
                   summary=data.project
+                  const MEDIA_URL = "{{ MEDIA_URL }}"; 
                   let htmlContent = `
                    <div class="row mb-4">
                     <div class="col-md-12">
                       <div class="alert alert-primary">
                          <h2 ><span style="width:100%;    font-size: 24px;
-    font-weight: 700;" class="text-left">${summary.project.title} <span style="float:right;    margin-top: 5px;" class='badge badge-warning'>In Progress...</span></span></h2>
+    font-weight: 700;" class="text-left">${summary.project.title} <span style="float:right;    margin-top: 5px;" class='badge badge-warning'>${summary.project.project_status}...</span></span></h2>
                       </div>
                       
                     </div>
@@ -150,9 +151,9 @@
                 <h5 class="card-title">Progress</h5>
               </div>
               <div class="card-body">
-                                         <p><strong>Start Date:</strong> project.start_date</p>
-<p><strong>End Date:</strong> project.expected_end_date</p>
-                                          <p><strong>Completion Date:</strong> {% if project.actual_end_date %} project.actual_end_date {% else %} N/A {% endif %}</p>
+                                         <p><strong>Start Date:</strong>${summary.project.start_date}</p>
+<p><strong>End Date:</strong> ${summary.project.end_date}</p>
+                                          <p><strong>Completion Date:</strong> ${summary.project.close_date}</p>
                                       </div>
                                       </div></div>
                                       <div class="col-md-4">
@@ -162,12 +163,12 @@
               </div>
               <div class="card-body">
                                                   
-                                                  <p><strong>Total Budget:</strong> $project.budget</p>
-                                                  <p><strong>Amount Spent:</strong> $project.amount_spent</p>
-                                                  <p><strong>Progress:</strong> project.progress%</p>
+                                                  <p><strong>Total Budget:</strong> ${intcomma(summary.project.amount)}</p>
+                                                  <p><strong>Amount Spent:</strong> ${intcomma(summary.expense)}</p>
+                                                  <p><strong>Progress:</strong>
                                                   <div class="progress">
-                                                      <div class="progress-bar" role="progressbar" style="width: 60%" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"></div>
-                                                  </div>
+                                                      <div class="progress-bar" role="progressbar" style="width: ${remove_decimal_point(summary.perc)}%" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100">${remove_decimal_point(summary.perc)}%</div>
+                                                  </div></p>
                                               </div>
                                           </div>
                                       </div>
@@ -204,12 +205,12 @@
                                       <tbody>
                                           
                                           <tr>
-                                             <td>500000</td>
-                                            <td>400000</td>
+                                             <td>${intcomma(summary.project.amount)}</td>
+                                            <td>${intcomma(summary.expense)}</td>
                                              
-                                              <td>12500</td>
-                                              <td>18%</td>
-                                              <td>3%</td>
+                                              <td>${intcomma(summary.project.advance_amount)}</td>
+                                              <td>${summary.project.tax}</td>
+                                              <td>${summary.project.advance_tax}</td>
                                               
                                           </tr>
                                           
@@ -240,12 +241,12 @@
                                       <tbody>
                                           
                                           <tr>
-                                              <td>100000</td>
-                                              <td>tt442t</td>
-                                              <td>05/12/2024</td>
-                                              <td><a href="">View</a></td>
+                                              <td>${intcomma(summary.project.earnest_money)}</td>
+                                              <td>${summary.project.em_instrument_no}</td>
+                                              <td>${summary.project.em_expire_date}</td>
+                                              <td><a href="${ MEDIA_URL }${ summary.project.em_doc }" target="_blank">View</a></td>
                                               
-                                              <td>dd/mm/yyyy</td>
+                                              <td>${summary.project.em_receive_date}</td>
                                           </tr>
                                         
                                       </tbody>
@@ -303,6 +304,7 @@
                 <table class="table">
                                       <thead>
                                           <tr>
+                                              <th scope="col">S.No</th>  
                                               <th scope="col">Bank Name</th>         
                                               <th scope="col">Instr No.</th>
                                               <th scope="col">Start Date</th>
@@ -314,20 +316,24 @@
                                               <th scope="col">Document</th>
                                           </tr>
                                       </thead>
-                                      <tbody>
-                                        
+                                      <tbody>`
+                                    summary.bank_guarantees.forEach((bank_guaranty, index) => {
+                                      htmlContent += `
                                           <tr>
-                                              <td>HBL</td>
-                                              <td>abcd1234</td>
-                                              <td>31/05/2024</td>
-                                              <td>05/06/2024</td>
-                                              <td>5 months</td>
-                                              <td>25000</td>
-                                              <td>5.0</td>
-                                              <td>25000</td>
-                                              <td><a href="">View</a></td>
+                                              <td>${index + 1}</td>
+                                              <td>${bank_guaranty.bank}</td>
+                                              <td>${bank_guaranty.instrument_no}</td>
+                                              <td>${bank_guaranty.bg_start_date}</td>
+                                              <td>${bank_guaranty.bg_end_date}</td>
+                                              <td>${bank_guaranty.duration}</td>
+                                              <td>${bank_guaranty.bg_validity}</td>
+                                              <td>${bank_guaranty.bg_percentage}</td>
+                                              <td>${intcomma(bank_guaranty.bg_amount)}</td>
+                                              <td><a href="${ MEDIA_URL }${ bank_guaranty.bg_doc }" target="_blank">View</a></td>
                                           </tr>
-                                        
+                                      `;
+                                      });
+                                     htmlContent += `   
                                       </tbody>
                                   </table>
               </div>
@@ -343,32 +349,66 @@
                                   
                               <div class="card">
               <div class="card-header">
-                Project Employees
+                Project Team
               </div>
               <div class="card-body">    
 
                                   <table class="table">
                                       <thead>
-                                          <tr>
-                                              <th scope="col">S.No</th>
-                                              <th scope="col">Employee</th>
-                                              <th scope="col">Designation</th>
-                                              <th scope="col">Is Key Acc Manager</th>
-                                              <th scope="col">Status</th>
-                                              
-                                          </tr>
+                                      <tr>
+                                        <th>S.No</th>
+                                        <th>Employee</th>
+                                        <th>Is Key Acc Mgr</th>
+                                        <th>Status</th>
+                                      </tr>
                                       </thead>
-                                      <tbody>
-                                        
-                                          <tr>
-                                              <td>1</td>
-                                              <td>Turab</td>
-                                              <td>Senior Backend Developer</td>
-                                              <td>Yes</td>
-                                              <td>Yes</td>
-                                              
-                                          </tr>
-                                        
+                                      <tbody>`
+                    summary.employee_projects.forEach((employee_project, index) => {
+                                          htmlContent += `
+                                              <tr>
+                                                  <td>${index + 1}</td>
+                                                  <td>${employee_project.employee_name}</td>
+                                                  <td>${employee_project.is_key_acc_mgr === 1 ? 'Yes' : 'No'}</td>
+                                                  <td>${employee_project.status === 1 ? 'Active' : 'Deactive'}</td>
+                                              </tr>
+                                          `;
+                                      });
+                          htmlContent +=`        
+                                      </tbody>
+                                  </table>
+                                  </div></div>
+                                  
+                                  <div class="card">
+              <div class="card-header">
+                Project Documents
+              </div>
+              <div class="card-body">    
+
+                                  <table class="table">
+                                      <thead>
+                                      <tr>
+                                        <th>S.No</th>
+                                        <th>Document Type</th>
+                                        <th>Ref No</th>
+                                        <th>Issuance Date</th>
+                                        <th>File</th>
+                                        <th>Remarks</th>
+                                      </tr>
+                                      </thead>
+                                      <tbody>`
+                                        summary.project_documents.forEach((project_document, index) => {
+                                          htmlContent += `
+                                              <tr>
+                                                  <td>${index + 1}</td>
+                                                  <td>${project_document.doc_type}</td>
+                                                  <td>${project_document.ref_no}</td>
+                                                  <td>${project_document.issuance_date}</td>
+                                                  <td><a href="${ MEDIA_URL }${ project_document.doc_path }" target="_blank">View</a></td>
+                                                  <td>${project_document.remarks}</td>
+                                              </tr>
+                                          `;
+                                      });
+                          htmlContent +=`        
                                       </tbody>
                                   </table>
                                   </div></div>`;

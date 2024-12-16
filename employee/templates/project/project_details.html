@@ -51,6 +51,9 @@
                         <li class="nav-item">
                           <a class="nav-link" id="insurance-tab" data-toggle="tab" href="#insurance" role="tab" aria-controls="insurance" aria-selected="false">Insurance</a>
                         </li>
+                        <li class="nav-item">
+                          <a class="nav-link" id="team-tab" data-toggle="tab" href="#team" role="tab" aria-controls="team" aria-selected="false">Team</a>
+                        </li>
                        
                       </ul>
                       <div class="tab-content" id="myTabContent">
@@ -61,6 +64,19 @@
                             <h4>Project Details</h4>
                             <hr class="my-4">
                             <div class="row">
+                              <div class="form-group col-4">
+                                <label for="frist_name">Lead </label>
+                                <select class="form-control" id="lead" name="lead" {{ permission }}>
+                                  <option value=""> Select Lead </option>
+                                  {% for lead in leads %}
+                                    {% if project.lead.id == lead.id %}                         
+                                      <option value="{{ lead.id }}" selected>{{ lead.title }}</option>
+                                    {% else %}
+                                      <option value="{{ lead.id }}">{{ lead.title }}</option>
+                                    {% endif %}
+                                  {% endfor %}
+                                </select>
+                              </div>
                               <div class="form-group col-4">
                                 <label for="frist_name">Branch </label>
                                 <select class="form-control" id="branch" name="branch" {{ permission }}>
@@ -87,12 +103,12 @@
                                   {% endfor %}
                                 </select>
                               </div>
+                            </div>
+                            <div class="row">
                               <div class="form-group col-4"> 
                                 <label for="email">Project Name</label>
                                 <input id="title" type="text" class="form-control" name="title" value="{{ project.title }}" {{ permission }}>
                               </div>
-                            </div>
-                            <div class="row">
                               <div class="form-group col-4"> 
                                 <label for="email">Client</label>
                                 <select class="form-control" id="client" name="client" {{ permission }}>
@@ -119,34 +135,33 @@
                                   {% endfor %}
                                 </select>
                               </div>
+                            </div>
+                            <div class="row">
                               <div class="form-group col-4"> 
                                 <label for="email">Start Date</label>
                                 <input id="start_date" type="date" class="form-control" name="start_date" value="{{ project.start_date|date:'Y-m-d' }}" {{ permission }}>
                               </div>
+                              <div class="form-group col-4"> 
+                                <label for="email">End Date</label>
+                                <input id="end_date" type="date" class="form-control" name="end_date" value="{{ project.end_date|date:'Y-m-d' }}" {{ permission }}>
+                              </div>
+                              <div class="form-group col-4"> 
+                                <label for="email">Duration(Month)</label>
+                                <input id="duration" type="number" class="form-control" name="duration" value="{{ project.duration }}" {{ permission }}>
+                              </div>
                             </div>
                             <div class="row">
-                              
-                                <div class="form-group col-4"> 
-                                  <label for="email">End Date</label>
-                                  <input id="end_date" type="date" class="form-control" name="end_date" value="{{ project.end_date|date:'Y-m-d' }}" {{ permission }}>
-                                </div>
-                                <div class="form-group col-4"> 
-                                  <label for="email">Duration(Month)</label>
-                                  <input id="duration" type="number" class="form-control" name="duration" value="{{ project.duration }}" {{ permission }}>
-                                </div>
-                                <div class="form-group col-4"> 
-                                  <label for="email">Project Document</label>
-                                  <div class="row">
-                                    <div class="form-group col-9">
-                                      <input id="project_doc" type="file" class="form-control" name="project_doc" value="{{ project.project_doc }}" {{ permission }}>
-                                    </div>
-                                    <div class="form-group col-1">
-                                      <a href="{{ MEDIA_URL }}{{ project.project_doc }}" target="_blank"><span class="ion-ios-eye" ></span></a>
-                                    </div>
-                                  </div>                               
-                                </div>
-                            </div>
-                            <div class="row">
+                              <div class="form-group col-4"> 
+                                <label for="email">Project Document</label>
+                                <div class="row">
+                                  <div class="form-group col-9">
+                                    <input id="project_doc" type="file" class="form-control" name="project_doc" value="{{ project.project_doc }}" {{ permission }}>
+                                  </div>
+                                  <div class="form-group col-1">
+                                    <a href="{{ MEDIA_URL }}{{ project.project_doc }}" target="_blank"><span class="ion-ios-eye" ></span></a>
+                                  </div>
+                                </div>                               
+                              </div>
                               <div class="form-group col-4"> 
                                 <label for="email">Project Status</label>
                                 <select class="form-control" id="project_status" name="project_status" {{ permission }}>
@@ -631,6 +646,78 @@
                             </form>
                           {% endfor %}
                         </div>
+
+                        <div class="tab-pane fade" id="team" role="tabpanel" aria-labelledby="team-tab">
+                          {% if permission == 'disabled' %}                         
+                              <br>
+                          {% else %}
+                            <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#teamModal" style="float: right;">
+                              + Add
+                            </button>
+                          {% endif %}
+                          <div class="row mt-5">
+                            <div class="col-12">
+                              <div class="card">
+                                  <div class="card-header">
+                                    <h3 class="card-title">Employee Project Details</h3>
+                                  </div>
+                                  <!-- /.card-header -->
+                                  <div class="card-body">
+                                    <table id="example1" class="table table-bordered table-striped">
+                                      <thead>
+                                      <tr>
+                                        <th>S.No</th>
+                                        <th>Employee</th>
+                                        <th>Project</th>
+                                        <th>Is Key Acc Mgr</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                      </tr>
+                                      </thead>
+                                      <tbody>
+                                          {% for employee_project in employee_projects %}  
+                                              <tr>  
+                                                  <td>{{ forloop.counter }}</td>  
+                                                  <td>{{ employee_project.employee.ename }}</td>
+                                                  <td>{{ employee_project.project.title }}</td> 
+                                                  {% if employee_project.is_key_acc_mgr == 1 %}
+                                                    <td>Yes</td>  
+                                                  {% else %}
+                                                    <td>No</td>
+                                                  {% endif %}
+                                                  {% if employee_project.status == 1 %}
+                                                    <td>Active</td>  
+                                                  {% else %}
+                                                    <td>Deactive</td>
+                                                  {% endif %}
+                                                  <td>  
+                                                    <a href="#" data-id="{{ employee_project.id }}" data-toggle="modal" data-target="#editteamModal" class="edit-team-btn">
+                                                      <span class="ion-ios-compose"></span>
+                                                    </a> 
+                                                      <a href="/employee/d_employee_project/{{ employee_project.id }}" onclick="return confirm('Are you sure you want to delete this?')"><span class="ion-ios-trash" ></span></a>  
+                                                  </td>  
+                                              </tr>  
+                                          {% endfor %}
+                                      </tbody>
+                                      <tfoot>
+                                      <tr>
+                                          <th>S.No</th>
+                                          <th>Employee</th>
+                                          <th>Project</th>
+                                          <th>Is Key Acc Mgr</th>
+                                          <th>Status</th>
+                                          <th>Action</th>
+                                      </tr>
+                                      </tfoot>
+                                    </table>
+                                  </div>
+                                  <!-- /.card-body -->
+                                </div>
+                                <!-- /.card -->
+                            </div>
+                          </div>
+                        </div>
+
                       </div>
                     </div>
                   </div>
@@ -906,6 +993,119 @@
           </div>
         </div>
         <!-- Insurance Modal -->
+
+        <!-- Employee Project Modal -->
+        <div class="modal fade" id="teamModal" tabindex="-1" aria-labelledby="teamModalLabel" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="teamModalLabel">Add team</h5>
+                <button type="button" class="btn-close-team" data-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <form class="formnew" method="POST" data-url="{% url 'save_employee_project' %}" id="myForm6">
+                  {% csrf_token %}
+                  <div class="row">
+                    <div class="form-group col-6">
+                      <label for="frist_name">Project</label>
+                      <select class="form-control" id="project" name="project" readonly>
+                          <option value="{{ project.id }}" selected>{{ project.title }}</option>
+                      </select>
+                    </div>
+                    <div class="form-group col-6">
+                      <label for="frist_name">Employee</label>
+                      <select class="form-control" id="employee" name="employee">
+                          <option value="" disabled selected>-- Select Employee --</option>
+                          {% for employee in employees %}
+                              <option value="{{ employee.id }}">{{ employee.ename }}</option>
+                          {% endfor %}
+                        </select>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="form-group col-6">
+                      <label for="frist_name">Is Key Acc Mgr</label>
+                      <select class="form-control" id="is_key_acc_mgr" name="is_key_acc_mgr">
+                          <option value="" disabled selected>-- Select --</option>
+                              <option value="1">Yes</option>
+                              <option value="0">No</option>
+                      </select>
+                      <input id="modalfield" type="text" value="1" hidden class="form-control" name="modalfield">
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <button type="submit"  value="save" class="btn btn-primary submit-btn">
+                      Save
+                    </button>
+                    <button type="button" class="btn btn-secondary btn-close-team" data-dismiss="modal">Cancel</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Employee Project Modal -->
+
+        <!-- Edit Employee Project Modal -->
+        <div class="modal fade" id="editteamModal" tabindex="-1" aria-labelledby="editteamModalLabel" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="teamModalLabel">Edit team</h5>
+                <button type="button" class="btn-close-editteam" data-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <form class="formnew" method="POST" data-url="" id="myForm7">
+                  {% csrf_token %}
+                  <h4>Employee Project</h4>
+                  <hr class="my-4">
+                  <div class="row">
+                    <div class="form-group col-6">
+                      <label for="frist_name">Project</label>
+                      <select class="form-control" id="project" name="project" readonly>
+                          <option value="{{ project.id }}" selected>{{ project.title }}</option>
+                      </select>
+                    </div>
+                    <div class="form-group col-6">
+                      <label for="frist_name">Employee Name</label>
+                      <select class="form-control employee" id="employee" name="employee">
+                           {% comment %} <option value=""> Select Employee </option> {% endcomment %}
+                          {% comment %}{% for employee in employees %}
+                            {% if employee_project.employee.id == employee.id %}                         
+                              <option value="{{ employee.id }}" selected>{{ employee.ename }}</option>
+                            {% else %}
+                              <option value="{{ employee.id }}">{{ employee.ename }}</option>
+                            {% endif %}
+                          {% endfor %} {% endcomment %}
+                      </select>
+                    </div>
+                  </div>
+    
+                  <div class="row">
+                    <div class="form-group col-6">
+                      <label for="frist_name">Is Key Acc Mgr</label>
+                      <select class="form-control is_key_acc_mgr" id="is_key_acc_mgr" name="is_key_acc_mgr">
+                          {% comment %} <option value="">Select</option> {% endcomment %}
+                          <option value="1">Yes</option>
+                          <option value="0">No</option>
+                      </select>
+                      <input id="modalfield" type="text" value="1" hidden class="form-control" name="modalfield">
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <button type="submit"  value="save" class="btn btn-primary submit-btn">
+                      Save
+                    </button>
+                    <button type="button" class="btn btn-secondary btn-close-editteam" data-dismiss="modal">Cancel</button>
+                  </div>
+                  
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Edit Employee Project Modal -->
+
          <!-- Closing Modal -->
         <div class="modal fade" id="closeProject" tabindex="-1" aria-labelledby="closeProjectLabel" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false">
           <div class="modal-dialog">
@@ -984,20 +1184,62 @@
     $(".btn-close-project").on('click',function() {
       $("#closeProject").modal('toggle');
     });
+    $(".btn-close-team").on('click',function() {
+      $("#teamModal").modal('toggle');
+    });
+    $(".btn-close-editteam").on('click',function() {
+      $("#editteamModal").modal('toggle');
+    });
     $(document).ready(function() {
+      $('.edit-team-btn').on('click', function (e) {
+        const employeeProjectId = $(this).data('id'); // Get the project ID from the data-id attribute
+        const url = `/employee/e_employee_project/${employeeProjectId}`; // Replace with the correct endpoint
+        // Set the data-url attribute of the form
+        const url2 = `/employee/u_employee_project/${employeeProjectId}`;
+        $('#myForm7').attr('data-url', url2);
+  
+        // Make an AJAX call to fetch the data
+        $.ajax({
+            url: '{{ HOST }}'+url,
+            method: 'GET',
+            success: function (response) {
+                if (response.status === 'success') {
+                  const data = response.data;
+  
+                  // Populate and set the Employee dropdown
+                  const employeeDropdown = $('.employee');
+                  employeeDropdown.empty(); // Clear current options
+                  employeeDropdown.append('<option value="" disabled>Select Employee</option>');
+                  data.employees.forEach(employee => {
+                      const selected = employee.id === data.employee_project.employee.id ? 'selected' : '';
+                      employeeDropdown.append(
+                          `<option value="${employee.id}" ${selected}>${employee.ename}</option>`
+                      );
+                  });
+  
+                  // Set the Is Key Acc Mgr dropdown
+                  $('.is_key_acc_mgr').val(data.employee_project.is_key_acc_mgr);
+              } else {
+                  alert('Failed to load data. Please try again.');
+              }
+            },
+            error: function () {
+                alert('Failed to fetch data for the selected employee project.');
+            }
+        });
+    });
             //$('.submit-btn').click(function(e) {
             $(".formnew").on('submit',function(e) {
                 e.preventDefault();
 
-                var form = $(this)[0]; 
-                console.log(form);
+                var form = $(this)[0];
                 var formData = new FormData(form); // Use FormData for file upload
                 // console.log(formData);
                 // for (var key of formData.entries()) {
                 //     console.log(key[0] + ", " + key[1]);
                 // }
-                var url = $(this).data('url');
-                // console.log(url)
+                var url = $(this).attr('data-url');
+
                 $.ajax({
                     type: 'POST',
                     url: '{{ HOST }}'+url,
@@ -1014,12 +1256,16 @@
                         }
                     },
                     error: function(response) {
-                        console.log(response)
-                        //alert('An error occurred');
+                        console.log(response.responseJSON.error_message)
+                        alert(response.responseJSON.error_message);
+                        $(form).closest('.modal').modal('hide');
                     }
                 });
             });
-        });
+        
+      
+    });
+    
   </script>
 </body>
 </html>

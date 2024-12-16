@@ -138,7 +138,9 @@ class Project_type(models.Model):
         db_table = "project_type"
 
 class Leads(models.Model): 
+    title = models.CharField(max_length=100,null=True) 
     sale_person = models.ForeignKey(Employee, on_delete=models.CASCADE,null=True)
+    client = models.ForeignKey(Client, on_delete=models.CASCADE,null=True)
     lead_date = models.DateField(null=True)
     lead_type = models.CharField(max_length=100,null=True) 
     convert_date = models.DateField(null=True)
@@ -192,6 +194,14 @@ class Project(models.Model):
     closing_remarks = models.CharField(max_length=1000,null=True, blank=True)
     class Meta:  
         db_table = "project"
+
+class Employee_project(models.Model):  
+    employee = models.ForeignKey(Employee, on_delete=models.CASCADE,null=True)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE,null=True)
+    is_key_acc_mgr = models.IntegerField(null=True)
+    status = models.IntegerField(default=1) 
+    class Meta:  
+        db_table = "employee_project"
 
 class Bank(models.Model):  
     bank_name = models.CharField(max_length=100,null=True)   

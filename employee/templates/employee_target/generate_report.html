@@ -252,7 +252,7 @@
                 }
             });
         });
-
+       
         $('.formnew').on('submit',function (e) {
             e.preventDefault();
             var form = $(this)[0];
@@ -285,28 +285,49 @@
                     <div class="table-responsive">
                       <table class="table table-striped">
                         <tr>
-                          <th>S.No</th>
-                          <th>Employee</th>
-                          <th>Year</th>
-                          <th>Q1(Target|Sales)</th>
-                          <th>Q2(Target|Sales)</th>
-                          <th>Q3(Target|Sales)</th>
-                          <th>Q4(Target|Sales)</th>
-                          <th>Year Target</th>
-                          <th>Year Sales</th>
+                          <th class="text-center">S.No</th>
+                          <th class="text-center">Employee</th>
+                          <th class="text-center">Year</th>
+                          <th colspan = 2 class="text-center table-primary">Quarter1</th>
+                          <th colspan = 2 class="text-center table-info">Quarter2</th>
+                          <th colspan = 2 class="text-center table-secondary">Quarter3</th>
+                          <th colspan = 2 class="text-center table-success">Quarter4</th>
+                          <th class="text-center">Year Target</th>
+                          <th class="text-center">Year Sales</th>
                           
-                        </tr>`;
+                        </tr>
+                        <tr>
+                          <th></th>
+                          <th></th>
+                          <th></th>
+                          <th class="text-center table-primary">Target</th>
+                          <th class="text-center table-primary">Sale</th>
+                          <th class="text-center table-info">Target</th>
+                          <th class="text-center table-info">Sale</th>
+                          <th class="text-center table-secondary">Target</th>
+                          <th class="text-center table-secondary">Sale</th>
+                          <th class="text-center table-success">Target</th>
+                          <th class="text-center table-success">Sale</th>
+                          <th></th>
+                          <th></th>
+                          
+                        </tr>
+                        `;
                         finalData.forEach((data, index) => {
                         htmlContent += ` <tr>  
-                                <td>${index + 1}</td>  
-                                <td><img alt="image" src="/static/dist/img/avatar/avatar-1.jpeg" class="img_sales_person" /> | ${ data.employee_name }</td>
-                                <td>${ data.year }</td> 
-                                <td>${ data.q1_target }|${ data.q1_sales }</td>
-                                <td>${ data.q2_target }|${ data.q2_sales }</td>
-                                <td>${ data.q3_target }|${ data.q3_sales }</td>
-                                <td>${ data.q4_target }|${ data.q4_sales }</td>
-                                <td>${ data.total_year_target }</td>
-                                <td>${ data.total_year_sales }</td>
+                                <td class="text-center">${index + 1}</td>  
+                                <td class="text-center"><img alt="image" src="/static/dist/img/avatar/avatar-1.jpeg" class="img_sales_person" /> | ${ data.employee_name }</td>
+                                <td class="text-center">${ data.Year }</td> 
+                                <td class="text-center table-primary">${ intcomma(data.q1_target) }</td>
+                                <td class="text-center table-primary">${ intcomma(data.q1_sales) }</td>
+                                <td class="text-center table-info">${ intcomma(data.q2_target) }</td>
+                                <td class="text-center table-info">${ intcomma(data.q2_sales) }</td>
+                                <td class="text-center table-secondary">${ intcomma(data.q3_target) }</td>
+                                <td class="text-center table-secondary">${ intcomma(data.q3_sales) }</td>
+                                <td class="text-center table-success">${ intcomma(data.q4_target) }</td>
+                                <td class="text-center table-success">${ intcomma(data.q4_sales) }</td>
+                                <td class="text-center">${ intcomma(data.total_year_target) }</td>
+                                <td class="text-center">${ intcomma(data.total_year_sales) }</td>
                                 <!-- <td class="align-middle">
                                   <div class="progress" style="height: 14px;" data-toggle="tooltip" title="100%">
                                     <div class="progress-bar 

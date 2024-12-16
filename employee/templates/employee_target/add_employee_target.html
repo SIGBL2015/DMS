@@ -13,6 +13,9 @@
           <h1 class="section-header">
             <div>Add Employee Target</div>
           </h1>
+          {% if error_message %}
+            <p  class="alert alert-danger">{{ error_message }}</p>
+          {% endif %}
           <div class="card card-primary">
             <div class="card-header"><h4>Add</h4></div>
 
@@ -29,10 +32,10 @@
                         {% endfor %}
                       </select>
                   </div>
-                  <div class="form-group col-6">
+                  {% comment %} <div class="form-group col-6">
                     <label for="frist_name">Financial year</label>
                     <input id="financial_year" type="text" class="form-control" name="financial_year">
-                  </div>
+                  </div> {% endcomment %}
                 </div>
 
                 <div class="row">
@@ -46,12 +49,17 @@
                   </div>
                   <div class="form-group col-6">
                     <label for="frist_name">Quarter target</label>
-                    <input id="quarter_first_target" type="number" class="form-control" name="quarter_first_target" step="0.01">
+                    <input id="sales_target" type="number" class="form-control" name="sales_target" step="0.01">
                   </div>
                   <div class="form-group col-6">
                     <label for="frist_name">Year target</label>
-                    <input id="year_target" type="number" class="form-control" name="year_target" step="0.01">
+                    <input id="year_target" type="number" class="form-control" name="year_target" readonly step="0.01">
                   </div>
+                  {% comment %} <div class="form-group col-2">
+                    <label for="frist_name">For Whole Year</label>
+                    <br>
+                    <input id="whole_year" type="checkbox" class="form-control" value="1" name="whole_year">
+                  </div> {% endcomment %}
                 </div>
 
                 <div class="form-group">
@@ -69,5 +77,16 @@
   </div>
 
   {% include 'layout/script.html' %}
+  <script>
+    $(document).ready(function () {
+        $('#sales_target').on('keyup change', function () {
+            var rate = $(this).val();
+
+            var total = rate * 4
+            $('#year_target').val(total);
+
+        });
+    });
+</script>
 </body>
 </html>

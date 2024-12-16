@@ -133,6 +133,12 @@ var myChart = new Chart(ctx, {
   // instance, using default configuration.
   CKEDITOR.replace( 'templete_code' );
   // console.log($("#templete_code").html());
+  function intcomma(number) {
+            return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+  function remove_decimal_point(value){
+        return parseFloat(value).toFixed(2)
+  }
 </script>
 
 
