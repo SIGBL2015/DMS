@@ -286,14 +286,14 @@
                       <table class="table table-striped">
                         <tr>
                           <th class="text-center">S.No</th>
-                          <th class="text-center">Employee</th>
+                          <th>Employee</th>
                           <th class="text-center">Year</th>
                           <th colspan = 2 class="text-center table-primary">Quarter1</th>
                           <th colspan = 2 class="text-center table-info">Quarter2</th>
-                          <th colspan = 2 class="text-center table-secondary">Quarter3</th>
-                          <th colspan = 2 class="text-center table-success">Quarter4</th>
-                          <th class="text-center">Year Target</th>
-                          <th class="text-center">Year Sales</th>
+                          <th colspan = 2 class="text-center table-primary">Quarter3</th>
+                          <th colspan = 2 class="text-center table-info">Quarter4</th>
+                          <th colspan = 2 class="text-center table-success">Year</th>
+                          <th class="text-center">Progress</th>
                           
                         </tr>
                         <tr>
@@ -304,11 +304,12 @@
                           <th class="text-center table-primary">Sale</th>
                           <th class="text-center table-info">Target</th>
                           <th class="text-center table-info">Sale</th>
-                          <th class="text-center table-secondary">Target</th>
-                          <th class="text-center table-secondary">Sale</th>
+                          <th class="text-center table-primary">Target</th>
+                          <th class="text-center table-primary">Sale</th>
+                          <th class="text-center table-info">Target</th>
+                          <th class="text-center table-info">Sale</th>
                           <th class="text-center table-success">Target</th>
                           <th class="text-center table-success">Sale</th>
-                          <th></th>
                           <th></th>
                           
                         </tr>
@@ -316,46 +317,36 @@
                         finalData.forEach((data, index) => {
                         htmlContent += ` <tr>  
                                 <td class="text-center">${index + 1}</td>  
-                                <td class="text-center"><img alt="image" src="/static/dist/img/avatar/avatar-1.jpeg" class="img_sales_person" /> | ${ data.employee_name }</td>
+                                <td><img alt="image" src="/static/dist/img/avatar/avatar-1.jpeg" class="img_sales_person" /> | ${ data.employee_name }</td>
                                 <td class="text-center">${ data.Year }</td> 
                                 <td class="text-center table-primary">${ intcomma(data.q1_target) }</td>
                                 <td class="text-center table-primary">${ intcomma(data.q1_sales) }</td>
                                 <td class="text-center table-info">${ intcomma(data.q2_target) }</td>
                                 <td class="text-center table-info">${ intcomma(data.q2_sales) }</td>
-                                <td class="text-center table-secondary">${ intcomma(data.q3_target) }</td>
-                                <td class="text-center table-secondary">${ intcomma(data.q3_sales) }</td>
-                                <td class="text-center table-success">${ intcomma(data.q4_target) }</td>
-                                <td class="text-center table-success">${ intcomma(data.q4_sales) }</td>
-                                <td class="text-center">${ intcomma(data.total_year_target) }</td>
-                                <td class="text-center">${ intcomma(data.total_year_sales) }</td>
-                                <!-- <td class="align-middle">
+                                <td class="text-center table-primary">${ intcomma(data.q3_target) }</td>
+                                <td class="text-center table-primary">${ intcomma(data.q3_sales) }</td>
+                                <td class="text-center table-info">${ intcomma(data.q4_target) }</td>
+                                <td class="text-center table-info">${ intcomma(data.q4_sales) }</td>
+                                <td class="text-center table-success">${ intcomma(data.total_year_target) }</td>
+                                <td class="text-center table-success">${ intcomma(data.total_year_sales) }</td>
+                                <td class="align-middle">
+                                ${ intcomma(data.remaining) }
                                   <div class="progress" style="height: 14px;" data-toggle="tooltip" title="100%">
                                     <div class="progress-bar 
-                                        {% if sale.percentage < 50 %}
-                                            bg-danger
-                                        {% elif sale.percentage >= 50 and sale.percentage <= 99 %}
-                                            bg-warning
-                                        {% else %}
-                                            bg-success
-                                        {% endif %}
-                                    " style="width: {{ sale.percentage }}%;">
-                                        {{ sale.percentage }}%
+                                        ${data.percentage < 50 ? 'bg-danger' : (data.percentage >= 50 && data.percentage <= 99 ? 'bg-warning' : 'bg-success')}" 
+                                        style="width: ${data.percentage}%;"
+                                    >
+                                      ${data.percentage}%
                                     </div>
                                   </div>
-                                </td>
-                                <td>{{ sale.remaining|intcomma }}</td>
-                                <td><div class="badge {% if sale.percentage < 50 %}
-                                  badge-danger
-                              {% elif sale.percentage >= 50 and sale.percentage <= 99 %}
-                                  badge-warning
-                              {% else %}
-                                  badge-success
-                              {% endif %}">{% if sale.percentage > 100 %}
-                              <span class="fa fa-star checked">{{ sale.status }}</span>
-                                           {% else %}
-                                            {{ sale.status }}
-                                           {% endif %}
-                                          </div></td> -->
+                                {% comment %} </td>
+                                <td> {% endcomment %}
+                                  <div class="badge ${data.percentage < 50 ? 'badge-danger' : (data.percentage >= 50 && data.percentage <= 99 ? 'badge-warning' : 'badge-success')}">
+                                    ${data.percentage > 100 
+                                      ? `<span class="fa fa-star checked">${data.status}</span>` 
+                                      : data.status}
+                                  </div>
+                                </td> 
                             </tr> `;
                     });
 

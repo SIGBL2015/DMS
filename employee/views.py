@@ -2475,8 +2475,20 @@ def generate_report(request):
                                     '"q4_target":', COALESCE(t.q4_target, 0), ',',
                                     '"q4_sales":', COALESCE(s.q4_sales, 0), ',',
                                     '"total_year_target":', COALESCE(t.total_target, 0), ',',
-                                    '"total_year_sales":', COALESCE(s.total_sales, 0),
-                                    '}}'
+                                    '"total_year_sales":', COALESCE(s.total_sales, 0), ',',
+                                    '"remaining":', (t.total_target - IFNULL(s.total_sales, 0)), ',',
+                                    '"percentage":', ROUND((s.total_sales * 100 / t.total_target)), ',',
+                                    '"status":"', 
+                                                IF(
+                                                    COALESCE(s.total_sales, 0) < COALESCE(t.total_target, 0), 
+                                                    'Not Achieved', 
+                                                    IF(
+                                                        COALESCE(s.total_sales, 0) = COALESCE(t.total_target, 0), 
+                                                        'Achieved', 
+                                                        'Above Target'
+                                                    )
+                                                ), 
+                                    '"}}'
                                 )
                             ),']') AS employee_data
                         FROM 
@@ -2760,10 +2772,18 @@ def project_summary(request):
         employee_projects_data = [
             {
                 **model_to_dict(emp_proj),  # Base fields from the model
-                'employee_name': emp_proj.employee.ename  # Add the related field explicitly
+                'employee_name': emp_proj.employee.ename,  # Add the related field explicitly
             }
             for emp_proj in employee_projects
         ]
+        manager = None  # Default to None if no manager is found
+        for emp_proj in employee_projects:
+            if emp_proj.is_key_acc_mgr == 1:  # Check if the employee is a key account manager
+                manager = {
+                    'manager_name': emp_proj.employee.ename,
+                    'manager_id': emp_proj.employee.id,  # Optional: Include additional details if needed
+            }
+            break  # Exit the loop once the manager is found
         project_document_data = [
             {
                 **model_to_dict(doc_proj),  # Base fields from the model
@@ -2780,6 +2800,7 @@ def project_summary(request):
         ]
         query = Journal_entry.objects.filter(project=request.POST.get('project'),status=1)
         total = sum([item.total_amount for item in query])
+        bg_total = sum([bg.bg_amount for bg in bgs])
         perc = total/project.amount * 100 
          # Return success response
         project_data = {
@@ -2789,7 +2810,9 @@ def project_summary(request):
             'project_documents': project_document_data,
             'bank_guarantees': bgs_data,
             'expense' : total,
-            'perc' : perc
+            'perc' : perc,
+            'manager':manager,
+            'bg_total':bg_total
         }
         final=dict(project_data)
         return JsonResponse({'status': 'success', 'project': final}, status=200)
