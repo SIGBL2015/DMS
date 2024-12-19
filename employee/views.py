@@ -280,16 +280,27 @@ def d_design(request, id):
 def add_region(request):  
     if request.method == "POST":  
         form = RegionForm(request.POST) 
+        region_name = request.POST.get('region_name').strip().lower()  # Normalize to lowercase
+        region = Region.objects.filter(region_name__iexact=region_name, status=1)
         if form.is_valid():
-            try:  
-                form.save()  
-                return redirect('show_region')  
-            except Exception as e:  
-  
-                pass  
+            if region.exists():
+                messages.error(request, "This Region already exist.")
+                return render(request,'region/add_region.html',{'form':form})  
+            else:
+                try:  
+                    form.save()  
+                    messages.success(request, "Data added successfully!") 
+                    return redirect('show_region')  
+                except Exception as e:  
+                    messages.error(request, f"Internal Server Error: {str(e)}")
+                    return render(request,'region/add_region.html',{'form':form})  
+                    pass  
+        else:
+            messages.error(request, "Some fields are missing!")
+            return render(request,'region/add_region.html',{'form':form})  
     else:  
         form = RegionForm()  
-    return render(request,'region/add_region.html',{'form':form})  
+        return render(request,'region/add_region.html',{'form':form})  
 
 @login_required    
 @permission_required('employee.view_region', raise_exception=True)
@@ -307,9 +318,17 @@ def e_region(request, id):
 def u_region(request, id):  
     region = Region.objects.get(id=id)  
     form = RegionForm(request.POST, instance = region)  
-    if form.is_valid():  
-        form.save()  
-        return redirect("show_region")  
+    region_name = request.POST.get('region_name').strip().lower()  # Normalize to lowercase
+    region = Region.objects.filter(region_name__iexact=region_name, status=1)
+    if form.is_valid(): 
+        if region.exists():
+            messages.error(request, "This Region already exist.")
+            return redirect("show_region")
+        else: 
+            form.save()  
+            messages.success(request, "Data Updated successfully!")  
+            return redirect("show_region")  
+    messages.error(request, "Some fields are missing!")  
     return render(request, 'region/e_region.html', {'region': region})  
 
 @login_required  
@@ -318,6 +337,7 @@ def d_region(request, id):
     region = Region.objects.get(id=id)  
     region.status=0  
     region.save()
+    messages.success(request, "Data Deleted successfully!")
     return redirect("show_region") 
 
 
@@ -327,8 +347,9 @@ def d_region(request, id):
 def add_education(request):  
     if request.method == "POST":  
         form = EducationForm(request.POST, request.FILES) 
-        try:
-            if form.is_valid():
+        employees = Employee.objects.filter(status=1).values('id','ename')
+        if form.is_valid():
+            try:
                 file_instance = form.save(commit=False)
                 if 'degree_doc' in request.FILES:
                     # Generate folder path dynamically
@@ -348,13 +369,19 @@ def add_education(request):
                     # Update the file field with the relative path to the file
                     file_instance.degree_doc = os.path.relpath(new_file_path, settings.MEDIA_ROOT)
                 file_instance.save()  
+                messages.success(request, "Data added successfully!")
                 return redirect('show_education') 
-        except Exception as e:      
-            pass
+            except Exception as e:    
+                messages.error(request, f"Internal Server Error: {str(e)}") 
+                return render(request,'education/add_education.html',{'form':form,'employees':employees})   
+                pass
+        else:
+            messages.error(request, "Some fields are missing!")
+            return render(request,'education/add_education.html',{'form':form,'employees':employees})  
     else:  
         form = EducationForm()  
         employees = Employee.objects.filter(status=1).values('id','ename')
-    return render(request,'education/add_education.html',{'form':form,'employees':employees})  
+        return render(request,'education/add_education.html',{'form':form,'employees':employees})  
 
 @login_required    
 @permission_required('employee.view_education', raise_exception=True)
@@ -404,9 +431,13 @@ def u_education(request, id):
                     file_instance.degree_doc = old_path
 
                 file_instance.save() 
-                return redirect("show_education")   
+                messages.success(request, "Data Updated successfully!")
+                return redirect("show_education")  
+            else: 
+                messages.error(request, "Some fields are missing!")
+                return render(request, 'education/e_education.html', {'education': education})  
         except Exception as e:  
-            print(e)
+            messages.error(request, f"Internal Server Error: {str(e)}")
             return render(request, 'education/e_education.html', {'education': education})  
 
 @login_required  
@@ -415,6 +446,7 @@ def d_education(request, id):
     education = Education.objects.get(id=id)  
     education.status=0  
     education.save()
+    messages.success(request, "Data Deleted successfully!")
     return redirect("show_education") 
 
 
@@ -427,14 +459,19 @@ def add_employement_Record(request):
         if form.is_valid():
             try:  
                 form.save()  
+                messages.success(request, "Data added successfully!")
                 return redirect('show_employement_record')  
             except Exception as e:  
-  
+                messages.error(request, f"Internal Server Error: {str(e)}")
+                return render(request,'employement_record/add_employement_record.html',{'form':form,'employees':employees})  
                 pass  
+        else:
+            messages.error(request, "Some fields are missing!")
+            return render(request,'employement_record/add_employement_record.html',{'form':form,'employees':employees})  
     else:  
         form = Employment_RecordForm()
         employees = Employee.objects.filter(status=1).values('id','ename')  
-    return render(request,'employement_record/add_employement_record.html',{'form':form,'employees':employees})  
+        return render(request,'employement_record/add_employement_record.html',{'form':form,'employees':employees})  
 
 @login_required 
 @permission_required('employee.view_employement_record', raise_exception=True)   
@@ -453,9 +490,12 @@ def e_employement_Record(request, id):
 def u_employement_Record(request, id):  
     employement_Record = Employment_Record.objects.get(id=id)  
     form = Employment_RecordForm(request.POST, instance = employement_Record)  
+   
     if form.is_valid():  
-        form.save()  
+        form.save() 
+        messages.success(request, "Data Updated successfully!")   
         return redirect("show_employement_record")  
+    messages.error(request, "Some fields are missing!") 
     return render(request, 'employement_record/e_employement_record.html', {'employement_Record': employement_Record})  
 
 @login_required  
@@ -464,6 +504,7 @@ def d_employement_Record(request, id):
     employement_Record = Employment_Record.objects.get(id=id)  
     employement_Record.status=0 
     employement_Record.save()
+    messages.success(request, "Data Deleted successfully!")
     return redirect("show_employement_record") 
 
  
@@ -473,6 +514,7 @@ def d_employement_Record(request, id):
 def add_certification(request):  
     if request.method == "POST":  
         form = CertificationsForm(request.POST, request.FILES) 
+        employees = Employee.objects.filter(status=1).values('id','ename')
         try:
             if form.is_valid():
                 file_instance = form.save(commit=False)
@@ -493,14 +535,20 @@ def add_certification(request):
                             f.write(chunk)
                     # Update the file field with the relative path to the file
                     file_instance.certification_doc = os.path.relpath(new_file_path, settings.MEDIA_ROOT)
-                file_instance.save()  
+                file_instance.save() 
+                messages.success(request, "Data added successfully!") 
                 return redirect('show_certification') 
-        except Exception as e:      
+            else:
+                messages.error(request, "Some fields are missing!")
+                return render(request,'certification/add_certification.html',{'form':form,'employees':employees})  
+        except Exception as e: 
+            messages.error(request, f"Internal Server Error: {str(e)}")
+            return render(request,'certification/add_certification.html',{'form':form,'employees':employees})        
             pass
     else:  
         form = CertificationsForm()  
         employees = Employee.objects.filter(status=1).values('id','ename')
-    return render(request,'certification/add_certification.html',{'form':form,'employees':employees})  
+        return render(request,'certification/add_certification.html',{'form':form,'employees':employees})  
 
 @login_required  
 @permission_required('employee.view_certifications', raise_exception=True)  
@@ -550,9 +598,13 @@ def u_certification(request, id):
                     file_instance.certification_doc = old_path
 
                 file_instance.save() 
-                return redirect("show_certification")   
+                messages.success(request, "Data Updated successfully!")
+                return redirect("show_certification") 
+            else: 
+                messages.error(request, "Some fields are missing!")  
+                return render(request, 'certification/e_certification.html', {'certification': certification}) 
         except Exception as e:  
-            print(e)
+            messages.error(request, f"Internal Server Error: {str(e)}")
             return render(request, 'certification/e_certification.html', {'certification': certification}) 
 
 @login_required 
@@ -561,6 +613,7 @@ def d_certification(request, id):
     certification = Certifications.objects.get(id=id)  
     certification.status=0 
     certification.save()
+    messages.success(request, "Data Deleted successfully!")
     return redirect("show_certification") 
 
 
@@ -570,17 +623,29 @@ def d_certification(request, id):
 def add_skill(request):  
     if request.method == "POST":  
         form = SkillsForm(request.POST) 
+        employees = Employee.objects.filter(status=1).values('id','ename')
         if form.is_valid():
-            try:  
-                form.save()  
-                return redirect('show_skill')  
-            except Exception as e:  
-  
-                pass  
+            skill_name = request.POST.get('skill_name').strip().lower()  # Normalize to lowercase
+            skill = Skills.objects.filter(skill_name__iexact=skill_name,employee_id=request.POST.get('employee'), status=1)
+            if skill.exists():
+                messages.error(request, "This Skill already exist against this employee.")
+                return render(request,'region/add_region.html',{'form':form})  
+            else:
+                try:  
+                    form.save()  
+                    messages.success(request, "Data added successfully!") 
+                    return redirect('show_skill')  
+                except Exception as e:  
+                    messages.error(request, f"Internal Server Error: {str(e)}")
+                    return render(request,'skill/add_skill.html',{'form':form,'employees':employees})  
+                    pass  
+        else:
+            messages.error(request, "Some fields are missing!")
+            return render(request,'skill/add_skill.html',{'form':form,'employees':employees})  
     else:  
         form = SkillsForm()  
         employees = Employee.objects.filter(status=1).values('id','ename')
-    return render(request,'skill/add_skill.html',{'form':form,'employees':employees})  
+        return render(request,'skill/add_skill.html',{'form':form,'employees':employees})  
 
 @login_required  
 @permission_required('employee.view_skills', raise_exception=True)  
@@ -598,10 +663,18 @@ def e_skill(request, id):
 @login_required  
 def u_skill(request, id):  
     skill = Skills.objects.get(id=id)  
-    form = SkillsForm(request.POST, instance = skill)  
+    form = SkillsForm(request.POST, instance = skill) 
+    skill_name = request.POST.get('skill_name').strip().lower()  # Normalize to lowercase
+    skill = Skills.objects.filter(skill_name__iexact=skill_name,employee_id=request.POST.get('employee'), status=1) 
     if form.is_valid():  
-        form.save()  
-        return redirect("show_skill")  
+        if skill.exists():
+            messages.error(request, "This Skill already exist against this employee.")
+            return redirect("show_skill")  
+        else:
+            form.save()  
+            messages.success(request, "Data Updated successfully!")  
+            return redirect("show_skill")  
+    messages.error(request, "Some fields are missing!")  
     return render(request, 'skill/e_skill.html', {'skill': skill})  
 
 @login_required  
@@ -610,6 +683,7 @@ def d_skill(request, id):
     skill = Skills.objects.get(id=id)  
     skill.status=0  
     skill.save()
+    messages.success(request, "Data Deleted successfully!")
     return redirect("show_skill") 
 
 
@@ -619,16 +693,27 @@ def d_skill(request, id):
 def add_company(request):  
     if request.method == "POST":  
         form = CompanyForm(request.POST) 
+        comp_name = request.POST.get('comp_name').strip().lower()  # Normalize to lowercase
+        comp = Company.objects.filter(comp_name__iexact=comp_name, status=1)
         if form.is_valid():
-            try:  
-                form.save()  
-                return redirect('show_company')  
-            except Exception as e:  
-  
-                pass  
+            if comp.exists():
+                messages.error(request, "This Company already exist.")
+                return render(request,'company/add_company.html',{'form':form})
+            else:
+                try:  
+                    form.save() 
+                    messages.success(request, "Data added successfully!")  
+                    return redirect('show_company')  
+                except Exception as e:  
+                    messages.error(request, f"Internal Server Error: {str(e)}")
+                    return render(request,'company/add_company.html',{'form':form})  
+                    pass  
+        else:
+            messages.error(request, "Some fields are missing!")
+            return render(request,'company/add_company.html',{'form':form})  
     else:  
         form = CompanyForm()  
-    return render(request,'company/add_company.html',{'form':form})  
+        return render(request,'company/add_company.html',{'form':form})  
 
 @login_required    
 @permission_required('employee.view_company', raise_exception=True)
@@ -646,9 +731,17 @@ def e_company(request, id):
 def u_company(request, id):  
     company = Company.objects.get(id=id)  
     form = CompanyForm(request.POST, instance = company)  
-    if form.is_valid():  
-        form.save()  
-        return redirect("show_company")  
+    comp_name = request.POST.get('comp_name').strip().lower()  # Normalize to lowercase
+    comp = Company.objects.filter(comp_name__iexact=comp_name, status=1)
+    if form.is_valid():
+        if comp.exists():
+            messages.error(request, "This Company already exist.")
+            return redirect("show_company")  
+        else:  
+            form.save()  
+            messages.success(request, "Data Updated successfully!")  
+            return redirect("show_company")  
+    messages.error(request, "Some fields are missing!")  
     return render(request, 'company/e_company.html', {'company': company})  
 
 @login_required  
@@ -657,6 +750,7 @@ def d_company(request, id):
     company = Company.objects.get(id=id)  
     company.status=0
     company.save()  
+    messages.success(request, "Data Deleted successfully!")
     return redirect("show_company") 
 
 
@@ -924,17 +1018,23 @@ def d_role_permission(request, id):
 def add_cv_template(request):  
     if request.method == "POST":  
         form = CV_templateForm(request.POST) 
+        columns = Template_column.objects.filter(status=1).values('id','title','table_name','field_name')  
         if form.is_valid():
             try:  
                 form.save()  
+                messages.success(request, "Data added successfully!")
                 return redirect('show_cv_template')  
             except Exception as e:  
-  
+                messages.error(request, f"Internal Server Error: {str(e)}")
+                return render(request,'cv_template/add_cv_template.html',{'form':form,'columns':columns})  
                 pass  
+        else:
+            messages.error(request, "Some fields are missing!")
+            return render(request,'cv_template/add_cv_template.html',{'form':form,'columns':columns})  
     else:  
         form = CV_templateForm()
         columns = Template_column.objects.filter(status=1).values('id','title','table_name','field_name')  
-    return render(request,'cv_template/add_cv_template.html',{'form':form,'columns':columns})  
+        return render(request,'cv_template/add_cv_template.html',{'form':form,'columns':columns})  
 
 @login_required    
 @permission_required('employee.view_cv_template', raise_exception=True)
@@ -954,7 +1054,9 @@ def u_cv_template(request, id):
     form = CV_templateForm(request.POST, instance = cv_template)  
     if form.is_valid():  
         form.save()  
-        return redirect("show_cv_template")  
+        messages.success(request, "Data Updated successfully!")   
+        return redirect("show_cv_template")
+    messages.error(request, "Some fields are missing!")   
     return render(request, 'cv_template/e_cv_template.html', {'cv_template': cv_template})  
 
 @login_required  
@@ -963,6 +1065,7 @@ def d_cv_template(request, id):
     cv_template = CV_template.objects.get(id=id)  
     cv_template.status=0  
     cv_template.save()
+    messages.success(request, "Data Deleted successfully!")
     return redirect("show_cv_template") 
 
 @login_required    
@@ -1204,17 +1307,27 @@ def d_template_column(request, id):
 def add_project_type(request):  
     if request.method == "POST":  
         form = Project_typeForm(request.POST) 
-    
+        type_name = request.POST.get('type_name').strip().lower()  # Normalize to lowercase
+        type = Project_type.objects.filter(type_name__iexact=type_name, status=1)
         if form.is_valid():
-            try:  
-                form.save()  
-                return redirect('show_project_type')  
-            except Exception as e:  
-          
-                pass  
+            if type.exists():
+                messages.error(request, "This Project Type already exist.")
+                return render(request,'project_type/add_project_type.html',{'form':form})   
+            else:
+                try:  
+                    form.save()  
+                    messages.success(request, "Data added successfully!")
+                    return redirect('show_project_type')  
+                except Exception as e:  
+                    messages.error(request, f"Internal Server Error: {str(e)}")
+                    return render(request,'project_type/add_project_type.html',{'form':form})  
+                    pass  
+        else:
+            messages.error(request, "Some fields are missing!")
+            return render(request,'project_type/add_project_type.html',{'form':form})  
     else:  
         form = Project_typeForm()  
-    return render(request,'project_type/add_project_type.html',{'form':form})  
+        return render(request,'project_type/add_project_type.html',{'form':form})  
 
 @login_required    
 @permission_required('employee.view_project_type', raise_exception=True)
@@ -1232,9 +1345,17 @@ def e_project_type(request, id):
 def u_project_type(request, id):  
     project_type = Project_type.objects.get(id=id)  
     form = Project_typeForm(request.POST, instance = project_type)  
-    if form.is_valid():  
-        form.save()  
-        return redirect("show_project_type")  
+    type_name = request.POST.get('type_name').strip().lower()  # Normalize to lowercase
+    type = Project_type.objects.filter(type_name__iexact=type_name, status=1)
+    if form.is_valid(): 
+        if type.exists():
+            messages.error(request, "This Project Type already exist.")
+            return redirect("show_project_type") 
+        else: 
+            form.save()  
+            messages.success(request, "Data Updated successfully!")  
+            return redirect("show_project_type")  
+    messages.error(request, "Some fields are missing!")  
     return render(request, 'project_type/e_project_type.html', {'project_type': project_type})  
 
 @login_required  
@@ -1243,6 +1364,7 @@ def d_project_type(request, id):
     project_type = Project_type.objects.get(id=id)  
     project_type.status=0  
     project_type.save()
+    messages.success(request, "Data Deleted successfully!")
     return redirect("show_project_type")
 
 # Project
@@ -1251,41 +1373,57 @@ def d_project_type(request, id):
 def add_project(request):
     if request.method == "POST":  
         form = ProjectForm(request.POST, request.FILES) 
+        branches = Branch.objects.filter(status=1).values('id','branch_name')
+        project_types = Project_type.objects.filter(status=1).values('id','type_name')
+        clients = Client.objects.filter(status=1).values('id','client_name')
+        countries = Country.objects.filter(status=1).values('id','country_name')
+        leads = Leads.objects.filter(status=1).values('id','title')
+        title = request.POST.get('title').strip().lower()  # Normalize to lowercase
+        pro_title = Project.objects.filter(title__iexact=title, status=1)
         try:
             if form.is_valid():
-                file_instance = form.save(commit=False)
-                file_instance.save()
+                if pro_title.exists():
+                    messages.error(request, "The project title already exist.")
+                    return render(request,'project/add_project.html',{'form':form, 'branches':branches, 'project_types':project_types, 'clients':clients, 'countries':countries, 'leads':leads})  
+                else:
+                    file_instance = form.save(commit=False)
+                    file_instance.save()
 
-                # Loop through each file field in the form
-                for field_name, uploaded_file in request.FILES.items():
-                    if uploaded_file:
-                        # Generate folder path dynamically
-                        folder_name = str(file_instance.pk)
-                        folder_path = os.path.join(settings.MEDIA_ROOT,'project', folder_name)
+                    # Loop through each file field in the form
+                    for field_name, uploaded_file in request.FILES.items():
+                        if uploaded_file:
+                            # Generate folder path dynamically
+                            folder_name = str(file_instance.pk)
+                            folder_path = os.path.join(settings.MEDIA_ROOT,'project', folder_name)
 
-                        if not os.path.exists(folder_path):
-                            os.makedirs(folder_path)
+                            if not os.path.exists(folder_path):
+                                os.makedirs(folder_path)
 
-                        # Generate file path dynamically
-                        timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
-                        new_file_name = f"{file_instance.pk}_{timestamp}{os.path.splitext(uploaded_file.name)[1]}"
-                        file_path = os.path.join(folder_path, new_file_name)
+                            # Generate file path dynamically
+                            timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+                            new_file_name = f"{file_instance.pk}_{timestamp}{os.path.splitext(uploaded_file.name)[1]}"
+                            file_path = os.path.join(folder_path, new_file_name)
 
-                        # Save file to the generated path
-                        with open(file_path, 'wb') as f:
-                            for chunk in uploaded_file.chunks():
-                                f.write(chunk)
+                            # Save file to the generated path
+                            with open(file_path, 'wb') as f:
+                                for chunk in uploaded_file.chunks():
+                                    f.write(chunk)
 
-                        # Update the file field with the relative path to the file
-                        setattr(file_instance, field_name, os.path.relpath(file_path, settings.MEDIA_ROOT))
-                file_instance.save()
-                        
-                return redirect('show_project')
+                            # Update the file field with the relative path to the file
+                            setattr(file_instance, field_name, os.path.relpath(file_path, settings.MEDIA_ROOT))
+                    file_instance.save()
+                    messages.success(request, "Data added successfully!") 
+                    return redirect('show_project')
             else:
                 logger.error('Form is not valid: %s', form.errors)
+                messages.error(request, "Some fields are missing!")
+                return render(request,'project/add_project.html',{'form':form, 'branches':branches, 'project_types':project_types, 'clients':clients, 'countries':countries, 'leads':leads})  
+                
         except Exception as e:  
             logger.exception('An error occurred while processing the form: %s', e)
             form.add_error(None, f'An unexpected error occurred: {str(e)}')
+            messages.error(request, f"Internal Server Error: {str(e)}")
+            return render(request,'project/add_project.html',{'form':form, 'branches':branches, 'project_types':project_types, 'clients':clients, 'countries':countries, 'leads':leads})  
     else:  
         form = ProjectForm()  
         branches = Branch.objects.filter(status=1).values('id','branch_name')
@@ -1293,7 +1431,7 @@ def add_project(request):
         clients = Client.objects.filter(status=1).values('id','client_name')
         countries = Country.objects.filter(status=1).values('id','country_name')
         leads = Leads.objects.filter(status=1).values('id','title')
-    return render(request,'project/add_project.html',{'form':form, 'branches':branches, 'project_types':project_types, 'clients':clients, 'countries':countries, 'leads':leads})  
+        return render(request,'project/add_project.html',{'form':form, 'branches':branches, 'project_types':project_types, 'clients':clients, 'countries':countries, 'leads':leads})  
 
 @login_required   
 @permission_required('employee.view_project', raise_exception=True) 
@@ -1321,9 +1459,9 @@ def u_project(request, id):
 
     if request.method == 'POST':
         form = ProjectForm(request.POST, request.FILES, instance=project_instance)
+        file_instance = form.save(commit=False)
         try:
             if form.is_valid():
-                file_instance = form.save(commit=False)
                 # Loop through each file field in the form
                 for field_name in request.FILES:
                     uploaded_file = request.FILES[field_name]
@@ -1354,11 +1492,16 @@ def u_project(request, id):
                     #     setattr(file_instance, field_name, old_file_paths[field_name])
                         
                 file_instance.save()
+                messages.success(request, "Data Updated successfully!")  
                 return redirect('../project_details/'+str(file_instance.pk))
-            
+            else:
+                messages.error(request, "Some fields are missing!")
+                return redirect('../project_details/'+str(file_instance.pk))
         except Exception as e:
             logger.exception('An error occurred while processing the form: %s', e)
             form.add_error(None, f'An unexpected error occurred: {str(e)}')
+            messages.error(request, f"Internal Server Error: {str(e)}")
+            return redirect('../project_details/'+str(file_instance.pk))
 
 @login_required  
 @permission_required('employee.delete_project', raise_exception=True)
@@ -1366,6 +1509,7 @@ def d_project(request, id):
     project = Project.objects.get(id=id)  
     project.status=0  
     project.save()
+    messages.success(request, "Data Deleted successfully!")
     return redirect("show_project")
 
 @login_required  

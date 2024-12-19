@@ -29,12 +29,12 @@ class EducationForm(forms.ModelForm):
 class Employment_RecordForm(forms.ModelForm):  
     class Meta:  
         model = Employment_Record  
-        fields = ('id','employee','organization_name','position','country','from_date','to_date','salary','activites','ref_name','ref_email','ref_contact') 
+        fields = ('id','employee','organization_name','position','country','from_date','to_date','salary','activites','ref_name','ref_contact') 
 
 class CertificationsForm(forms.ModelForm):  
     class Meta:  
         model = Certifications  
-        fields = ('id','employee','certification_name','certification_doc')
+        fields = ('id','employee','certification_name','certification_doc','expiry_date')
 
 class SkillsForm(forms.ModelForm):  
     class Meta:  
