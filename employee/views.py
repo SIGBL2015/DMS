@@ -1,4 +1,5 @@
-from pyexpat.errors import messages
+# from pyexpat.errors import messages
+from django.contrib import messages
 from django.forms import model_to_dict
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, render, redirect  
@@ -30,6 +31,9 @@ logger = logging.getLogger(__name__)
 @login_required
 @permission_required('employee.add_employee', raise_exception=True)  
 def emp(request):
+    departs = Department.objects.filter(status=1).values('id','depart_name')
+    designs = Designation.objects.filter(status=1).values('id','design_name')
+    branches = Branch.objects.filter(status=1).values('id','branch_name')
     if request.method == "POST":  
         form = EmployeeForm(request.POST, request.FILES)  
         try:
@@ -53,17 +57,20 @@ def emp(request):
                             f.write(chunk)
                     # Update the file field with the relative path to the file
                     file_instance.cv_doc = os.path.relpath(new_file_path, settings.MEDIA_ROOT)
-                file_instance.save()  
+                file_instance.save() 
+                messages.success(request, "Data added successfully!") 
                 return redirect('view_employee') 
-        except Exception as e:      
+            else:
+                messages.error(request, "Some fields are missing!")
+                return render(request,'employee/index.html',{'departs':departs,'designs':designs,'branches':branches})  
+        except Exception as e: 
+            messages.error(request, f"Internal Server Error: {str(e)}")     
+            return render(request,'employee/index.html',{'departs':departs,'designs':designs,'branches':branches})  
             pass  
     else:  
         # form = EmployeeForm()
-        departs = Department.objects.filter(status=1).values('id','depart_name')
-        designs = Designation.objects.filter(status=1).values('id','design_name')
-        branches = Branch.objects.filter(status=1).values('id','branch_name')
+        return render(request,'employee/index.html',{'departs':departs,'designs':designs,'branches':branches})  
 
-    return render(request,'employee/index.html',{'departs':departs,'designs':designs,'branches':branches})  
 @login_required  
 @permission_required('employee.view_employee', raise_exception=True)  
 def show(request):  
@@ -114,9 +121,13 @@ def update(request, id):
                     file_instance.cv_doc = old_path
 
                 file_instance.save() 
-                return redirect("view_employee")   
+                messages.success(request, "Data Updated successfully!")  
+                return redirect("view_employee")
+            else:
+                messages.error(request, "Some fields are missing!")
+                return render(request, 'employee/edit.html', {'employee': employee})  
         except Exception as e:  
-            print(e)
+            messages.error(request, f"Internal Server Error: {str(e)}")
             return render(request, 'employee/edit.html', {'employee': employee})  
 
 @login_required  
@@ -125,6 +136,7 @@ def destroy(request, id):
     employee = Employee.objects.get(id=id)  
     employee.status=0 
     employee.save()  
+    messages.success(request, "Data Deleted successfully!")
     return redirect("view_employee")  
 
 
@@ -134,16 +146,27 @@ def destroy(request, id):
 def add_depart(request):  
     if request.method == "POST":  
         form = DepartmentForm(request.POST) 
+        depart_name = request.POST.get('depart_name').strip().lower()  # Normalize to lowercase
+        depart = Department.objects.filter(depart_name__iexact=depart_name, status=1)
         if form.is_valid():
-            try:  
-                form.save()  
-                return redirect('show_depart')  
-            except Exception as e:  
-  
-                pass  
+            if depart.exists():
+                messages.error(request, "This Department already exist.")
+                return render(request,'department/add_depart.html',{'form':form})
+            else:
+                try:  
+                    form.save()  
+                    messages.success(request, "Data added successfully!")
+                    return redirect('show_depart')  
+                except Exception as e:  
+                    messages.error(request, f"Internal Server Error: {str(e)}")
+                    return render(request,'department/add_depart.html',{'form':form})
+                    pass  
+        else:
+            messages.error(request, "Some fields are missing!")
+            return render(request,'department/add_depart.html',{'form':form})
     else:  
         form = DepartmentForm()  
-    return render(request,'department/add_depart.html',{'form':form})  
+        return render(request,'department/add_depart.html',{'form':form})  
 
 @login_required  
 @permission_required('employee.view_department', raise_exception=True)   
@@ -160,10 +183,18 @@ def e_depart(request, id):
 @login_required  
 def u_depart(request, id):  
     department = Department.objects.get(id=id)  
-    form = DepartmentForm(request.POST, instance = department)  
+    form = DepartmentForm(request.POST, instance = department)
+    depart_name = request.POST.get('depart_name').strip().lower()  # Normalize to lowercase
+    depart = Department.objects.filter(depart_name__iexact=depart_name, status=1)  
     if form.is_valid():  
-        form.save()  
-        return redirect("show_depart")  
+        if depart.exists():
+            messages.error(request, "This Department already exist.")
+            return redirect("show_depart")
+        else:
+            form.save()  
+            messages.success(request, "Data Updated successfully!")  
+            return redirect("show_depart") 
+    messages.error(request, "Some fields are missing!") 
     return render(request, 'department/e_depart.html', {'department': department})  
 
 @login_required  
@@ -172,6 +203,7 @@ def d_depart(request, id):
     department = Department.objects.get(id=id)  
     department.status=0  
     department.save()
+    messages.success(request, "Data Deleted successfully!")
     return redirect("show_depart")  
 
 
@@ -181,16 +213,27 @@ def d_depart(request, id):
 def add_design(request):  
     if request.method == "POST":  
         form = DesignationForm(request.POST) 
+        design_name = request.POST.get('design_name').strip().lower()  # Normalize to lowercase
+        design = Designation.objects.filter(design_name__iexact=design_name, status=1)
         if form.is_valid():
-            try:  
-                form.save()  
-                return redirect('show_design')  
-            except Exception as e:  
-  
-                pass  
+            if design.exists():
+                messages.error(request, "This Designation already exist.")
+                return render(request,'designation/add_design.html',{'form':form})  
+            else:
+                try:  
+                    form.save()
+                    messages.success(request, "Data added successfully!") 
+                    return redirect('show_design')  
+                except Exception as e:  
+                    messages.error(request, f"Internal Server Error: {str(e)}")
+                    return render(request,'designation/add_design.html',{'form':form})  
+                    pass  
+        else:
+            messages.error(request, "Some fields are missing!")
+            return render(request,'designation/add_design.html',{'form':form})  
     else:  
         form = DesignationForm()  
-    return render(request,'designation/add_design.html',{'form':form})  
+        return render(request,'designation/add_design.html',{'form':form})  
 
 @login_required  
 @permission_required('employee.view_designation', raise_exception=True)   
@@ -207,10 +250,18 @@ def e_design(request, id):
 @login_required  
 def u_design(request, id):  
     designation = Designation.objects.get(id=id)  
-    form = DesignationForm(request.POST, instance = designation)  
-    if form.is_valid():  
-        form.save()  
-        return redirect("show_design")  
+    form = DesignationForm(request.POST, instance = designation) 
+    design_name = request.POST.get('design_name').strip().lower()  # Normalize to lowercase
+    design = Designation.objects.filter(design_name__iexact=design_name, status=1) 
+    if form.is_valid(): 
+        if design.exists():
+            messages.error(request, "This Designation already exist.")
+            return redirect("show_design")
+        else: 
+            form.save()  
+            messages.success(request, "Data Updated successfully!")  
+            return redirect("show_design")
+    messages.error(request, "Some fields are missing!")  
     return render(request, 'designation/e_design.html', {'designation': designation})  
 
 @login_required  
@@ -219,6 +270,7 @@ def d_design(request, id):
     designation = Designation.objects.get(id=id)  
     designation.status=0  
     designation.save()
+    messages.success(request, "Data Deleted successfully!")
     return redirect("show_design")  
 
 
@@ -2227,21 +2279,22 @@ def d_project_document(request, id):
 def add_employee_target(request):  
     if request.method == "POST":  
         form = Employee_targetForm(request.POST)
-        employee_target = Employee_target.objects.filter(financial_year=request.POST.get('financial_year'),employee=request.POST.get('employee'),status=1)  
-        if employee_target.exists():
-            form = Employee_targetForm()
-            employees = Employee.objects.filter(status=1).values('id','ename')
-            return render(request,'employee_target/add_employee_target.html',{'form':form,'employees':employees,'error_message': "This employee target is already set."})  
-        else:
-            if form.is_valid():
+        # Current date
+        today = datetime.now().date()
+        current_month = today.month
+        current_year = today.year
+        employee_target = Employee_target.objects.filter(financial_year=current_year,employee=request.POST.get('employee'),status=1)  
+        employees = Employee.objects.filter(status=1).values('id','ename')
+        
+        if form.is_valid():
+            if employee_target.exists():
+                messages.error(request, "This employee target is already set.")
+                return render(request,'employee_target/add_employee_target.html',{'form':form,'employees':employees})  
+            else:
                 try:
                     if(request.POST.get('whole_year')=='1'):
                         quarter = Quarters.objects.filter(status=1).values('id')
-                    else:    
-                        # Current date
-                        today = datetime.now().date()
-                        current_month = today.month
-                        current_year = today.year
+                    else:
                         # Query to filter quarters
                         quarter = Quarters.objects.filter(
                             start_date__month__lte=current_month,
@@ -2249,20 +2302,23 @@ def add_employee_target(request):
                             status=1
                         ).values('id')
                     for id in quarter:
-                        print(id['id'])
                         file_instance=form.save(commit=False)  
                         file_instance.quarter_id=id['id']
                         file_instance.financial_year=current_year
                         file_instance.pk = None
                         file_instance.save()
+                    messages.success(request, "Data added successfully!")
                     return redirect('show_employee_target')  
                 except Exception as e:  
-    
-                    pass  
+                    messages.error(request, f"Internal Server Error: {str(e)}")
+                    return render(request,'employee_target/add_employee_target.html',{'form':form,'employees':employees})  
+        else:
+            messages.error(request, "Some fields are missing!")
+            return render(request,'employee_target/add_employee_target.html',{'form':form,'employees':employees})
     else:  
         form = Employee_targetForm()
         employees = Employee.objects.filter(status=1).values('id','ename')
-    return render(request,'employee_target/add_employee_target.html',{'form':form,'employees':employees})  
+        return render(request,'employee_target/add_employee_target.html',{'form':form,'employees':employees})  
 
 @login_required  
 @permission_required('employee.view_employee_target', raise_exception=True)  
@@ -2282,8 +2338,10 @@ def u_employee_target(request, id):
     employee_target = Employee_target.objects.get(id=id)  
     form = Employee_targetForm(request.POST, instance = employee_target)  
     if form.is_valid():  
-        form.save()  
+        form.save()
+        messages.success(request, "Data Updated successfully!")  
         return redirect("show_employee_target")  
+    messages.error(request, "Some fields are missing!")
     return render(request, 'employee_target/e_employee_target.html', {'employee_target': employee_target})  
 
 @login_required  
@@ -2292,6 +2350,7 @@ def d_employee_target(request, id):
     employee_target = Employee_target.objects.get(id=id)  
     employee_target.status=0  
     employee_target.save()
+    messages.success(request, "Data Deleted successfully!")
     return redirect("show_employee_target")
 
 # Sales
