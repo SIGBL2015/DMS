@@ -13,9 +13,7 @@
           <h1 class="section-header">
             <div>Add Employee Project</div>
           </h1>
-          {% if error_message %}
-            <p  class="alert alert-danger">{{ error_message }}</p>
-          {% endif %}
+          {% include 'layout/status.html' %}
           <div class="card card-primary">
             <div class="card-header"><h4>Add</h4></div>
             <div class="card-body">

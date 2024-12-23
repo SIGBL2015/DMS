@@ -61,7 +61,8 @@ def emp(request):
                 messages.success(request, "Data added successfully!") 
                 return redirect('view_employee') 
             else:
-                messages.error(request, "Some fields are missing!")
+                error_messages = form.errors.as_json()
+                messages.error(request, f"Form validation failed: {error_messages}")
                 return render(request,'employee/index.html',{'departs':departs,'designs':designs,'branches':branches})  
         except Exception as e: 
             messages.error(request, f"Internal Server Error: {str(e)}")     
@@ -124,7 +125,8 @@ def update(request, id):
                 messages.success(request, "Data Updated successfully!")  
                 return redirect("view_employee")
             else:
-                messages.error(request, "Some fields are missing!")
+                error_messages = form.errors.as_json()
+                messages.error(request, f"Form validation failed: {error_messages}")
                 return render(request, 'employee/edit.html', {'employee': employee})  
         except Exception as e:  
             messages.error(request, f"Internal Server Error: {str(e)}")
@@ -162,7 +164,8 @@ def add_depart(request):
                     return render(request,'department/add_depart.html',{'form':form})
                     pass  
         else:
-            messages.error(request, "Some fields are missing!")
+            error_messages = form.errors.as_json()
+            messages.error(request, f"Form validation failed: {error_messages}")
             return render(request,'department/add_depart.html',{'form':form})
     else:  
         form = DepartmentForm()  
@@ -194,7 +197,8 @@ def u_depart(request, id):
             form.save()  
             messages.success(request, "Data Updated successfully!")  
             return redirect("show_depart") 
-    messages.error(request, "Some fields are missing!") 
+    error_messages = form.errors.as_json()
+    messages.error(request, f"Form validation failed: {error_messages}")
     return render(request, 'department/e_depart.html', {'department': department})  
 
 @login_required  
@@ -229,7 +233,8 @@ def add_design(request):
                     return render(request,'designation/add_design.html',{'form':form})  
                     pass  
         else:
-            messages.error(request, "Some fields are missing!")
+            error_messages = form.errors.as_json()
+            messages.error(request, f"Form validation failed: {error_messages}")
             return render(request,'designation/add_design.html',{'form':form})  
     else:  
         form = DesignationForm()  
@@ -261,7 +266,8 @@ def u_design(request, id):
             form.save()  
             messages.success(request, "Data Updated successfully!")  
             return redirect("show_design")
-    messages.error(request, "Some fields are missing!")  
+    error_messages = form.errors.as_json()
+    messages.error(request, f"Form validation failed: {error_messages}")  
     return render(request, 'designation/e_design.html', {'designation': designation})  
 
 @login_required  
@@ -296,7 +302,8 @@ def add_region(request):
                     return render(request,'region/add_region.html',{'form':form})  
                     pass  
         else:
-            messages.error(request, "Some fields are missing!")
+            error_messages = form.errors.as_json()
+            messages.error(request, f"Form validation failed: {error_messages}")
             return render(request,'region/add_region.html',{'form':form})  
     else:  
         form = RegionForm()  
@@ -328,7 +335,8 @@ def u_region(request, id):
             form.save()  
             messages.success(request, "Data Updated successfully!")  
             return redirect("show_region")  
-    messages.error(request, "Some fields are missing!")  
+    error_messages = form.errors.as_json()
+    messages.error(request, f"Form validation failed: {error_messages}")  
     return render(request, 'region/e_region.html', {'region': region})  
 
 @login_required  
@@ -376,7 +384,8 @@ def add_education(request):
                 return render(request,'education/add_education.html',{'form':form,'employees':employees})   
                 pass
         else:
-            messages.error(request, "Some fields are missing!")
+            error_messages = form.errors.as_json()
+            messages.error(request, f"Form validation failed: {error_messages}")
             return render(request,'education/add_education.html',{'form':form,'employees':employees})  
     else:  
         form = EducationForm()  
@@ -434,7 +443,8 @@ def u_education(request, id):
                 messages.success(request, "Data Updated successfully!")
                 return redirect("show_education")  
             else: 
-                messages.error(request, "Some fields are missing!")
+                error_messages = form.errors.as_json()
+                messages.error(request, f"Form validation failed: {error_messages}")
                 return render(request, 'education/e_education.html', {'education': education})  
         except Exception as e:  
             messages.error(request, f"Internal Server Error: {str(e)}")
@@ -466,7 +476,8 @@ def add_employement_Record(request):
                 return render(request,'employement_record/add_employement_record.html',{'form':form,'employees':employees})  
                 pass  
         else:
-            messages.error(request, "Some fields are missing!")
+            error_messages = form.errors.as_json()
+            messages.error(request, f"Form validation failed: {error_messages}")
             return render(request,'employement_record/add_employement_record.html',{'form':form,'employees':employees})  
     else:  
         form = Employment_RecordForm()
@@ -495,7 +506,8 @@ def u_employement_Record(request, id):
         form.save() 
         messages.success(request, "Data Updated successfully!")   
         return redirect("show_employement_record")  
-    messages.error(request, "Some fields are missing!") 
+    error_messages = form.errors.as_json()
+    messages.error(request, f"Form validation failed: {error_messages}") 
     return render(request, 'employement_record/e_employement_record.html', {'employement_Record': employement_Record})  
 
 @login_required  
@@ -539,7 +551,8 @@ def add_certification(request):
                 messages.success(request, "Data added successfully!") 
                 return redirect('show_certification') 
             else:
-                messages.error(request, "Some fields are missing!")
+                error_messages = form.errors.as_json()
+                messages.error(request, f"Form validation failed: {error_messages}")
                 return render(request,'certification/add_certification.html',{'form':form,'employees':employees})  
         except Exception as e: 
             messages.error(request, f"Internal Server Error: {str(e)}")
@@ -601,7 +614,8 @@ def u_certification(request, id):
                 messages.success(request, "Data Updated successfully!")
                 return redirect("show_certification") 
             else: 
-                messages.error(request, "Some fields are missing!")  
+                error_messages = form.errors.as_json()
+                messages.error(request, f"Form validation failed: {error_messages}")  
                 return render(request, 'certification/e_certification.html', {'certification': certification}) 
         except Exception as e:  
             messages.error(request, f"Internal Server Error: {str(e)}")
@@ -629,7 +643,7 @@ def add_skill(request):
             skill = Skills.objects.filter(skill_name__iexact=skill_name,employee_id=request.POST.get('employee'), status=1)
             if skill.exists():
                 messages.error(request, "This Skill already exist against this employee.")
-                return render(request,'region/add_region.html',{'form':form})  
+                return render(request,'skill/add_skill.html',{'form':form,'employees':employees})
             else:
                 try:  
                     form.save()  
@@ -640,7 +654,8 @@ def add_skill(request):
                     return render(request,'skill/add_skill.html',{'form':form,'employees':employees})  
                     pass  
         else:
-            messages.error(request, "Some fields are missing!")
+            error_messages = form.errors.as_json()
+            messages.error(request, f"Form validation failed: {error_messages}")
             return render(request,'skill/add_skill.html',{'form':form,'employees':employees})  
     else:  
         form = SkillsForm()  
@@ -674,7 +689,8 @@ def u_skill(request, id):
             form.save()  
             messages.success(request, "Data Updated successfully!")  
             return redirect("show_skill")  
-    messages.error(request, "Some fields are missing!")  
+    error_messages = form.errors.as_json()
+    messages.error(request, f"Form validation failed: {error_messages}")  
     return render(request, 'skill/e_skill.html', {'skill': skill})  
 
 @login_required  
@@ -709,7 +725,8 @@ def add_company(request):
                     return render(request,'company/add_company.html',{'form':form})  
                     pass  
         else:
-            messages.error(request, "Some fields are missing!")
+            error_messages = form.errors.as_json()
+            messages.error(request, f"Form validation failed: {error_messages}")
             return render(request,'company/add_company.html',{'form':form})  
     else:  
         form = CompanyForm()  
@@ -741,7 +758,8 @@ def u_company(request, id):
             form.save()  
             messages.success(request, "Data Updated successfully!")  
             return redirect("show_company")  
-    messages.error(request, "Some fields are missing!")  
+    error_messages = form.errors.as_json()
+    messages.error(request, f"Form validation failed: {error_messages}")  
     return render(request, 'company/e_company.html', {'company': company})  
 
 @login_required  
@@ -1029,7 +1047,8 @@ def add_cv_template(request):
                 return render(request,'cv_template/add_cv_template.html',{'form':form,'columns':columns})  
                 pass  
         else:
-            messages.error(request, "Some fields are missing!")
+            error_messages = form.errors.as_json()
+            messages.error(request, f"Form validation failed: {error_messages}")
             return render(request,'cv_template/add_cv_template.html',{'form':form,'columns':columns})  
     else:  
         form = CV_templateForm()
@@ -1056,7 +1075,8 @@ def u_cv_template(request, id):
         form.save()  
         messages.success(request, "Data Updated successfully!")   
         return redirect("show_cv_template")
-    messages.error(request, "Some fields are missing!")   
+    error_messages = form.errors.as_json()
+    messages.error(request, f"Form validation failed: {error_messages}")   
     return render(request, 'cv_template/e_cv_template.html', {'cv_template': cv_template})  
 
 @login_required  
@@ -1323,7 +1343,8 @@ def add_project_type(request):
                     return render(request,'project_type/add_project_type.html',{'form':form})  
                     pass  
         else:
-            messages.error(request, "Some fields are missing!")
+            error_messages = form.errors.as_json()
+            messages.error(request, f"Form validation failed: {error_messages}")
             return render(request,'project_type/add_project_type.html',{'form':form})  
     else:  
         form = Project_typeForm()  
@@ -1355,7 +1376,8 @@ def u_project_type(request, id):
             form.save()  
             messages.success(request, "Data Updated successfully!")  
             return redirect("show_project_type")  
-    messages.error(request, "Some fields are missing!")  
+    error_messages = form.errors.as_json()
+    messages.error(request, f"Form validation failed: {error_messages}")  
     return render(request, 'project_type/e_project_type.html', {'project_type': project_type})  
 
 @login_required  
@@ -1416,7 +1438,8 @@ def add_project(request):
                     return redirect('show_project')
             else:
                 logger.error('Form is not valid: %s', form.errors)
-                messages.error(request, "Some fields are missing!")
+                error_messages = form.errors.as_json()
+                messages.error(request, f"Form validation failed: {error_messages}")
                 return render(request,'project/add_project.html',{'form':form, 'branches':branches, 'project_types':project_types, 'clients':clients, 'countries':countries, 'leads':leads})  
                 
         except Exception as e:  
@@ -1459,9 +1482,9 @@ def u_project(request, id):
 
     if request.method == 'POST':
         form = ProjectForm(request.POST, request.FILES, instance=project_instance)
-        file_instance = form.save(commit=False)
         try:
             if form.is_valid():
+                file_instance = form.save(commit=False)
                 # Loop through each file field in the form
                 for field_name in request.FILES:
                     uploaded_file = request.FILES[field_name]
@@ -1495,13 +1518,14 @@ def u_project(request, id):
                 messages.success(request, "Data Updated successfully!")  
                 return redirect('../project_details/'+str(file_instance.pk))
             else:
-                messages.error(request, "Some fields are missing!")
-                return redirect('../project_details/'+str(file_instance.pk))
+                error_messages = form.errors.as_json()
+                messages.error(request, f"Project Form validation failed: {error_messages}")
+                return redirect(f'../project_details/{project_instance.id}')
         except Exception as e:
             logger.exception('An error occurred while processing the form: %s', e)
             form.add_error(None, f'An unexpected error occurred: {str(e)}')
             messages.error(request, f"Internal Server Error: {str(e)}")
-            return redirect('../project_details/'+str(file_instance.pk))
+            return redirect(f'../project_details/{project_instance.id}')
 
 @login_required  
 @permission_required('employee.delete_project', raise_exception=True)
@@ -1633,16 +1657,29 @@ def manual_update_project(request, id):
 def add_bank(request): 
     if request.method == "POST":  
         form = BankForm(request.POST) 
+        bank_name = request.POST.get('bank_name').strip().lower()  # Normalize to lowercase
+        branch_code = request.POST.get('branch_code').strip().lower()
+        bank = Bank.objects.filter(bank_name__iexact=bank_name, branch_code__iexact=branch_code, status=1)
         if form.is_valid():
-            try:  
-                form.save()  
-                return redirect('show_bank')  
-            except Exception as e:  
-  
-                pass  
+            if bank.exists():
+                messages.error(request, "This Bank or Branch code already exist.")
+                return render(request,'bank/add_bank.html',{'form':form})
+            else:
+                try:  
+                    form.save()  
+                    messages.success(request, "Data added successfully!")
+                    return redirect('show_bank')  
+                except Exception as e:  
+                    messages.error(request, f"Internal Server Error: {str(e)}")
+                    return render(request,'bank/add_bank.html',{'form':form})  
+                    pass  
+        else:
+            error_messages = form.errors.as_json()
+            messages.error(request, f"Form validation failed: {error_messages}")
+            return render(request,'bank/add_bank.html',{'form':form})
     else:  
         form = BankForm() 
-    return render(request,'bank/add_bank.html',{'form':form})  
+        return render(request,'bank/add_bank.html',{'form':form})  
 
 @login_required    
 @permission_required('employee.view_bank', raise_exception=True)
@@ -1660,9 +1697,19 @@ def e_bank(request, id):
 def u_bank(request, id):  
     bank = Bank.objects.get(id=id)  
     form = BankForm(request.POST, instance = bank)  
-    if form.is_valid():  
-        form.save()  
-        return redirect("show_bank")  
+    bank_name = request.POST.get('bank_name').strip().lower()  # Normalize to lowercase
+    branch_code = request.POST.get('branch_code').strip().lower()
+    data = Bank.objects.filter(bank_name__iexact=bank_name, branch_code__iexact=branch_code, status=1)
+    if form.is_valid(): 
+        if data.exists():
+            messages.error(request, "This Bank or Branch code already exist.")
+            return redirect("show_bank")
+        else:
+            form.save()  
+            messages.success(request, "Data Updated successfully!")  
+            return redirect("show_bank")  
+    error_messages = form.errors.as_json()
+    messages.error(request, f"Form validation failed: {error_messages}")  
     return render(request, 'bank/e_bank.html', {'bank': bank})  
 
 @login_required  
@@ -1671,6 +1718,7 @@ def d_bank(request, id):
     bank = Bank.objects.get(id=id)  
     bank.status=0  
     bank.save()
+    messages.success(request, "Data Deleted successfully!")
     return redirect("show_bank")
 
 # Bank_guaranty
@@ -1679,6 +1727,9 @@ def d_bank(request, id):
 def add_bank_guaranty(request):  
     if request.method == "POST":  
         form = Bank_guarantyForm(request.POST, request.FILES)
+        projects = Project.objects.filter(status=1).values('id','title')
+        banks = Bank.objects.filter(status=1).values('id','bank_name')
+        modalfield_value = request.POST.get('modalfield')
         try: 
             if form.is_valid():
                 file_instance = form.save(commit=False)
@@ -1700,15 +1751,28 @@ def add_bank_guaranty(request):
                             f.write(chunk)
                     # Update the file field with the relative path to the file
                     file_instance.bg_doc = os.path.relpath(file_path, settings.MEDIA_ROOT)
-                file_instance.save()  
-                modalfield_value = request.POST.get('modalfield')
+                file_instance.save() 
                 if modalfield_value == '1':
+                    messages.success(request, "Data added successfully!") 
                     return JsonResponse({'status': 'success'}, status=200)
                 else:
+                    messages.success(request, "Data added successfully!") 
                     return redirect('show_bank_guaranty') 
                 
+            else:
+                if modalfield_value == '1':
+                    error_messages = form.errors.as_json()
+                    return JsonResponse({'status': 'error', 'message': f"Form validation failed: {error_messages}"}, status=400)
+                else:
+                    error_messages = form.errors.as_json()
+                    messages.error(request, f"Form validation failed: {error_messages}")
+                    return render(request,'bank_guaranty/add_bank_guaranty.html',{'form':form,'projects':projects,'banks':banks})  
         except Exception as e:  
-            print(e)
+            if modalfield_value == '1':
+                return JsonResponse({'status': 'error', 'message': f"Internal Server Error: {str(e)}"}, status=400)
+            else:
+                messages.error(request, f"Internal Server Error: {str(e)}")
+                return render(request,'bank_guaranty/add_bank_guaranty.html',{'form':form,'projects':projects,'banks':banks})  
             pass  
     else:  
         form = Bank_guarantyForm()  
@@ -1716,7 +1780,7 @@ def add_bank_guaranty(request):
         banks = Bank.objects.filter(status=1).values('id','bank_name')
         return render(request,'bank_guaranty/add_bank_guaranty.html',{'form':form,'projects':projects,'banks':banks})  
      # Added a fallback return to ensure an HttpResponse is always returned
-    return JsonResponse({'status': 'error', 'message': 'Unhandled request method'}, status=400)
+    # return JsonResponse({'status': 'error', 'message': 'Unhandled request method'}, status=400)
 
 @login_required    
 @permission_required('employee.view_bank_guaranty', raise_exception=True)
@@ -1766,14 +1830,16 @@ def u_bank_guaranty(request, id):
                     file_instance.bg_doc = old_path
 
                 file_instance.save() 
+                messages.success(request, "Data Updated successfully!")  
                 return redirect('../project_details/'+str(file_instance.project.id)) 
                 # return redirect('show_bank_guaranty')  
-                  
+            else:
+                error_messages = form.errors.as_json()
+                messages.error(request, f"Bank guaranty Form validation failed: {error_messages}")
+                return redirect(f'../project_details/{bank_guaranty.project.id}')
         except Exception as e:  
-            print(e)
-            pass  
-    else:
-        print("EROORRROOOROROR")
+            messages.error(request, f"Internal Server Error: {str(e)}")
+            return redirect(f'../project_details/{bank_guaranty.project.id}')
    
 @login_required  
 @permission_required('employee.delete_bank_guaranty', raise_exception=True)
@@ -1781,6 +1847,7 @@ def d_bank_guaranty(request, id):
     bank_guaranty = Bank_guaranty.objects.get(id=id)  
     bank_guaranty.status=0  
     bank_guaranty.save()
+    messages.success(request, "Data Deleted successfully!")
     return redirect("show_bank_guaranty")
 
 # Liquidity_damages
@@ -1789,6 +1856,8 @@ def d_bank_guaranty(request, id):
 def add_liquidity_damages(request):  
     if request.method == "POST":  
         form = Liquidity_damagesForm(request.POST, request.FILES) 
+        projects = Project.objects.filter(status=1).values('id','title')  
+        modalfield_value = request.POST.get('modalfield')
         try:
             if form.is_valid():
                 file_instance = form.save(commit=False)
@@ -1811,20 +1880,32 @@ def add_liquidity_damages(request):
                     # Update the file field with the relative path to the file
                     file_instance.ld_doc = os.path.relpath(file_path, settings.MEDIA_ROOT)
                 file_instance.save()   
-                modalfield_value = request.POST.get('modalfield')
                 if modalfield_value == '1':
+                    messages.success(request, "Data added successfully!") 
                     return JsonResponse({'status': 'success'}, status=200)
                 else:
+                    messages.success(request, "Data added successfully!") 
                     return redirect('show_liquidity_damages')  
+            else:
+                if modalfield_value == '1':
+                    error_messages = form.errors.as_json()
+                    return JsonResponse({'status': 'error', 'message': f"Form validation failed: {error_messages}"}, status=400)
+                else:
+                    error_messages = form.errors.as_json()
+                    messages.error(request, f"Form validation failed: {error_messages}")
+                    return render(request,'liquidity_damages/add_liquidity_damages.html',{'form':form,'projects':projects})  
         except Exception as e:  
-  
-            pass  
+            if modalfield_value == '1':
+                return JsonResponse({'status': 'error', 'message': f"Internal Server Error: {str(e)}"}, status=400)
+            else:
+                messages.error(request, f"Internal Server Error: {str(e)}")
+                return render(request,'liquidity_damages/add_liquidity_damages.html',{'form':form,'projects':projects})  
     else:  
         form = Liquidity_damagesForm()
         projects = Project.objects.filter(status=1).values('id','title')  
         return render(request,'liquidity_damages/add_liquidity_damages.html',{'form':form,'projects':projects})  
      # Added a fallback return to ensure an HttpResponse is always returned
-    return JsonResponse({'status': 'error', 'message': 'Unhandled request method'}, status=400)
+    # return JsonResponse({'status': 'error', 'message': 'Unhandled request method'}, status=400)
 
 @login_required  
 @permission_required('employee.view_liquidity_damages', raise_exception=True)  
@@ -1844,48 +1925,59 @@ def u_liquidity_damages(request, id):
     liquidity_damages = Liquidity_damages.objects.get(id=id)  
     old_path = liquidity_damages.ld_doc 
     if request.method == "POST": 
-        form = Liquidity_damagesForm(request.POST, request.FILES, instance = liquidity_damages)
+        form = Liquidity_damagesForm(request.POST, request.FILES, instance=liquidity_damages)
         try: 
             if form.is_valid():
-                file_instance = form.save(commit=False)
+                file_instance = form.save(commit=False)  # Save without committing to handle the file logic
                 if 'ld_doc' in request.FILES:
                     # Generate folder path dynamically
                     folder_name = str(file_instance.project.id)
-                    folder_path = os.path.join(settings.MEDIA_ROOT,'project',folder_name,'liquidity_damages')
+                    folder_path = os.path.join(settings.MEDIA_ROOT, 'project', folder_name, 'liquidity_damages')
                     
                     if not os.path.exists(folder_path):
                         os.makedirs(folder_path)
+
                     # Generate file path dynamically
                     timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
                     new_file_name = f"{file_instance.project.id}_ld_{timestamp}{os.path.splitext(request.FILES['ld_doc'].name)[1]}"
                     file_path = os.path.join(folder_path, new_file_name)
                     
+                    # Remove the old file if it exists
                     if old_path and os.path.exists(os.path.join(settings.MEDIA_ROOT, old_path)):
-                            os.remove(os.path.join(settings.MEDIA_ROOT, old_path))
+                        os.remove(os.path.join(settings.MEDIA_ROOT, old_path))
+
                     # Save file to the generated path
                     with open(file_path, 'wb') as f:
                         for chunk in request.FILES['ld_doc'].chunks():
                             f.write(chunk)
-                    # Update the file field with the relative path to the file
+
+                    # Update the file field with the relative path
                     file_instance.ld_doc = os.path.relpath(file_path, settings.MEDIA_ROOT)
                 else:
-                    # Ensure the old file path is retained if no new file is uploaded
+                    # Retain old file path if no new file is uploaded
                     file_instance.ld_doc = old_path
 
-                file_instance.save() 
-                return redirect('../project_details/'+str(file_instance.project.id)) 
-                # return redirect('show_liquidity_damages')  
-                  
+                # Save the file instance
+                file_instance.save()
+                messages.success(request, "Data Updated successfully!")  
+                return redirect(f'../project_details/{file_instance.project.id}')  
+            else:
+                # Log form errors for debugging
+                error_messages = form.errors.as_json()
+                messages.error(request, f"Liquidity damages Form validation failed: {error_messages}")
+                return redirect(f'../project_details/{liquidity_damages.project.id}')
         except Exception as e:  
-            print(e)
-            pass  
+            messages.error(request, f"Internal Server Error: {str(e)}")
+            return redirect(f'../project_details/{liquidity_damages.project.id}')
     
+
 @login_required  
 @permission_required('employee.delete_liquidity_damages', raise_exception=True)
 def d_liquidity_damages(request, id):  
     liquidity_damages = Liquidity_damages.objects.get(id=id)  
     liquidity_damages.status=0  
     liquidity_damages.save()
+    messages.success(request, "Data Deleted successfully!")
     return redirect("show_liquidity_damages")
 
 # Insurance_type
@@ -1894,16 +1986,27 @@ def d_liquidity_damages(request, id):
 def add_insurance_type(request):  
     if request.method == "POST":  
         form = Insurance_typeForm(request.POST) 
+        type_name = request.POST.get('type_name').strip().lower()  # Normalize to lowercase
+        type = Insurance_type.objects.filter(type_name__iexact=type_name, status=1)
         if form.is_valid():
-            try:  
-                form.save()  
-                return redirect('show_insurance_type')  
-            except Exception as e:  
-  
-                pass  
+            if type.exists():
+                messages.error(request, "This Insurance Type already exist.")
+                return render(request,'insurance_type/add_insurance_type.html',{'form':form})     
+            else:
+                try:  
+                    form.save()  
+                    messages.success(request, "Data added successfully!")
+                    return redirect('show_insurance_type')  
+                except Exception as e:  
+                    messages.error(request, f"Internal Server Error: {str(e)}")
+                    return render(request,'insurance_type/add_insurance_type.html',{'form':form})  
+        else:
+            error_messages = form.errors.as_json()
+            messages.error(request, f"Form validation failed: {error_messages}")  
+            return render(request,'insurance_type/add_insurance_type.html',{'form':form})     
     else:  
         form = Insurance_typeForm()  
-    return render(request,'insurance_type/add_insurance_type.html',{'form':form})  
+        return render(request,'insurance_type/add_insurance_type.html',{'form':form})  
 
 @login_required    
 @permission_required('employee.view_insurance_type', raise_exception=True)
@@ -1921,9 +2024,18 @@ def e_insurance_type(request, id):
 def u_insurance_type(request, id):  
     insurance_type = Insurance_type.objects.get(id=id)  
     form = Insurance_typeForm(request.POST, instance = insurance_type)  
+    type_name = request.POST.get('type_name').strip().lower()  # Normalize to lowercase
+    type = Insurance_type.objects.filter(type_name__iexact=type_name, status=1)
     if form.is_valid():  
-        form.save()  
-        return redirect("show_insurance_type")  
+        if type.exists():
+            messages.error(request, "This Insurance Type already exist.")
+            return redirect("show_insurance_type")
+        else:
+            form.save()  
+            messages.success(request, "Data Updated successfully!")  
+            return redirect("show_insurance_type")  
+    error_messages = form.errors.as_json()
+    messages.error(request, f"Form validation failed: {error_messages}")  
     return render(request, 'insurance_type/e_insurance_type.html', {'insurance_type': insurance_type})  
 
 @login_required  
@@ -1932,6 +2044,7 @@ def d_insurance_type(request, id):
     insurance_type = Insurance_type.objects.get(id=id)  
     insurance_type.status=0  
     insurance_type.save()
+    messages.success(request, "Data Deleted successfully!")
     return redirect("show_insurance_type")
 
 
@@ -1941,24 +2054,39 @@ def d_insurance_type(request, id):
 def add_insurance_detail(request):  
     if request.method == "POST":  
         form = Insurance_detailForm(request.POST) 
+        modalfield_value = request.POST.get('modalfield')
+        projects = Project.objects.filter(status=1).values('id','title') 
+        insurance_types = Insurance_type.objects.filter(status=1).values('id','type_name') 
         if form.is_valid():
             try:  
                 form.save() 
-                modalfield_value = request.POST.get('modalfield')
                 if modalfield_value == '1':
+                    messages.success(request, "Data added successfully!") 
                     return JsonResponse({'status': 'success'}, status=200)
                 else: 
+                    messages.success(request, "Data added successfully!") 
                     return redirect('show_insurance_detail')  
             except Exception as e:  
-  
-                pass  
+                if modalfield_value == '1':
+                    return JsonResponse({'status': 'error', 'message': f"Internal Server Error: {str(e)}"}, status=400)
+                else:
+                    messages.error(request, f"Internal Server Error: {str(e)}")
+                    return render(request,'insurance_detail/add_insurance_detail.html',{'form':form,'projects':projects,'insurance_types':insurance_types})    
+        else:
+            if modalfield_value == '1':
+                error_messages = form.errors.as_json()
+                return JsonResponse({'status': 'error', 'message': f"Form validation failed: {error_messages}"}, status=400)
+            else:
+                error_messages = form.errors.as_json()
+                messages.error(request, f"Form validation failed: {error_messages}")
+                return render(request,'insurance_detail/add_insurance_detail.html',{'form':form,'projects':projects,'insurance_types':insurance_types})  
     else:  
         form = Insurance_detailForm()
         projects = Project.objects.filter(status=1).values('id','title') 
         insurance_types = Insurance_type.objects.filter(status=1).values('id','type_name') 
         return render(request,'insurance_detail/add_insurance_detail.html',{'form':form,'projects':projects,'insurance_types':insurance_types})  
      # Added a fallback return to ensure an HttpResponse is always returned
-    return JsonResponse({'status': 'error', 'message': 'Unhandled request method'}, status=400)
+    # return JsonResponse({'status': 'error', 'message': 'Unhandled request method'}, status=400)
 
 @login_required   
 @permission_required('employee.view_insurance_detail', raise_exception=True) 
@@ -1980,9 +2108,14 @@ def u_insurance_detail(request, id):
     form = Insurance_detailForm(request.POST, instance = insurance_detail)  
     if form.is_valid():  
         form.save()  
+        messages.success(request, "Data Updated successfully!")  
         return redirect('../project_details/'+str(insurance_detail.project.id))
         # return redirect("show_insurance_detail")  
-    return render(request, 'insurance_detail/e_insurance_detail.html', {'insurance_detail': insurance_detail})  
+    else:
+        error_messages = form.errors.as_json()
+        messages.error(request, f"Insurance detail Form validation failed: {error_messages}")
+        return redirect('../project_details/'+str(insurance_detail.project.id))
+    # return render(request, 'insurance_detail/e_insurance_detail.html', {'insurance_detail': insurance_detail})  
 
 @login_required  
 @permission_required('employee.delete_insurance_detail', raise_exception=True)
@@ -1990,6 +2123,7 @@ def d_insurance_detail(request, id):
     insurance_detail = Insurance_detail.objects.get(id=id)  
     insurance_detail.status=0  
     insurance_detail.save()
+    messages.success(request, "Data Deleted successfully!")
     return redirect("show_insurance_detail")
 
 # Country
