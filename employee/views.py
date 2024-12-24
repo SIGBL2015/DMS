@@ -18,7 +18,7 @@ from django.template.loader import get_template
 from datetime import datetime, timedelta
 from django.utils import timezone
 import logging
-from django.db.models import Sum, Subquery, Count
+from django.db.models import Sum, Subquery, Count, Q
 
 from finance.models import Journal_entry
 
@@ -326,9 +326,9 @@ def u_region(request, id):
     region = Region.objects.get(id=id)  
     form = RegionForm(request.POST, instance = region)  
     region_name = request.POST.get('region_name').strip().lower()  # Normalize to lowercase
-    region = Region.objects.filter(region_name__iexact=region_name, status=1)
+    regions = Region.objects.filter(region_name__iexact=region_name, status=1)
     if form.is_valid(): 
-        if region.exists():
+        if regions.exists():
             messages.error(request, "This Region already exist.")
             return redirect("show_region")
         else: 
@@ -680,9 +680,9 @@ def u_skill(request, id):
     skill = Skills.objects.get(id=id)  
     form = SkillsForm(request.POST, instance = skill) 
     skill_name = request.POST.get('skill_name').strip().lower()  # Normalize to lowercase
-    skill = Skills.objects.filter(skill_name__iexact=skill_name,employee_id=request.POST.get('employee'), status=1) 
+    skills = Skills.objects.filter(skill_name__iexact=skill_name,employee_id=request.POST.get('employee'), status=1) 
     if form.is_valid():  
-        if skill.exists():
+        if skills.exists():
             messages.error(request, "This Skill already exist against this employee.")
             return redirect("show_skill")  
         else:
@@ -2132,16 +2132,27 @@ def d_insurance_detail(request, id):
 def add_country(request):  
     if request.method == "POST":  
         form = CountryForm(request.POST) 
+        country_name = request.POST.get('country_name').strip().lower()
+        country = Country.objects.filter(country_name__iexact=country_name, status=1)
         if form.is_valid():
-            try:  
-                form.save()  
-                return redirect('show_country')  
-            except Exception as e:  
-  
-                pass  
+            if country.exists():
+                messages.error(request, "This Country already exist.")
+                return render(request,'country/add_country.html',{'form':form})  
+            else:
+                try:  
+                    form.save()  
+                    messages.success(request, "Data added successfully!")
+                    return redirect('show_country')  
+                except Exception as e:  
+                    messages.error(request, f"Internal Server Error: {str(e)}")
+                    return render(request,'country/add_country.html',{'form':form})  
+        else:
+            error_messages = form.errors.as_json()
+            messages.error(request, f"Form validation failed: {error_messages}") 
+            return render(request,'country/add_country.html',{'form':form})         
     else:  
         form = CountryForm()  
-    return render(request,'country/add_country.html',{'form':form})  
+        return render(request,'country/add_country.html',{'form':form})  
 
 @login_required 
 @permission_required('employee.view_country', raise_exception=True)   
@@ -2158,10 +2169,19 @@ def e_country(request, id):
 @login_required  
 def u_country(request, id):  
     country = Country.objects.get(id=id)  
-    form = CountryForm(request.POST, instance = country)  
-    if form.is_valid():  
-        form.save()  
-        return redirect("show_country")  
+    form = CountryForm(request.POST, instance = country) 
+    country_name = request.POST.get('country_name').strip().lower()
+    countries = Country.objects.filter(country_name__iexact=country_name, status=1) 
+    if form.is_valid(): 
+        if countries.exists():
+            messages.error(request, "This Country already exist.")
+            return redirect("show_country") 
+        else: 
+            form.save()  
+            messages.success(request, "Data Updated successfully!")  
+            return redirect("show_country")  
+    error_messages = form.errors.as_json()
+    messages.error(request, f"Form validation failed: {error_messages}")  
     return render(request, 'country/e_country.html', {'country': country})  
 
 @login_required  
@@ -2170,6 +2190,7 @@ def d_country(request, id):
     country = Country.objects.get(id=id)  
     country.status=0  
     country.save()
+    messages.success(request, "Data Deleted successfully!")
     return redirect("show_country")
 
 # Zone
@@ -2178,16 +2199,27 @@ def d_country(request, id):
 def add_zone(request):  
     if request.method == "POST":  
         form = ZoneForm(request.POST) 
+        zone_name = request.POST.get('zone_name').strip().lower()
+        zone = Zone.objects.filter(zone_name__iexact=zone_name, status=1)
         if form.is_valid():
-            try:  
-                form.save()  
-                return redirect('show_zone')  
-            except Exception as e:  
-  
-                pass  
+            if zone.exists():
+                messages.error(request, "This Zone already exist.")
+                return render(request,'zone/add_zone.html',{'form':form})
+            else:
+                try:  
+                    form.save()  
+                    messages.success(request, "Data added successfully!")
+                    return redirect('show_zone')  
+                except Exception as e:  
+                    messages.error(request, f"Internal Server Error: {str(e)}")
+                    return render(request,'zone/add_zone.html',{'form':form})
+        else:
+            error_messages = form.errors.as_json()
+            messages.error(request, f"Form validation failed: {error_messages}")
+            return render(request,'zone/add_zone.html',{'form':form})
     else:  
         form = ZoneForm()  
-    return render(request,'zone/add_zone.html',{'form':form})  
+        return render(request,'zone/add_zone.html',{'form':form})  
 
 @login_required   
 @permission_required('employee.view_zone', raise_exception=True) 
@@ -2205,9 +2237,18 @@ def e_zone(request, id):
 def u_zone(request, id):  
     zone = Zone.objects.get(id=id)  
     form = ZoneForm(request.POST, instance = zone)  
+    zone_name = request.POST.get('zone_name').strip().lower()
+    zones = Zone.objects.filter(zone_name__iexact=zone_name, status=1)
     if form.is_valid():  
-        form.save()  
-        return redirect("show_zone")  
+        if zones.exists():
+            messages.error(request, "This Zone already exist.")
+            return redirect("show_zone")
+        else:
+            form.save()  
+            messages.success(request, "Data Updated successfully!")  
+            return redirect("show_zone")  
+    error_messages = form.errors.as_json()
+    messages.error(request, f"Form validation failed: {error_messages}")  
     return render(request, 'zone/e_zone.html', {'zone': zone})  
 
 @login_required
@@ -2216,6 +2257,7 @@ def d_zone(request, id):
     zone = Zone.objects.get(id=id)  
     zone.status=0  
     zone.save()
+    messages.success(request, "Data Deleted successfully!")
     return redirect("show_zone")
 
 # Area
@@ -2224,16 +2266,28 @@ def d_zone(request, id):
 def add_area(request):  
     if request.method == "POST":  
         form = AreaForm(request.POST) 
+        area_name = request.POST.get('area_name').strip().lower()
+        area = Area.objects.filter(area_name__iexact=area_name, status=1)
         if form.is_valid():
-            try:  
-                form.save()  
-                return redirect('show_area')  
-            except Exception as e:  
-  
-                pass  
+            if area.exists():
+                messages.error(request, "This Area already exist.")
+                return render(request,'area/add_area.html',{'form':form}) 
+            else:
+                try:  
+                    form.save()  
+                    messages.success(request, "Data added successfully!")
+                    return redirect('show_area')  
+                except Exception as e:  
+                    messages.error(request, f"Internal Server Error: {str(e)}")
+                    return render(request,'area/add_area.html',{'form':form}) 
+                    pass  
+        else:
+            error_messages = form.errors.as_json()
+            messages.error(request, f"Form validation failed: {error_messages}")
+            return render(request,'area/add_area.html',{'form':form}) 
     else:  
         form = AreaForm()  
-    return render(request,'area/add_area.html',{'form':form})  
+        return render(request,'area/add_area.html',{'form':form})  
 
 @login_required   
 @permission_required('employee.view_area', raise_exception=True) 
@@ -2251,9 +2305,18 @@ def e_area(request, id):
 def u_area(request, id):  
     area = Area.objects.get(id=id)  
     form = AreaForm(request.POST, instance = area)  
-    if form.is_valid():  
-        form.save()  
-        return redirect("show_area")  
+    area_name = request.POST.get('area_name').strip().lower()
+    areas = Area.objects.filter(area_name__iexact=area_name, status=1)
+    if form.is_valid():
+        if areas.exists():
+            messages.error(request, "This Area already exist.")
+            return redirect("show_area")   
+        else:  
+            form.save() 
+            messages.success(request, "Data Updated successfully!")   
+            return redirect("show_area")  
+    error_messages = form.errors.as_json()
+    messages.error(request, f"Form validation failed: {error_messages}")  
     return render(request, 'area/e_area.html', {'area': area})  
 
 @login_required  
@@ -2262,29 +2325,35 @@ def d_area(request, id):
     area = Area.objects.get(id=id)  
     area.status=0  
     area.save()
+    messages.success(request, "Data Deleted successfully!")
     return redirect("show_area")
 
 # Branch
 @login_required 
 @permission_required('employee.add_branch', raise_exception=True)
 def add_branch(request):  
+    companies = Company.objects.filter(status=1).values('id','comp_name')
+    countries = Country.objects.filter(status=1).values('id','country_name')
+    zones = Zone.objects.filter(status=1).values('id','zone_name')
+    regions = Region.objects.filter(status=1).values('id','region_name')
+    areas = Area.objects.filter(status=1).values('id','area_name')
     if request.method == "POST":  
         form = BranchForm(request.POST) 
         if form.is_valid():
             try:  
                 form.save()  
+                messages.success(request, "Data added successfully!")
                 return redirect('show_branch')  
             except Exception as e:  
-  
-                pass  
+                messages.error(request, f"Internal Server Error: {str(e)}")
+                return render(request,'branch/add_branch.html',{'form':form, 'companies':companies, 'countries':countries, 'zones':zones, 'regions':regions, 'areas':areas})    
+        else:
+            error_messages = form.errors.as_json()
+            messages.error(request, f"Form validation failed: {error_messages}")
+            return render(request,'branch/add_branch.html',{'form':form, 'companies':companies, 'countries':countries, 'zones':zones, 'regions':regions, 'areas':areas})    
     else:  
-        form = BranchForm()  
-        companies = Company.objects.filter(status=1).values('id','comp_name')
-        countries = Country.objects.filter(status=1).values('id','country_name')
-        zones = Zone.objects.filter(status=1).values('id','zone_name')
-        regions = Region.objects.filter(status=1).values('id','region_name')
-        areas = Area.objects.filter(status=1).values('id','area_name')
-    return render(request,'branch/add_branch.html',{'form':form, 'companies':companies, 'countries':countries, 'zones':zones, 'regions':regions, 'areas':areas})  
+        form = BranchForm() 
+        return render(request,'branch/add_branch.html',{'form':form, 'companies':companies, 'countries':countries, 'zones':zones, 'regions':regions, 'areas':areas})  
 
 @login_required   
 @permission_required('employee.view_branch', raise_exception=True) 
@@ -2309,7 +2378,10 @@ def u_branch(request, id):
     form = BranchForm(request.POST, instance = branch)  
     if form.is_valid():  
         form.save()  
+        messages.success(request, "Data Updated successfully!")  
         return redirect("show_branch")  
+    error_messages = form.errors.as_json()
+    messages.error(request, f"Form validation failed: {error_messages}")  
     return render(request, 'branch/e_branch.html', {'branch': branch})  
 
 @login_required  
@@ -2318,25 +2390,38 @@ def d_branch(request, id):
     branch = Branch.objects.get(id=id)  
     branch.status=0  
     branch.save()
+    messages.success(request, "Data Deleted successfully!")
     return redirect("show_branch")
 
 # Client
 @login_required 
 @permission_required('employee.add_client', raise_exception=True)
-def add_client(request):  
+def add_client(request): 
+    countries = Country.objects.filter(status=1).values('id','country_name') 
     if request.method == "POST":  
         form = ClientForm(request.POST) 
+        email = request.POST.get('email')
+        phone = request.POST.get('phone')
+        client = Client.objects.filter(Q(email=email) | Q(phone=phone), status=1)
         if form.is_valid():
-            try:  
-                form.save()  
-                return redirect('show_client')  
-            except Exception as e:  
-  
-                pass  
+            if client.exists():
+                messages.error(request, "This Client Email Address OR Phone Number already exist.")
+                return render(request,'client/add_client.html',{'form':form, 'countries':countries})  
+            else:
+                try:  
+                    form.save()
+                    messages.success(request, "Data added successfully!")  
+                    return redirect('show_client')  
+                except Exception as e:  
+                    messages.error(request, f"Internal Server Error: {str(e)}")
+                    return render(request,'client/add_client.html',{'form':form, 'countries':countries})  
+        else:
+            error_messages = form.errors.as_json()
+            messages.error(request, f"Form validation failed: {error_messages}")
+            return render(request,'client/add_client.html',{'form':form, 'countries':countries})  
     else:  
-        form = ClientForm()  
-        countries = Country.objects.filter(status=1).values('id','country_name')
-    return render(request,'client/add_client.html',{'form':form, 'countries':countries})  
+        form = ClientForm() 
+        return render(request,'client/add_client.html',{'form':form, 'countries':countries})  
 
 @login_required    
 @permission_required('employee.view_client', raise_exception=True)
@@ -2354,11 +2439,15 @@ def e_client(request, id):
 @login_required  
 def u_client(request, id):  
     client = Client.objects.get(id=id)  
-    form = ClientForm(request.POST, instance = client)  
+    form = ClientForm(request.POST, instance = client) 
+    countries = Country.objects.filter(status=1).values('id','country_name') 
     if form.is_valid():  
         form.save()  
+        messages.success(request, "Data Updated successfully!")  
         return redirect("show_client")  
-    return render(request, 'client/e_client.html', {'client': client})  
+    error_messages = form.errors.as_json()
+    messages.error(request, f"Form validation failed: {error_messages}")  
+    return render(request, 'client/e_client.html', {'client': client, 'countries':countries})  
 
 @login_required  
 @permission_required('employee.delete_client', raise_exception=True)
@@ -2366,6 +2455,7 @@ def d_client(request, id):
     client = Client.objects.get(id=id)  
     client.status=0  
     client.save()
+    messages.success(request, "Data Deleted successfully!")
     return redirect("show_client")
 
 # Document_type
@@ -2374,16 +2464,27 @@ def d_client(request, id):
 def add_document_type(request):  
     if request.method == "POST":  
         form = Document_typeForm(request.POST) 
+        title = request.POST.get('title').strip().lower()
+        doc_type = Document_type.objects.filter(title__iexact=title, status=1)
         if form.is_valid():
-            try:  
-                form.save()  
-                return redirect('show_document_type')  
-            except Exception as e:  
-  
-                pass  
+            if doc_type.exists():
+                messages.error(request, "This Document type already exist.")
+                return render(request,'document_type/add_document_type.html',{'form':form})  
+            else:
+                try:  
+                    form.save() 
+                    messages.success(request, "Data added successfully!") 
+                    return redirect('show_document_type')  
+                except Exception as e:  
+                    messages.error(request, f"Internal Server Error: {str(e)}")
+                    return render(request,'document_type/add_document_type.html',{'form':form})  
+        else:
+            error_messages = form.errors.as_json()
+            messages.error(request, f"Form validation failed: {error_messages}")
+            return render(request,'document_type/add_document_type.html',{'form':form})  
     else:  
         form = Document_typeForm()  
-    return render(request,'document_type/add_document_type.html',{'form':form})  
+        return render(request,'document_type/add_document_type.html',{'form':form})  
 
 @login_required  
 @permission_required('employee.view_document_type', raise_exception=True)  
@@ -2400,10 +2501,19 @@ def e_document_type(request, id):
 @login_required  
 def u_document_type(request, id):  
     document_type = Document_type.objects.get(id=id)  
-    form = Document_typeForm(request.POST, instance = document_type)  
+    form = Document_typeForm(request.POST, instance = document_type)
+    title = request.POST.get('title').strip().lower()
+    doc_type = Document_type.objects.filter(title__iexact=title, status=1)  
     if form.is_valid():  
-        form.save()  
-        return redirect("show_document_type")  
+        if doc_type.exists():
+            messages.error(request, "This Document type already exist.")
+            return redirect("show_document_type")
+        else:
+            form.save()  
+            messages.success(request, "Data Updated successfully!")  
+            return redirect("show_document_type") 
+    error_messages = form.errors.as_json()
+    messages.error(request, f"Form validation failed: {error_messages}")  
     return render(request, 'document_type/e_document_type.html', {'document_type': document_type})  
 
 @login_required  
@@ -2412,12 +2522,15 @@ def d_document_type(request, id):
     document_type = Document_type.objects.get(id=id)  
     document_type.status=0  
     document_type.save()
+    messages.success(request, "Data Deleted successfully!")
     return redirect("show_document_type")
 
 # Project_document
 @login_required 
 @permission_required('employee.add_project_document', raise_exception=True)
 def add_project_document(request): 
+    projects = Project.objects.filter(status=1).values('id','title')
+    document_types = Document_type.objects.filter(status=1).values('id','title')
     if request.method == "POST": 
         # Manually handle form validation
         project = request.POST.get('project')
@@ -2426,14 +2539,23 @@ def add_project_document(request):
         remarks = request.POST.getlist('remarks')
         ref_nos = request.POST.getlist('ref_no')
         issuance_dates = request.POST.getlist('issuance_date')
+        modalfield_value = request.POST.get('modalfield')
 
         # Check if the common project field is provided
         if not project:
-            return render(request, 'project_document/add_project_document.html', {'error': 'Project is required'})
+            if modalfield_value == '1':
+                return JsonResponse({'status': 'error', 'message': "Project is required"}, status=400)
+            else:
+                messages.error(request, "Project is required")
+                return render(request, 'project_document/add_project_document.html')
 
         # Ensure that all dynamic fields have values
         if len(document_types) != len(doc_paths) or len(doc_paths) != len(remarks) or len(ref_nos) != len(issuance_dates):
-            return render(request, 'project_document/add_project_document.html', {'error': 'Mismatched form fields'})
+            if modalfield_value == '1':
+                return JsonResponse({'status': 'error', 'message': "Mismatched form fields"}, status=400)
+            else:
+                messages.error(request, "Mismatched form fields")
+                return render(request, 'project_document/add_project_document.html')
 
         # Process and save the data 
         try: 
@@ -2469,20 +2591,24 @@ def add_project_document(request):
                     issuance_date=issuance_date
                     )
                 
-            modalfield_value = request.POST.get('modalfield')
+            
             if modalfield_value == '1':
+                messages.success(request, "Data added successfully!")
                 return JsonResponse({'status': 'success'}, status=200)
             else:
+                messages.success(request, "Data added successfully!")
                 return redirect('show_project_document')  
         except Exception as e:  
-                # Handle exceptions and provide feedback
-            print(f"An error occurred: {e}")
+            if modalfield_value == '1':
+                return JsonResponse({'status': 'error', 'message': f"Internal Server Error: {str(e)}"}, status=400)
+            else:
+                messages.error(request, f"Internal Server Error: {str(e)}")
+                return render(request,'project_document/add_project_document.html',{'projects':projects, 'document_types':document_types})  
     else:  
-        projects = Project.objects.filter(status=1).values('id','title')
-        document_types = Document_type.objects.filter(status=1).values('id','title')
+        
         return render(request,'project_document/add_project_document.html',{'projects':projects, 'document_types':document_types})  
      # Added a fallback return to ensure an HttpResponse is always returned
-    return JsonResponse({'status': 'error', 'message': 'Unhandled request method'}, status=400)
+    # return JsonResponse({'status': 'error', 'message': 'Unhandled request method'}, status=400)
 
 
 @login_required   
@@ -2535,12 +2661,15 @@ def u_project_document(request, id):
                     file_instance.doc_path = old_path
 
                 file_instance.save() 
-
+                messages.success(request, "Data Updated successfully!")  
                 return redirect('../project_details/'+str(file_instance.project.id))  
-                  
+            else:
+                error_messages = form.errors.as_json()
+                messages.error(request, f"Project Document Form validation failed: {error_messages}")
+                return redirect(f'../project_details/{project_document.project.id}')
         except Exception as e:  
-            print(e)
-            pass
+            messages.error(request, f"Internal Server Error: {str(e)}")
+            return redirect(f'../project_details/{project_document.project.id}')
 
 @login_required  
 @permission_required('employee.delete_project_document', raise_exception=True)
@@ -2548,6 +2677,7 @@ def d_project_document(request, id):
     project_document = Project_document.objects.get(id=id)  
     project_document.status=0 
     project_document.save() 
+    messages.success(request, "Data Deleted successfully!")
     return redirect("show_project_document")
 
 
@@ -2561,10 +2691,10 @@ def add_employee_target(request):
         today = datetime.now().date()
         current_month = today.month
         current_year = today.year
-        employee_target = Employee_target.objects.filter(financial_year=current_year,employee=request.POST.get('employee'),status=1)  
         employees = Employee.objects.filter(status=1).values('id','ename')
         
         if form.is_valid():
+            employee_target = Employee_target.objects.filter(financial_year=current_year,employee=request.POST.get('employee'),status=1)  
             if employee_target.exists():
                 messages.error(request, "This employee target is already set.")
                 return render(request,'employee_target/add_employee_target.html',{'form':form,'employees':employees})  
@@ -2591,7 +2721,8 @@ def add_employee_target(request):
                     messages.error(request, f"Internal Server Error: {str(e)}")
                     return render(request,'employee_target/add_employee_target.html',{'form':form,'employees':employees})  
         else:
-            messages.error(request, "Some fields are missing!")
+            error_messages = form.errors.as_json()
+            messages.error(request, f"Form validation failed: {error_messages}")
             return render(request,'employee_target/add_employee_target.html',{'form':form,'employees':employees})
     else:  
         form = Employee_targetForm()
@@ -2619,8 +2750,9 @@ def u_employee_target(request, id):
         form.save()
         messages.success(request, "Data Updated successfully!")  
         return redirect("show_employee_target")  
-    messages.error(request, "Some fields are missing!")
-    return render(request, 'employee_target/e_employee_target.html', {'employee_target': employee_target})  
+    error_messages = form.errors.as_json()
+    messages.error(request, f"Form validation failed: {error_messages}")
+    return redirect(f'../project_details/{employee_target.project.id}')
 
 @login_required  
 @permission_required('employee.delete_employee_target', raise_exception=True)
@@ -2635,36 +2767,45 @@ def d_employee_target(request, id):
 @login_required 
 @permission_required('employee.add_employee_project', raise_exception=True)
 def add_employee_project(request):  
+    projects = Project.objects.filter(status=1).values('id','title')
+    employees = Employee.objects.filter(status=1).values('id','ename')
     if request.method == "POST":  
         form = Employee_projectForm(request.POST) 
-        employee_projects = Employee_project.objects.filter(project=request.POST.get('project'),employee=request.POST.get('employee'),status=1)  
-        if employee_projects.exists():
-            form = Employee_projectForm()  
-            projects = Project.objects.filter(status=1).values('id','title')
-            employees = Employee.objects.filter(status=1).values('id','ename')
-            modalfield_value = request.POST.get('modalfield')
-            if modalfield_value == '1':
-                return JsonResponse({'status': 'error','error_message': "This employee is already assigned to the selected project."}, status=402)
+        modalfield_value = request.POST.get('modalfield')
+        if form.is_valid():
+            employee_projects = Employee_project.objects.filter(project=request.POST.get('project'),employee=request.POST.get('employee'),status=1)  
+            if employee_projects.exists():
+                if modalfield_value == '1':
+                    return JsonResponse({'status': 'error','message': "This employee is already assigned to the selected project."}, status=402)
+                else:
+                    messages.error(request, "This employee is already assigned to the selected project.")
+                    return render(request,'employee_project/add_employee_project.html',{'form':form,'projects':projects,'employees':employees})  
             else:
-                return render(request,'employee_project/add_employee_project.html',{'form':form,'projects':projects,'employees':employees,'error_message': "This employee is already assigned to the selected project."})  
+                try:  
+                    form.save()
+                    if modalfield_value == '1':
+                        messages.success(request, "Data added successfully!")
+                        return JsonResponse({'status': 'success'}, status=200)
+                    else:
+                        messages.success(request, "Data added successfully!")
+                        return redirect('show_employee_project')  
+                except Exception as e:  
+                    if modalfield_value == '1':
+                        return JsonResponse({'status': 'error', 'message': f"Internal Server Error: {str(e)}"}, status=400)
+                    else:
+                        messages.error(request, f"Internal Server Error: {str(e)}")
+                        return render(request,'employee_project/add_employee_project.html',{'form':form,'projects':projects,'employees':employees})  
         else:
-            if form.is_valid():
-                    try:  
-                        form.save()  
-                        modalfield_value = request.POST.get('modalfield')
-                        if modalfield_value == '1':
-                            return JsonResponse({'status': 'success'}, status=200)
-                        else:
-                            return redirect('show_employee_project')  
-                    except Exception as e:  
-        
-                        pass
+            error_messages = form.errors.as_json()
+            if modalfield_value == '1':
+                return JsonResponse({'status': 'error', 'message': f"Form validation failed: {error_messages}"}, status=400)
+            else:
+                messages.error(request, f"Form validation failed: {error_messages}") 
+                return render(request,'employee_project/add_employee_project.html',{'form':form,'projects':projects,'employees':employees})     
     else:  
-        form = Employee_projectForm()  
-        projects = Project.objects.filter(status=1).values('id','title')
-        employees = Employee.objects.filter(status=1).values('id','ename')
+        form = Employee_projectForm()
         return render(request,'employee_project/add_employee_project.html',{'form':form,'projects':projects,'employees':employees})  
-    return JsonResponse({'status': 'error', 'message': 'Unhandled request method'}, status=400)
+    # return JsonResponse({'status': 'error', 'message': 'Unhandled request method'}, status=400)
 
 @login_required  
 @permission_required('employee.view_employee_project', raise_exception=True)  
@@ -2705,13 +2846,17 @@ def u_employee_project(request, id):
     form = Employee_projectForm(request.POST, instance = employee_project)  
     employee_projects = Employee_project.objects.filter(project=request.POST.get('project'),employee=request.POST.get('employee'),status=1)  
     if employee_projects.exists():
-        return JsonResponse({'status': 'error','error_message': "This employee is already assigned to the selected project."}, status=402)
+        return JsonResponse({'status': 'error','message': "This employee is already assigned to the selected project."}, status=402)
     else:
         if form.is_valid():  
             form.save()  
+            messages.success(request, "Data Updated successfully!")  
             return JsonResponse({'status': 'success'}, status=200)
-            # return redirect("show_employee_project")  
-    return render(request, 'employee_project/e_employee_project.html', {'employee_project': employee_project})  
+            # return redirect("show_employee_project") 
+        else:
+            error_messages = form.errors.as_json()
+            messages.error(request, f"Form validation failed: {error_messages}")   
+            return render(request, 'employee_project/e_employee_project.html', {'employee_project': employee_project})  
 
 @login_required  
 @permission_required('employee.delete_employee_project', raise_exception=True)
@@ -2719,6 +2864,7 @@ def d_employee_project(request, id):
     employee_project = Employee_project.objects.get(id=id)  
     employee_project.status=0  
     employee_project.save()
+    messages.success(request, "Data Deleted successfully!")
     return redirect("show_employee_project")
 
 #Generate Report
@@ -2923,20 +3069,25 @@ def load_branch(request):
 @login_required 
 @permission_required('employee.add_leads', raise_exception=True)
 def add_leads(request):  
+    clients = Client.objects.filter(status=1).values('id','client_name')
+    employees = Employee.objects.filter(status=1).values('id','ename')
     if request.method == "POST":  
         form = LeadsForm(request.POST) 
         if form.is_valid():
             try:  
-                form.save()  
+                form.save() 
+                messages.success(request, "Data added successfully!") 
                 return redirect('show_leads')  
             except Exception as e:  
-  
-                pass  
+                messages.error(request, f"Internal Server Error: {str(e)}")
+                return render(request,'leads/add_leads.html',{'form':form,'employees':employees, 'clients':clients})  
+        else:
+            error_messages = form.errors.as_json()
+            messages.error(request, f"Form validation failed: {error_messages}")  
+            return render(request,'leads/add_leads.html',{'form':form,'employees':employees, 'clients':clients})  
     else:  
         form = LeadsForm()
-        clients = Client.objects.filter(status=1).values('id','client_name')
-        employees = Employee.objects.filter(status=1).values('id','ename')
-    return render(request,'leads/add_leads.html',{'form':form,'employees':employees, 'clients':clients})  
+        return render(request,'leads/add_leads.html',{'form':form,'employees':employees, 'clients':clients})  
 
 @login_required  
 @permission_required('employee.view_leads', raise_exception=True)  
@@ -2959,8 +3110,11 @@ def u_leads(request, id):
     leads = Leads.objects.get(id=id)  
     form = LeadsForm(request.POST, instance = leads)  
     if form.is_valid():  
-        form.save()  
-        return redirect("show_leads")  
+        form.save() 
+        messages.success(request, "Data Updated successfully!")   
+        return redirect("show_leads") 
+    error_messages = form.errors.as_json()
+    messages.error(request, f"Form validation failed: {error_messages}")  
     return render(request, 'leads/e_leads.html', {'leads': leads})  
 
 @login_required  
@@ -2969,6 +3123,7 @@ def d_leads(request, id):
     leads = Leads.objects.get(id=id)  
     leads.status=0  
     leads.save()
+    messages.success(request, "Data Deleted successfully!")
     return redirect("show_leads")
 
 # Sales
@@ -2995,6 +3150,7 @@ def add_sales(request):
                 file_instance.sale_date=today
                 file_instance.sale_person_id=leads.sale_person_id
                 file_instance.save()
+                messages.success(request, "Data added successfully!")
                 return JsonResponse({'status': 'success'}, status=200)  
             except Exception as e:  
                 return JsonResponse({'status': 'Failed','Error': e}, status=400)
@@ -3054,19 +3210,31 @@ def dashboard(request):
 @login_required 
 @permission_required('employee.add_vendor', raise_exception=True)
 def add_vendor(request):  
+    countries = Country.objects.filter(status=1).values('id','country_name')
     if request.method == "POST":  
         form = VendorForm(request.POST) 
+        email = request.POST.get('email')
+        phone = request.POST.get('phone')
+        vendor = Vendor.objects.filter(Q(email=email) | Q(phone=phone),  status=1)
         if form.is_valid():
-            try:  
-                form.save()  
-                return redirect('show_vendor')  
-            except Exception as e:  
-  
-                pass  
+            if vendor.exists():
+                messages.error(request, "This Vendor Email Address OR Phone Number already exist.")
+                return render(request,'vendor/add_vendor.html',{'form':form, 'countries':countries})  
+            else:
+                try:  
+                    form.save()  
+                    messages.success(request, "Data added successfully!")
+                    return redirect('show_vendor')  
+                except Exception as e:  
+                    messages.error(request, f"Internal Server Error: {str(e)}")
+                    return render(request,'vendor/add_vendor.html',{'form':form, 'countries':countries})
+        else:
+            error_messages = form.errors.as_json()
+            messages.error(request, f"Form validation failed: {error_messages}")
+            return render(request,'vendor/add_vendor.html',{'form':form, 'countries':countries})
     else:  
-        form = VendorForm()  
-        countries = Country.objects.filter(status=1).values('id','country_name')
-    return render(request,'vendor/add_vendor.html',{'form':form, 'countries':countries})  
+        form = VendorForm()
+        return render(request,'vendor/add_vendor.html',{'form':form, 'countries':countries})  
 
 @login_required    
 @permission_required('employee.view_vendor', raise_exception=True)
@@ -3084,10 +3252,13 @@ def e_vendor(request, id):
 @login_required  
 def u_vendor(request, id):  
     vendor = Vendor.objects.get(id=id)  
-    form = VendorForm(request.POST, instance = vendor)  
+    form = VendorForm(request.POST, instance = vendor)
     if form.is_valid():  
         form.save()  
-        return redirect("show_vendor")  
+        messages.success(request, "Data Updated successfully!")  
+        return redirect("show_vendor") 
+    error_messages = form.errors.as_json()
+    messages.error(request, f"Form validation failed: {error_messages}")   
     return render(request, 'vendor/e_vendor.html', {'vendor': vendor})  
 
 @login_required  
@@ -3096,6 +3267,7 @@ def d_vendor(request, id):
     vendor = Vendor.objects.get(id=id)  
     vendor.status=0  
     vendor.save()
+    messages.success(request, "Data Deleted successfully!")
     return redirect("show_vendor")
 
 @login_required 

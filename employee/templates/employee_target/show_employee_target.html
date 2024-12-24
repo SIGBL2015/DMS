@@ -31,10 +31,7 @@
                           <th>Employee</th>
                           <th>Financial Year</th>
                           <th>Currency</th>
-                          <th>1st Quarter</th>
-                          <th>2nd Quarter</th>
-                          <th>3rd Quarter</th>
-                          <th>4th Quarter</th>
+                          <th>Quarter Target</th>
                           <th>Year Target</th>
                           <th>Status</th>
                           <th>Action</th>
@@ -47,10 +44,7 @@
                                     <td>{{ employee_target.employee.ename }}</td>
                                     <td>{{ employee_target.financial_year }}</td> 
                                     <td>{{ employee_target.currency }}</td>  
-                                    <td>{{ employee_target.quarter_first_target }}</td>
-                                    <td>{{ employee_target.quarter_second_target }}</td>
-                                    <td>{{ employee_target.quarter_third_target }}</td>
-                                    <td>{{ employee_target.quarter_fourth_target }}</td>
+                                    <td>{{ employee_target.sales_target }}</td>
                                     <td>{{ employee_target.year_target }}</td> 
                                     {% if employee_target.status == 1 %}
                                       <td>Active</td>  
@@ -58,7 +52,7 @@
                                       <td>Deactive</td>
                                     {% endif %}
                                     <td>  
-                                        <a href="/employee/e_employee_target/{{ employee_target.id }}"><span class="ion-ios-compose" ></span></a>  
+                                        <!-- <a href="/employee/e_employee_target/{{ employee_target.id }}"><span class="ion-ios-compose" ></span></a>   -->
                                         <a href="/employee/d_employee_target/{{ employee_target.id }}" onclick="return confirm('Are you sure you want to delete this?')"><span class="ion-ios-trash" ></span></a>  
                                     </td>  
                                 </tr>  
@@ -70,10 +64,7 @@
                             <th>Employee</th>
                             <th>Financial Year</th>
                             <th>Currency</th>
-                            <th>1st Quarter</th>
-                            <th>2nd Quarter</th>
-                            <th>3rd Quarter</th>
-                            <th>4th Quarter</th>
+                            <th>Quarter Target</th>
                             <th>Year Target</th>
                             <th>Status</th>
                             <th>Action</th>
