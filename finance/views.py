@@ -7,6 +7,8 @@ from finance.models import Chart_of_accounts, Journal_entry, Payment_mode, Accou
 from employee.models import Project, Bank, Branch
 from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import get_object_or_404, render, redirect  
+from django.db.models import Q
+from django.contrib import messages
 # Create your views here.
 
 
@@ -14,20 +16,32 @@ from django.shortcuts import get_object_or_404, render, redirect
 @login_required 
 @permission_required('finance.add_chart_of_accounts', raise_exception=True)  
 def add_coa(request):  
+    coas = Chart_of_accounts.objects.filter(status=1,parent_id__isnull=True).values('id','title')
+    account_types = Account_type.objects.filter(status=1).values('id','title')
     if request.method == "POST":  
         form = Chart_of_accountsForm(request.POST) 
+        title = request.POST.get('title')
+        short_code = request.POST.get('short_code')
+        coa = Chart_of_accounts.objects.filter(Q(title__iexact=title) | Q(short_code__iexact=short_code), status=1)
         if form.is_valid():
-            try:  
-                form.save()  
-                return redirect('show_coa')  
-            except Exception as e:  
-  
-                pass  
+            if coa.exists():
+                messages.error(request, "This Chart Of Account title or short code already exist.")
+                return render(request,'chart_of_accounts/add_coa.html',{'form':form, 'coas':coas, 'account_types':account_types})  
+            else:
+                try:  
+                    form.save()  
+                    messages.success(request, "Data added successfully!") 
+                    return redirect('show_coa')  
+                except Exception as e:  
+                    messages.error(request, f"Internal Server Error: {str(e)}")
+                    return render(request,'chart_of_accounts/add_coa.html',{'form':form, 'coas':coas, 'account_types':account_types})  
+        else:
+            error_messages = form.errors.as_json()
+            messages.error(request, f"Form validation failed: {error_messages}")
+            return render(request,'chart_of_accounts/add_coa.html',{'form':form, 'coas':coas, 'account_types':account_types})  
     else:  
-        form = Chart_of_accountsForm()  
-        coas = Chart_of_accounts.objects.filter(status=1,parent_id__isnull=True).values('id','title')
-        account_types = Account_type.objects.filter(status=1).values('id','title')
-    return render(request,'chart_of_accounts/add_coa.html',{'form':form, 'coas':coas, 'account_types':account_types})  
+        form = Chart_of_accountsForm()
+        return render(request,'chart_of_accounts/add_coa.html',{'form':form, 'coas':coas, 'account_types':account_types})  
 
 @login_required  
 @permission_required('finance.view_chart_of_accounts', raise_exception=True)   
@@ -45,12 +59,33 @@ def e_coa(request, id):
 
 @login_required  
 def u_coa(request, id):  
-    coa = Chart_of_accounts.objects.get(id=id)  
+    coa = Chart_of_accounts.objects.get(id=id)
+    original_title = coa.title  # Preserve the original title
+    original_short_code = coa.short_code
+    account_types = Account_type.objects.filter(status=1).values('id','title')
+    coas = Chart_of_accounts.objects.filter(status=1,parent_id__isnull=True).values('id','title')
     form = Chart_of_accountsForm(request.POST, instance = coa)  
+    title = request.POST.get('title')
+    short_code = request.POST.get('short_code')
+    # Check for duplicates excluding the current record
+    duplicate_title = Chart_of_accounts.objects.filter(title__iexact=title, status=1).exclude(id=id).exists()
+    duplicate_short_code = Chart_of_accounts.objects.filter(short_code__iexact=short_code, status=1).exclude(id=id).exists()
     if form.is_valid():  
+        if duplicate_title or duplicate_short_code:
+            # Revert conflicting fields to their original values
+            if duplicate_title:
+                form.instance.title = original_title  # Revert to original title
+                messages.error(request, "The title already exists and was not updated.")
+            if duplicate_short_code:
+                form.instance.short_code = original_short_code  # Revert to original short_code
+                messages.error(request, "The short code already exists and was not updated.")
+
         form.save()  
+        messages.success(request, "Data updated successfully (except for conflicting fields)!")
         return redirect("show_coa")  
-    return render(request, 'chart_of_accounts/e_coa.html', {'coa': coa})  
+    error_messages = form.errors.as_json()
+    messages.error(request, f"Form validation failed: {error_messages}")  
+    return render(request,'chart_of_accounts/e_coa.html', {'coa':coa, 'coas':coas, 'account_types':account_types})  
 
 @login_required  
 @permission_required('finance.delete_chart_of_accounts', raise_exception=True) 
@@ -58,6 +93,7 @@ def d_coa(request, id):
     coa = Chart_of_accounts.objects.get(id=id)  
     coa.status=0  
     coa.save()
+    messages.success(request, "Data Deleted successfully!")
     return redirect("show_coa")  
 
 
@@ -65,11 +101,16 @@ def d_coa(request, id):
 @login_required 
 @permission_required('finance.add_journal_entry', raise_exception=True)  
 def add_journal_entry(request):  
+    coas = Chart_of_accounts.objects.filter(status=1,parent_id__isnull=False).values('id','title')
+    currency = Currency.objects.filter(status=1).values('id','name')
+    projects = Project.objects.filter(status=1).values('id','title')
+    banks = Bank.objects.filter(status=1).values('id','bank_name')
+    modes = Payment_mode.objects.filter(status=1).values('id','title')
+    branches = Branch.objects.filter(status=1).values('id','branch_name')
     if request.method == "POST":  
-        form = Journal_entryForm(request.POST, request.FILES) 
-        
-        try:  
-            if form.is_valid():
+        form = Journal_entryForm(request.POST, request.FILES)
+        if form.is_valid():
+            try: 
                 file_instance = form.save(commit=False)
                 if 'doc_path' in request.FILES:
                     # Generate folder path dynamically
@@ -88,20 +129,19 @@ def add_journal_entry(request):
                             f.write(chunk)
                     # Update the file field with the relative path to the file
                     file_instance.doc_path = os.path.relpath(file_path, settings.MEDIA_ROOT)
-                file_instance.save()   
+                file_instance.save() 
+                messages.success(request, "Data added successfully!")   
                 return redirect('show_journal_entry')  
-        except Exception as e:  
-
-            pass  
+            except Exception as e:  
+                messages.error(request, f"Internal Server Error: {str(e)}")
+                return render(request,'journal_entry/add_journal_entry.html',{'form':form, 'coas':coas, 'projects':projects, 'banks':banks, 'modes':modes,'branches':branches,'currency':currency})  
+        else:
+            error_messages = form.errors.as_json()
+            messages.error(request, f"Form validation failed: {error_messages}")
+            return render(request,'journal_entry/add_journal_entry.html',{'form':form, 'coas':coas, 'projects':projects, 'banks':banks, 'modes':modes,'branches':branches,'currency':currency})     
     else:  
         form = Journal_entryForm()  
-        coas = Chart_of_accounts.objects.filter(status=1,parent_id__isnull=False).values('id','title')
-        currency = Currency.objects.filter(status=1).values('id','name')
-        projects = Project.objects.filter(status=1).values('id','title')
-        banks = Bank.objects.filter(status=1).values('id','bank_name')
-        modes = Payment_mode.objects.filter(status=1).values('id','title')
-        branches = Branch.objects.filter(status=1).values('id','branch_name')
-    return render(request,'journal_entry/add_journal_entry.html',{'form':form, 'coas':coas, 'projects':projects, 'banks':banks, 'modes':modes,'branches':branches,'currency':currency})  
+        return render(request,'journal_entry/add_journal_entry.html',{'form':form, 'coas':coas, 'projects':projects, 'banks':banks, 'modes':modes,'branches':branches,'currency':currency})  
 
 @login_required  
 @permission_required('finance.view_journal_entry', raise_exception=True)   
@@ -126,7 +166,10 @@ def u_journal_entry(request, id):
     form = Journal_entryForm(request.POST, instance = journal_entry)  
     if form.is_valid():  
         form.save()  
+        messages.success(request, "Data Updated successfully!")  
         return redirect("show_journal_entry")  
+    error_messages = form.errors.as_json()
+    messages.error(request, f"Form validation failed: {error_messages}")
     return render(request, 'journal_entry/e_journal_entry.html', {'journal_entry': journal_entry})  
 
 @login_required  
@@ -135,6 +178,7 @@ def d_journal_entry(request, id):
     journal_entry = Journal_entry.objects.get(id=id)  
     journal_entry.status=0  
     journal_entry.save()
+    messages.success(request, "Data Deleted successfully!")
     return redirect("show_journal_entry")  
 
 def generate_refno(request):

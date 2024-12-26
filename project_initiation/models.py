@@ -59,7 +59,7 @@ class Item(models.Model):
     name = models.CharField(max_length=255, null=True)
     short_name = models.CharField(max_length=50, null=True)
     description = models.CharField(max_length=1000, null=True)
-    unit = models.ForeignKey(Unit, on_delete=models.CASCADE,null=True, blank=True)
+    unit = models.ForeignKey(Unit, on_delete=models.CASCADE,null=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE,null=True, blank=True)
     created_at = models.DateField(auto_now_add=True, null=True)
     updated_at = models.DateField(auto_now=True, null=True)
@@ -70,7 +70,7 @@ class Item(models.Model):
 
 class Heading(models.Model): 
     title = models.CharField(max_length=255, null=True)
-    tendor = models.ForeignKey(Tendor, on_delete=models.CASCADE,null=True, blank=True)
+    tendor = models.ForeignKey(Tendor, on_delete=models.CASCADE,null=True)
     created_at = models.DateField(auto_now_add=True, null=True)
     updated_at = models.DateField(auto_now=True, null=True)
     deleted_at = models.DateField(null=True, blank=True)
@@ -80,8 +80,8 @@ class Heading(models.Model):
 
 class Sub_heading(models.Model): 
     title = models.CharField(max_length=255, null=True)
-    heading = models.ForeignKey(Heading, on_delete=models.CASCADE,null=True, blank=True)
-    tendor = models.ForeignKey(Tendor, on_delete=models.CASCADE,null=True, blank=True)
+    heading = models.ForeignKey(Heading, on_delete=models.CASCADE,null=True)
+    tendor = models.ForeignKey(Tendor, on_delete=models.CASCADE,null=True)
     isgroup = models.IntegerField(default=0) 
     created_at = models.DateField(auto_now_add=True, null=True)
     updated_at = models.DateField(auto_now=True, null=True)

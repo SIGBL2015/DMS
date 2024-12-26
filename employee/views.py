@@ -2856,7 +2856,7 @@ def u_employee_project(request, id):
         else:
             error_messages = form.errors.as_json()
             messages.error(request, f"Form validation failed: {error_messages}")   
-            return render(request, 'employee_project/e_employee_project.html', {'employee_project': employee_project})  
+            return redirect(f'../project_details/{employee_project.project.id}')
 
 @login_required  
 @permission_required('employee.delete_employee_project', raise_exception=True)

@@ -13,6 +13,7 @@
           <h1 class="section-header">
             <div>Edit Chart Of Account</div>
           </h1>
+          {% include 'layout/status.html' %}
           <div class="col-md-6 col-md-offset-4 mx-auto">
             <div class="card card-primary">
                 <div class="card-header"><h4>Edit</h4></div>
@@ -57,11 +58,11 @@
                         <label for="frist_name">Parent Head</label>
                         <select class="form-control" id="parent" name="parent">
                             <option value="">-- Select --</option>
-                            {% for coa in coas %}
-                              {% if coa.parent.id == coa.id %}                         
-                                  <option value="{{ coa.id }}" selected>{{ coa.title }}</option>
+                            {% for coac in coas %}
+                              {% if coa.parent.id == coac.id %}                         
+                                  <option value="{{ coac.id }}" selected>{{ coac.title }}</option>
                               {% else %}
-                                  <option value="{{ coa.id }}">{{ coa.title }}</option>
+                                  <option value="{{ coac.id }}">{{ coac.title }}</option>
                               {% endif %}
                             {% endfor %}
                         </select>
