@@ -66,7 +66,7 @@ class Journal_entry(models.Model):
     bank = models.ForeignKey(Bank, on_delete=models.CASCADE,null=True, blank=True)
     cheque_no = models.CharField(max_length=100, null=True, blank=True)
     receive_person = models.CharField(max_length=100, null=True, blank=True)
-    transaction_type = models.CharField(max_length=50, null=True)
+    transaction_type = models.CharField(max_length=50, null=True, blank=True)
     branch = models.ForeignKey(Branch, on_delete=models.CASCADE,null=True, blank=True)
     ref_no = models.CharField(max_length=50, null=True, blank=True, unique=True)
     description = models.CharField(max_length=1000, null=True, blank=True)
@@ -74,6 +74,10 @@ class Journal_entry(models.Model):
     created_at = models.DateField(auto_now_add=True, null=True)
     updated_at = models.DateField(auto_now=True, null=True)
     deleted_at = models.DateField(null=True, blank=True)
+    coa_type = models.CharField(max_length=50, null=True, blank=True)
+    current_status = models.CharField(max_length=50, null=True, blank=True)
+    status_change_date = models.DateField(null=True, blank=True)
+    expected_date = models.DateField(null=True, blank=True)
     status = models.IntegerField(default=1) 
     class Meta:  
         db_table = "journal_entry"

@@ -97,7 +97,7 @@ def d_coa(request, id):
     return redirect("show_coa")  
 
 
-# Journal_entry
+# Journal_entry Expense
 @login_required 
 @permission_required('finance.add_journal_entry', raise_exception=True)  
 def add_journal_entry(request):  
@@ -129,6 +129,10 @@ def add_journal_entry(request):
                             f.write(chunk)
                     # Update the file field with the relative path to the file
                     file_instance.doc_path = os.path.relpath(file_path, settings.MEDIA_ROOT)
+                file_instance.coa_type ='Expense Payable'
+                file_instance.transaction_type ='Debit'
+                file_instance.current_status ='Payable'
+                # file_instance.status_change_date = datetime.now().date()
                 file_instance.save() 
                 messages.success(request, "Data added successfully!")   
                 return redirect('show_journal_entry')  
@@ -143,11 +147,67 @@ def add_journal_entry(request):
         form = Journal_entryForm()  
         return render(request,'journal_entry/add_journal_entry.html',{'form':form, 'coas':coas, 'projects':projects, 'banks':banks, 'modes':modes,'branches':branches,'currency':currency})  
 
+@login_required 
+@permission_required('finance.add_journal_entry', raise_exception=True)  
+def add_revenue_entry(request):  
+    coas = Chart_of_accounts.objects.filter(status=1,parent_id__isnull=False).values('id','title')
+    currency = Currency.objects.filter(status=1).values('id','name')
+    projects = Project.objects.filter(status=1).values('id','title')
+    banks = Bank.objects.filter(status=1).values('id','bank_name')
+    modes = Payment_mode.objects.filter(status=1).values('id','title')
+    branches = Branch.objects.filter(status=1).values('id','branch_name')
+    if request.method == "POST":  
+        form = Journal_entryForm(request.POST, request.FILES)
+        if form.is_valid():
+            try: 
+                file_instance = form.save(commit=False)
+                if 'doc_path' in request.FILES:
+                    # Generate folder path dynamically
+                    folder_name = str(file_instance.project.id)
+                    folder_path = os.path.join(settings.MEDIA_ROOT,'project',folder_name,'expense_document')
+                    
+                    if not os.path.exists(folder_path):
+                        os.makedirs(folder_path)
+                    # Generate file path dynamically
+                    timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+                    new_file_name = f"{file_instance.project.id}_{file_instance.ref_no}_{timestamp}{os.path.splitext(request.FILES['doc_path'].name)[1]}"
+                    file_path = os.path.join(folder_path, new_file_name)
+                    # Save file to the generated path
+                    with open(file_path, 'wb') as f:
+                        for chunk in request.FILES['doc_path'].chunks():
+                            f.write(chunk)
+                    # Update the file field with the relative path to the file
+                    file_instance.doc_path = os.path.relpath(file_path, settings.MEDIA_ROOT)
+                file_instance.coa_type ='Revenue Receivable'
+                file_instance.transaction_type ='Credit'
+                file_instance.current_status ='Receivable'
+                # file_instance.status_change_date = datetime.now().date()
+                file_instance.save() 
+                messages.success(request, "Data added successfully!")   
+                return redirect('show_revenue_entry')  
+            except Exception as e:  
+                messages.error(request, f"Internal Server Error: {str(e)}")
+                return render(request,'journal_entry/add_revenue_entry.html',{'form':form, 'coas':coas, 'projects':projects, 'banks':banks, 'modes':modes,'branches':branches,'currency':currency})  
+        else:
+            error_messages = form.errors.as_json()
+            messages.error(request, f"Form validation failed: {error_messages}")
+            return render(request,'journal_entry/add_revenue_entry.html',{'form':form, 'coas':coas, 'projects':projects, 'banks':banks, 'modes':modes,'branches':branches,'currency':currency})     
+    else:  
+        form = Journal_entryForm()  
+        return render(request,'journal_entry/add_revenue_entry.html',{'form':form, 'coas':coas, 'projects':projects, 'banks':banks, 'modes':modes,'branches':branches,'currency':currency})  
+
+
 @login_required  
 @permission_required('finance.view_journal_entry', raise_exception=True)   
 def show_journal_entry(request):  
-    journal_entries = Journal_entry.objects.filter(status=1)
-    return render(request,"journal_entry/show_journal_entry.html",{'journal_entries':journal_entries})  
+    journal_entries = Journal_entry.objects.filter(coa_type='Expense Payable',status=1)
+    return render(request,"journal_entry/show_journal_entry.html",{'journal_entries':journal_entries})
+
+@login_required  
+@permission_required('finance.view_journal_entry', raise_exception=True)   
+def show_revenue_entry(request):  
+    journal_entries = Journal_entry.objects.filter(coa_type='Revenue Receivable',status=1)
+    return render(request,"journal_entry/show_revenue_entry.html",{'journal_entries':journal_entries})  
 
 @login_required  
 @permission_required('finance.change_journal_entry', raise_exception=True) 
@@ -170,7 +230,22 @@ def u_journal_entry(request, id):
         return redirect("show_journal_entry")  
     error_messages = form.errors.as_json()
     messages.error(request, f"Form validation failed: {error_messages}")
-    return render(request, 'journal_entry/e_journal_entry.html', {'journal_entry': journal_entry})  
+    return render(request, 'journal_entry/e_journal_entry.html', {'journal_entry': journal_entry})
+
+@login_required  
+def u_status(request):  
+    journal_entry = Journal_entry.objects.get(id=request.POST.get('lead')) 
+    status ='' 
+    if request.POST.get('check') =='revenue':
+        status='Received'   
+    else:
+        status='Paid'
+    journal_entry.current_status=status
+    journal_entry.status_change_date= request.POST.get('status_change_date')
+    journal_entry.save()
+    messages.success(request, "Data Updated successfully!")  
+    return JsonResponse({'status': 'success'}, status=200) 
+    
 
 @login_required  
 @permission_required('finance.delete_journal_entry', raise_exception=True) 

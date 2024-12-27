@@ -11,8 +11,8 @@
       <div class="main-content">
         <section class="section">
           <h1 class="section-header">
-            <div>Expense Entries</div>
-            <div style="float: right;"><a href="/finance/save_journal_entry" class="btn btn-sm btn-danger">Add</a></div>
+            <div>Revenue Entries</div>
+            <div style="float: right;"><a href="/finance/save_revenue_entry" class="btn btn-sm btn-danger">Add</a></div>
           </h1>
           {% include 'layout/status.html' %}
           <div class="section-body">
@@ -20,7 +20,7 @@
               <div class="col-12">
                 <div class="card">
                     <div class="card-header">
-                      <h3 class="card-title">Expense Entry Details</h3>
+                      <h3 class="card-title">Revenue Entry Details</h3>
                     </div>
                     <!-- /.card-header -->
                     <div class="card-body">
@@ -40,7 +40,7 @@
                           <th>Receiver</th>
                           <th>COA Type</th>
                           <th>Current Status</th>
-                          <th>Paid Date</th>
+                          <th>Received Date</th>
                           <th>Remarks</th>
                           <th>Doc</th>
                           <th>Status</th>
@@ -62,8 +62,8 @@
                                     <td>{{ journal_entry.cheque_no }}</td>
                                     <td>{{ journal_entry.receive_person }}</td>
                                     <td>{{ journal_entry.coa_type }}</td>
-                                    {% if journal_entry.current_status == 'Payable' %}
-                                      <td><button type="button" class="btn btn-sm btn-primary getexpense" data-toggle="modal" id="getexpense" data-id={{journal_entry.id}} data-target="#expense" style="float: right;">
+                                    {% if journal_entry.current_status == 'Receivable' %}
+                                      <td><button type="button" class="btn btn-sm btn-primary getrevenue" data-toggle="modal" id="getrevenue" data-id={{journal_entry.id}} data-target="#revenue" style="float: right;">
                                         {{ journal_entry.current_status }}
                                       </button></td>  
                                     {% else %}
@@ -99,7 +99,7 @@
                           <th>Receiver</th>
                           <th>COA Type</th>
                           <th>Current Status</th>
-                          <th>Paid Date</th>
+                          <th>Received Date</th>
                           <th>Remarks</th>
                           <th>Doc</th>
                           <th>Status</th>
@@ -115,52 +115,53 @@
             </div>
           </div>
         </section>
-        <!-- Convert Lead Modal -->
-        <div class="modal fade" id="expense" tabindex="-1" aria-labelledby="expenseLabel" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false">
-          <div class="modal-dialog">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="expenseLabel">Paying</h5>
-                <button type="button" class="btn-close-expense" data-dismiss="modal" aria-label="Close"></button>
-              </div>
-              <div class="modal-body">
-                <form class="formnew" method="POST" data-url="{% url 'u_status' %}" id="myForm1">
-                  {% csrf_token %}
-                  <div class="row">
-                    <div class="form-group col-6">
-                      <label for="frist_name">Invoice ID</label>
-                      <input id="lead" type="text" class="form-control" name="lead" readonly>
+          <!-- Convert Lead Modal -->
+          <div class="modal fade" id="revenue" tabindex="-1" aria-labelledby="revenueLabel" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="revenueLabel">Receiving</h5>
+                  <button type="button" class="btn-close-revenue" data-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  <form class="formnew" method="POST" data-url="{% url 'u_status' %}" id="myForm1">
+                    {% csrf_token %}
+                    <div class="row">
+                      <div class="form-group col-6">
+                        <label for="frist_name">Invoice ID</label>
+                        <input id="lead" type="text" class="form-control" name="lead" readonly>
+                      </div>
+                      <div class="form-group col-6">
+                        <label for="frist_name">Receiving Date</label>
+                        <input id="status_change_date" type="date" class="form-control" name="status_change_date">
+                        <input id="check" type="hidden" class="form-control" name="check" value="revenue">
+                      </div>
                     </div>
-                    <div class="form-group col-6">
-                      <label for="frist_name">Paying Date</label>
-                      <input id="status_change_date" type="date" class="form-control" name="status_change_date">
-                      <input id="check" type="hidden" class="form-control" name="check" value="expense">
+                    <div class="form-group">
+                      <button type="submit"  value="save" class="btn btn-primary submit-btn">
+                        Received
+                      </button>
+                      <button type="button" class="btn btn-secondary btn-close-revenue" data-dismiss="modal">Cancel</button>
                     </div>
-                  </div>
-                  <div class="form-group">
-                    <button type="submit"  value="save" class="btn btn-primary submit-btn">
-                      Paid
-                    </button>
-                    <button type="button" class="btn btn-secondary btn-close-expense" data-dismiss="modal">Cancel</button>
-                  </div>
-                </form>
+                  </form>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-        <!-- Convert Lead Modal -->
+          <!-- Convert Lead Modal -->
       </div>
       {% include 'layout/footer.html' %}
     </div>
   </div>
+
   {% include 'layout/script.html' %}
   <script>
-    $(".btn-close-expense").on('click',function() {
-      $("#expense").modal('toggle');
+    $(".btn-close-revenue").on('click',function() {
+      $("#revenue").modal('toggle');
     });
 
     $(document).ready(function() {
-      $('.getexpense').click(function () {
+      $('.getrevenue').click(function () {
               var lead = $(this).attr('data-id');
               $('#lead').val(lead);
         });

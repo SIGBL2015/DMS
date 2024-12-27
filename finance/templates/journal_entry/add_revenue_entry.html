@@ -11,7 +11,7 @@
       <div class="main-content">
         <section class="section">
           <h1 class="section-header">
-            <div>Add Expense Entry</div>
+            <div>Add Revenue Entry</div>
           </h1>
           {% include 'layout/status.html' %}
           <div class="col-md-6 col-md-offset-4 mx-auto">
@@ -20,7 +20,7 @@
                 
                 <div class="card-body">
     
-                  <form method="POST" action="save_journal_entry" enctype="multipart/form-data">
+                  <form method="POST" action="save_revenue_entry" enctype="multipart/form-data">
                     {% csrf_token %}
                     <div class="row">
                       <div class="form-group col-md-6">
@@ -64,82 +64,82 @@
                         </div>
                     </div>
                     <div class="row">
-                      <div class="form-group col-md-6">
-                        <label for="frist_name">Total Amount</label>
-                        <input id="total_amount" type="number" class="form-control" name="total_amount" step="0.01" readonly>
+                        <div class="form-group col-md-6">
+                          <label for="frist_name">Total Amount</label>
+                          <input id="total_amount" type="number" class="form-control" name="total_amount" step="0.01" readonly>
+                        </div>
+                        <div class="form-group col-md-6">
+                          <label for="frist_name">Receivable Date</label>
+                          <input id="expected_date" type="date" class="form-control" name="expected_date">
+                        </div>
                       </div>
-                      <div class="form-group col-md-6">
-                        <label for="frist_name">Payable Date</label>
-                        <input id="expected_date" type="date" class="form-control" name="expected_date">
+  
+                      <div class="row">
+                        <div class="form-group col-md-6">
+                          <label for="frist_name">Project</label>
+                          <select class="form-control" id="project" name="project">
+                              <option value="">-- Select --</option>
+                              {% for project in projects %}
+                                  <option value="{{ project.id }}">{{ project.title }}</option>
+                              {% endfor %}
+                          </select>
+                        </div>
+                        <div class="form-group col-md-6">
+                          <label for="frist_name">Payment Mode</label>
+                          <select class="form-control" id="payment_mode" name="payment_mode">
+                              <option value="">-- Select --</option>
+                              {% for mode in modes %}
+                                  <option value="{{ mode.id }}">{{ mode.title }}</option>
+                              {% endfor %}
+                          </select>
+                        </div>
                       </div>
-                    </div>
-
-                    <div class="row">
-                      <div class="form-group col-md-6">
-                        <label for="frist_name">Project</label>
-                        <select class="form-control" id="project" name="project">
-                            <option value="">-- Select --</option>
-                            {% for project in projects %}
-                                <option value="{{ project.id }}">{{ project.title }}</option>
-                            {% endfor %}
-                        </select>
+  
+                      <div class="row">
+                        <div class="form-group col-md-6">
+                          <label for="frist_name">Bank</label>
+                          <select class="form-control" id="bank" name="bank">
+                              <option value="">-- Select --</option>
+                              {% for bank in banks %}
+                                  <option value="{{ bank.id }}">{{ bank.bank_name }}</option>
+                              {% endfor %}
+                          </select>
+                        </div>
+                        <div class="form-group col-md-6">
+                          <label for="frist_name">Cheque No</label>
+                          <input id="cheque_no" type="text" class="form-control" name="cheque_no">
+                        </div>
+                       
                       </div>
-                      <div class="form-group col-md-6">
-                        <label for="frist_name">Payment Mode</label>
-                        <select class="form-control" id="payment_mode" name="payment_mode">
-                            <option value="">-- Select --</option>
-                            {% for mode in modes %}
-                                <option value="{{ mode.id }}">{{ mode.title }}</option>
-                            {% endfor %}
-                        </select>
+                      <div class="row">
+                        <div class="form-group col-md-6">
+                          <label for="frist_name">Doc</label>
+                          <input id="doc_path" type="file" class="form-control" name="doc_path">
+                        </div>
+                        <div class="form-group col-md-6">
+                          <label for="frist_name">Branch</label>
+                          <select class="form-control" id="branch" name="branch">
+                              <option value="">-- Select --</option>
+                              {% for branch in branches %}
+                                  <option value="{{ branch.id }}">{{ branch.branch_name }}</option>
+                              {% endfor %}
+                          </select>
+                        </div>
                       </div>
-                    </div>
-
-                    <div class="row">
-                      <div class="form-group col-md-6">
-                        <label for="frist_name">Bank</label>
-                        <select class="form-control" id="bank" name="bank">
-                            <option value="">-- Select --</option>
-                            {% for bank in banks %}
-                                <option value="{{ bank.id }}">{{ bank.bank_name }}</option>
-                            {% endfor %}
-                        </select>
+                      <div class="row">
+                        <div class="form-group col-md-6">
+                          <label for="frist_name">Ref No</label>
+                          <input id="ref_no" type="text" class="form-control" name="ref_no" readonly>
+                        </div>
+                        <div class="form-group col-md-6">
+                          <label for="frist_name">Receiver</label>
+                          <input id="receive_person" type="text" class="form-control" name="receive_person">
+                        </div>
+                        <div class="form-group col-md-6">
+                          <label for="frist_name">Description</label>
+                          <textarea id="description" name="description" class="form-control" rows="4" cols="5"></textarea>
+                        </div>
                       </div>
-                      <div class="form-group col-md-6">
-                        <label for="frist_name">Cheque No</label>
-                        <input id="cheque_no" type="text" class="form-control" name="cheque_no">
-                      </div>
-                     
-                    </div>
-                    <div class="row">
-                      <div class="form-group col-md-6">
-                        <label for="frist_name">Doc</label>
-                        <input id="doc_path" type="file" class="form-control" name="doc_path">
-                      </div>
-                      <div class="form-group col-md-6">
-                        <label for="frist_name">Branch</label>
-                        <select class="form-control" id="branch" name="branch">
-                            <option value="">-- Select --</option>
-                            {% for branch in branches %}
-                                <option value="{{ branch.id }}">{{ branch.branch_name }}</option>
-                            {% endfor %}
-                        </select>
-                      </div>
-                    </div>
-                    <div class="row">
-                      <div class="form-group col-md-6">
-                        <label for="frist_name">Ref No</label>
-                        <input id="ref_no" type="text" class="form-control" name="ref_no" readonly>
-                      </div>
-                      <div class="form-group col-md-6">
-                        <label for="frist_name">Receiver</label>
-                        <input id="receive_person" type="text" class="form-control" name="receive_person">
-                      </div>
-                      <div class="form-group col-md-6">
-                        <label for="frist_name">Description</label>
-                        <textarea id="description" name="description" class="form-control" rows="4" cols="5"></textarea>
-                      </div>
-                    </div>
     
                     <div class="form-group">
                       <button type="submit" class="btn btn-primary">

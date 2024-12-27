@@ -30,4 +30,4 @@ class Chart_of_accountsForm(forms.ModelForm):
 class Journal_entryForm(forms.ModelForm):  
     class Meta:  
         model = Journal_entry  
-        fields = ('id','coaid', 'currency', 'amount','conversion_rate','total_amount', 'transaction_type', 'payment_mode', 'project', 'bank', 'cheque_no', 'branch', 'ref_no', 'receive_person','description','doc_path')
+        fields = ('id','coaid', 'currency', 'amount','conversion_rate','total_amount', 'transaction_type', 'payment_mode', 'project', 'bank', 'cheque_no', 'branch', 'ref_no', 'receive_person','description','doc_path','coa_type','current_status','status_change_date','expected_date')
