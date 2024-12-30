@@ -24,6 +24,7 @@ class Payment_mode(models.Model):
 class Account_type(models.Model): 
     title = models.CharField(max_length=255, null=True)
     short_code = models.CharField(max_length=50, null=True)
+    sequence_code = models.CharField(max_length=50, null=True, blank=True)
     created_at = models.DateField(auto_now_add=True, null=True)
     updated_at = models.DateField(auto_now=True, null=True)
     deleted_at = models.DateField(null=True, blank=True)
@@ -35,6 +36,7 @@ class Detail_type(models.Model):
     account_type = models.ForeignKey(Account_type, on_delete=models.CASCADE,null=True, blank=True)
     title = models.CharField(max_length=255, null=True)
     short_code = models.CharField(max_length=50, null=True)
+    sequence_code = models.CharField(max_length=50, null=True, blank=True)
     created_at = models.DateField(auto_now_add=True, null=True)
     updated_at = models.DateField(auto_now=True, null=True)
     deleted_at = models.DateField(null=True, blank=True)
@@ -47,6 +49,7 @@ class Chart_of_accounts(models.Model):
     detail_type = models.ForeignKey(Detail_type, on_delete=models.CASCADE,null=True, blank=True)
     title = models.CharField(max_length=255, null=True)
     short_code = models.CharField(max_length=50, null=True)
+    sequence_code = models.CharField(max_length=50, null=True, blank=True)
     parent = models.ForeignKey("self", on_delete=models.CASCADE,null=True, blank=True)
     created_at = models.DateField(auto_now_add=True, null=True)
     updated_at = models.DateField(auto_now=True, null=True)

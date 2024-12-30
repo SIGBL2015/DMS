@@ -15,17 +15,17 @@ class Payment_modeForm(forms.ModelForm):
 class Account_typeForm(forms.ModelForm):  
     class Meta:  
         model = Account_type  
-        fields = ('id','title','short_code')
+        fields = ('id','title','short_code','sequence_code')
 
 class Detail_typeForm(forms.ModelForm):  
     class Meta:  
         model = Detail_type  
-        fields = ('id','title','short_code','account_type')
+        fields = ('id','title','short_code','account_type','sequence_code')
 
 class Chart_of_accountsForm(forms.ModelForm):  
     class Meta:  
         model = Chart_of_accounts  
-        fields = ('id','title','short_code','account_type','detail_type','parent') 
+        fields = ('id','title','short_code','account_type','detail_type','parent','sequence_code') 
 
 class Journal_entryForm(forms.ModelForm):  
     class Meta:  

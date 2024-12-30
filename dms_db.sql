@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 27, 2024 at 12:31 PM
+-- Generation Time: Dec 30, 2024 at 01:16 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -34,16 +34,20 @@ CREATE TABLE `account_type` (
   `created_at` date DEFAULT NULL,
   `updated_at` date DEFAULT NULL,
   `deleted_at` date DEFAULT NULL,
-  `status` int(11) NOT NULL
+  `status` int(11) NOT NULL,
+  `sequence_code` varchar(50) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `account_type`
 --
 
-INSERT INTO `account_type` (`id`, `title`, `short_code`, `created_at`, `updated_at`, `deleted_at`, `status`) VALUES
-(1, 'Account 1', 'A1', NULL, NULL, NULL, 1),
-(2, 'Account 2', 'A2', NULL, NULL, NULL, 1);
+INSERT INTO `account_type` (`id`, `title`, `short_code`, `created_at`, `updated_at`, `deleted_at`, `status`, `sequence_code`) VALUES
+(1, 'Assets', 'A1', NULL, NULL, NULL, 1, NULL),
+(2, 'Liabilities', 'L2', NULL, NULL, NULL, 1, NULL),
+(3, 'Equity', 'E3', NULL, NULL, NULL, 1, NULL),
+(4, 'Revenue', 'R4', NULL, NULL, NULL, 1, NULL),
+(5, 'Expenses', 'E5', NULL, NULL, NULL, 1, NULL);
 
 -- --------------------------------------------------------
 
@@ -509,7 +513,7 @@ CREATE TABLE `auth_user` (
 --
 
 INSERT INTO `auth_user` (`id`, `password`, `last_login`, `is_superuser`, `username`, `first_name`, `last_name`, `email`, `is_staff`, `is_active`, `date_joined`) VALUES
-(1, 'pbkdf2_sha256$600000$oL0OdDOGLsnL9iAqoqm466$CsRnlsue4mofR0GGQI2+NX195XJUMrenMk2mqZ1twmI=', '2024-12-27 07:46:52.323486', 1, 'turab', '', '', '', 1, 1, '2024-02-19 10:18:22.000000'),
+(1, 'pbkdf2_sha256$600000$oL0OdDOGLsnL9iAqoqm466$CsRnlsue4mofR0GGQI2+NX195XJUMrenMk2mqZ1twmI=', '2024-12-30 11:46:38.536584', 1, 'turab', '', '', '', 1, 1, '2024-02-19 10:18:22.000000'),
 (2, 'pbkdf2_sha256$390000$wIduK5Jfq16OLdS3US7z5Q$9Ig2vHd8oJwrvYXAjfnwIwkgm2f6+6Ctbos2rjD+vNg=', '2024-07-29 11:42:22.266162', 0, 'danish', 'Danish', 'khan', 'danish@gmail.com', 1, 1, '2024-02-19 10:23:50.000000'),
 (3, 'pbkdf2_sha256$390000$nHN3QkKDcnhijyLrOoNcE0$4CRmR83Xko/BUdnpzI2nlF2tPPkNCgsVKUzRqVSET4s=', '2024-02-20 05:59:03.000000', 0, 'rauf001', '', '', '', 1, 1, '2024-02-20 05:58:11.000000');
 
@@ -588,22 +592,23 @@ CREATE TABLE `bank_guaranty` (
   `addendum` varchar(100) DEFAULT NULL,
   `status` int(11) NOT NULL,
   `bank_id` bigint(20) DEFAULT NULL,
-  `project_id` bigint(20) DEFAULT NULL
+  `project_id` bigint(20) DEFAULT NULL,
+  `guarantee_type` varchar(50) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `bank_guaranty`
 --
 
-INSERT INTO `bank_guaranty` (`id`, `duration`, `instrument_no`, `bg_start_date`, `bg_end_date`, `bg_validity`, `bg_percentage`, `bg_amount`, `bg_doc`, `addendum`, `status`, `bank_id`, `project_id`) VALUES
-(2, 1, 'vbcf4545', '2024-05-01', '2024-05-31', '2024-05-31', 5, 34555, 'project\\KMC\\bank_guarantee\\download3.png', NULL, 1, 2, 14),
-(3, 3, 'lx123', '2024-05-01', '2024-05-31', '2024-05-30', 5, 2500, 'project\\23\\bank_guarantee\\db_erd.png', NULL, 1, 2, 23),
-(18, 2, 'vbcf4545223', '2024-07-01', '2024-09-26', '2024-09-25', 5, 5000, 'project\\23\\bank_guarantee\\CORP.xx.08.2023 [name of client].docx', NULL, 1, 2, 23),
-(19, 6, 'rrrr777', '2024-06-01', '2024-12-31', '2024-12-31', 5, 7000, 'project\\14\\bank_guarantee\\Ref--No---CORP-8.pdf', NULL, 1, 2, 14),
-(20, 4, 'lx1212', '2024-08-01', '2024-12-31', '2024-11-30', 8, 10000, 'project\\23\\bank_guarantee\\23_bg_20240723120404.docx', NULL, 1, 2, 23),
-(21, 3, 'IGT00380141724PK', '2024-03-19', '2024-06-30', '2024-06-30', 10, 8100000, 'project\\25\\bank_guarantee\\25_bg_20241119150235.jpeg', NULL, 1, 2, 25),
-(22, 3, 'tttrrr55', '2024-10-01', '2024-12-31', '2024-12-31', 5, 15000, 'project\\24\\bank_guarantee\\24_bg_20241223143420.txt', NULL, 0, 2, 24),
-(23, 3, 'BG5501', '2024-10-01', '2024-12-31', '2024-12-31', 5, 15000, 'project\\11\\bank_guarantee\\11_bg_20241223144706.txt', NULL, 1, 2, 11);
+INSERT INTO `bank_guaranty` (`id`, `duration`, `instrument_no`, `bg_start_date`, `bg_end_date`, `bg_validity`, `bg_percentage`, `bg_amount`, `bg_doc`, `addendum`, `status`, `bank_id`, `project_id`, `guarantee_type`) VALUES
+(2, 1, 'vbcf4545', '2024-05-01', '2024-05-31', '2024-05-31', 5, 34555, 'project\\KMC\\bank_guarantee\\download3.png', NULL, 1, 2, 14, NULL),
+(3, 3, 'lx123', '2024-05-01', '2024-05-31', '2024-05-30', 5, 2500, 'project\\23\\bank_guarantee\\db_erd.png', NULL, 1, 2, 23, NULL),
+(18, 2, 'vbcf4545223', '2024-07-01', '2024-09-26', '2024-09-25', 5, 5000, 'project\\23\\bank_guarantee\\CORP.xx.08.2023 [name of client].docx', NULL, 1, 2, 23, NULL),
+(19, 6, 'rrrr777', '2024-06-01', '2024-12-31', '2024-12-31', 5, 7000, 'project\\14\\bank_guarantee\\Ref--No---CORP-8.pdf', NULL, 1, 2, 14, NULL),
+(20, 4, 'lx1212', '2024-08-01', '2024-12-31', '2024-11-30', 8, 10000, 'project\\23\\bank_guarantee\\23_bg_20240723120404.docx', NULL, 1, 2, 23, NULL),
+(21, 3, 'IGT00380141724PK', '2024-03-19', '2024-06-30', '2024-06-30', 10, 8100000, 'project\\25\\bank_guarantee\\25_bg_20241119150235.jpeg', NULL, 1, 2, 25, NULL),
+(22, 3, 'tttrrr55', '2024-10-01', '2024-12-31', '2024-12-31', 5, 15000, 'project\\24\\bank_guarantee\\24_bg_20241223143420.txt', NULL, 0, 2, 24, NULL),
+(23, 3, 'BG5501', '2024-10-01', '2024-12-31', '2024-12-31', 5, 15000, 'project\\11\\bank_guarantee\\11_bg_20241223144706.txt', NULL, 1, 2, 11, NULL);
 
 -- --------------------------------------------------------
 
@@ -773,24 +778,58 @@ CREATE TABLE `chart_of_accounts` (
   `status` int(11) NOT NULL,
   `parent_id` bigint(20) DEFAULT NULL,
   `account_type_id` bigint(20) DEFAULT NULL,
-  `detail_type_id` bigint(20) DEFAULT NULL
+  `detail_type_id` bigint(20) DEFAULT NULL,
+  `sequence_code` varchar(50) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `chart_of_accounts`
 --
 
-INSERT INTO `chart_of_accounts` (`id`, `title`, `short_code`, `created_at`, `updated_at`, `deleted_at`, `status`, `parent_id`, `account_type_id`, `detail_type_id`) VALUES
-(3, 'cash and cash equivalent', 'cc', '2024-09-10', '2024-09-10', NULL, 1, NULL, NULL, NULL),
-(6, 'Sigbl HBL Tariq road', 'SB', '2024-09-10', '2024-09-10', NULL, 1, 3, NULL, NULL),
-(7, 'Expense', 'ex', '2024-09-10', '2024-09-10', NULL, 1, NULL, NULL, NULL),
-(11, 'Electricity Bill', 'EB', '2024-09-10', '2024-09-10', NULL, 1, 7, NULL, NULL),
-(16, 'Parking Fee', 'PF', '2024-10-22', '2024-10-22', NULL, 1, 7, 1, 1),
-(17, 'Cost Of Good Sold', 'COS', '2024-11-19', '2024-11-19', NULL, 1, NULL, NULL, NULL),
-(18, 'Aptech Distribution', 'AD', '2024-11-19', '2024-11-19', NULL, 1, 17, NULL, NULL),
-(19, 'Askari General Insurance', 'AGI', '2024-11-19', '2024-11-19', NULL, 1, NULL, NULL, NULL),
-(20, 'Insurance Premium', 'IP', '2024-11-19', '2024-12-26', NULL, 1, 19, NULL, NULL),
-(21, 'tested', 'tte', '2024-12-26', '2024-12-26', NULL, 0, 7, NULL, NULL);
+INSERT INTO `chart_of_accounts` (`id`, `title`, `short_code`, `created_at`, `updated_at`, `deleted_at`, `status`, `parent_id`, `account_type_id`, `detail_type_id`, `sequence_code`) VALUES
+(3, 'Cash', 'CC', '2024-09-10', '2024-09-10', NULL, 1, NULL, 1, 1, NULL),
+(6, 'Petty Cash', 'PC', '2024-09-10', '2024-09-10', NULL, 1, 3, 1, 1, NULL),
+(7, 'Checking Account', 'CA', '2024-09-10', '2024-09-10', NULL, 1, 3, 1, 1, NULL),
+(11, 'Savings Account', 'SA', '2024-09-10', '2024-09-10', NULL, 1, 3, 1, 1, NULL),
+(16, 'Accounts Receivable', 'AR', '2024-10-22', '2024-10-22', NULL, 1, NULL, 1, 1, NULL),
+(17, 'Trade Receivables', 'TR', '2024-11-19', '2024-11-19', NULL, 1, 16, 1, 1, NULL),
+(18, 'Other Receivables', 'OR', '2024-11-19', '2024-11-19', NULL, 1, 16, 1, 1, NULL),
+(19, 'Inventory', 'IN', '2024-11-19', '2024-11-19', NULL, 1, NULL, 1, 1, NULL),
+(20, 'Raw Materials', 'RMI', '2024-11-19', '2024-12-26', NULL, 1, 19, 1, 1, NULL),
+(21, 'Finished Goods', 'FGI', '2024-12-26', '2024-12-26', NULL, 1, 19, 1, 1, NULL),
+(22, 'Property, Plant, and Equipment', 'PPEA', NULL, NULL, NULL, 1, NULL, 1, 2, NULL),
+(31, 'Land', 'LA', NULL, NULL, NULL, 1, 22, 1, 2, NULL),
+(32, 'Buildings', 'BA', NULL, NULL, NULL, 1, 22, 1, 2, NULL),
+(33, 'Machinery', 'MA', NULL, NULL, NULL, 1, 22, 1, 2, NULL),
+(34, 'Accumulated Depreciation', 'ADA', NULL, NULL, NULL, 1, NULL, 1, 2, NULL),
+(35, 'Accounts Payable', 'APL', NULL, NULL, NULL, 1, NULL, 2, 3, NULL),
+(36, 'Trade Payables', 'TPL', NULL, NULL, NULL, 1, 36, 2, 3, NULL),
+(37, 'Other Payables', 'OPL', NULL, NULL, NULL, 1, 35, 2, 3, NULL),
+(38, 'Short-Term Loans', 'STLL', NULL, NULL, NULL, 1, NULL, 2, 3, NULL),
+(39, 'Bank Loans', 'BLL', NULL, NULL, NULL, 1, 38, 2, 3, NULL),
+(40, 'Other Short-Term Debt', 'OSTDL', NULL, NULL, NULL, 1, 38, 2, 3, NULL),
+(41, 'Long-Term Loans', 'LTLL', NULL, NULL, NULL, 1, NULL, 2, 4, NULL),
+(42, 'Bank Loans', 'BTLL', NULL, NULL, NULL, 1, 41, 2, 4, NULL),
+(43, 'Bonds Payable', 'BPL', NULL, NULL, NULL, 1, 41, 2, 4, NULL),
+(44, 'Deferred Tax Liabilities', 'DTL', NULL, NULL, NULL, 1, NULL, 2, 4, NULL),
+(45, 'Common Stock', 'CSE', NULL, NULL, NULL, 1, NULL, 3, 5, NULL),
+(46, 'Retained Earnings', 'REE', NULL, NULL, NULL, 1, NULL, 3, 5, NULL),
+(47, 'Additional Paid-In Capital', 'APCE', NULL, NULL, NULL, 1, NULL, 3, 5, NULL),
+(48, 'Product Sales', 'PSR', NULL, NULL, NULL, 1, NULL, 4, 6, NULL),
+(49, 'Service Revenue', 'SR', NULL, NULL, NULL, 1, NULL, 4, 6, NULL),
+(50, 'Interest Income', 'IIR', NULL, NULL, NULL, 1, NULL, 4, 7, NULL),
+(51, 'Rental Income', 'RIR', NULL, NULL, NULL, 1, NULL, 4, 7, NULL),
+(52, 'Rent Expense', 'RE', NULL, NULL, NULL, 1, NULL, 5, 8, NULL),
+(53, 'Utilities Expense', 'UE', NULL, NULL, NULL, 1, NULL, 5, 8, NULL),
+(54, 'Electricity', 'EE', NULL, NULL, NULL, 1, 53, 5, 8, NULL),
+(55, 'Water', 'WE', NULL, NULL, NULL, 1, 53, 5, 8, NULL),
+(56, 'Salaries and Wages', 'SWE', NULL, NULL, NULL, 1, NULL, 5, 8, NULL),
+(57, 'Salaries', 'SE', NULL, NULL, NULL, 1, 56, 5, 8, NULL),
+(58, 'Wages', 'WE', NULL, NULL, NULL, 1, 56, 5, 8, NULL),
+(59, 'Office Supplies', 'OSE', NULL, NULL, NULL, 1, NULL, 5, 8, NULL),
+(60, 'Depreciation Expense', 'DE', NULL, NULL, NULL, 1, NULL, 5, 8, NULL),
+(61, 'Interest Expense', 'IE', NULL, NULL, NULL, 1, NULL, 5, 9, NULL),
+(62, 'Loss on Sale of Assets', 'LOSAE', NULL, NULL, NULL, 1, NULL, 5, 9, NULL);
 
 -- --------------------------------------------------------
 
@@ -972,18 +1011,24 @@ CREATE TABLE `detail_type` (
   `updated_at` date DEFAULT NULL,
   `deleted_at` date DEFAULT NULL,
   `status` int(11) NOT NULL,
-  `account_type_id` bigint(20) DEFAULT NULL
+  `account_type_id` bigint(20) DEFAULT NULL,
+  `sequence_code` varchar(50) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `detail_type`
 --
 
-INSERT INTO `detail_type` (`id`, `title`, `short_code`, `created_at`, `updated_at`, `deleted_at`, `status`, `account_type_id`) VALUES
-(1, 'Detail1 A1', 'D1A1', NULL, NULL, NULL, 1, 1),
-(2, 'Detail2 A1', 'D2A1', NULL, NULL, NULL, 1, 1),
-(3, 'Detail1 A2', 'D1A2', NULL, NULL, NULL, 1, 2),
-(4, 'Detail2 A2', 'D2A2', NULL, NULL, NULL, 1, 2);
+INSERT INTO `detail_type` (`id`, `title`, `short_code`, `created_at`, `updated_at`, `deleted_at`, `status`, `account_type_id`, `sequence_code`) VALUES
+(1, 'Current Assets', 'CA1', NULL, NULL, NULL, 1, 1, NULL),
+(2, 'Fixed Assets', 'FA1', NULL, NULL, NULL, 1, 1, NULL),
+(3, 'Current Liabilities', 'CL2', NULL, NULL, NULL, 1, 2, NULL),
+(4, 'Long-Term Liabilities', 'LTC2', NULL, NULL, NULL, 1, 2, NULL),
+(5, 'Owner\'s Equity', 'OE3', NULL, NULL, NULL, 1, 3, NULL),
+(6, 'Sales Revenue', 'SR4', NULL, NULL, NULL, 1, 4, NULL),
+(7, 'Other Revenue', 'OR4', NULL, NULL, NULL, 1, 4, NULL),
+(8, 'Operating Expenses', 'OE5', NULL, NULL, NULL, 1, 5, NULL),
+(9, 'Non-Operating Expenses', 'NOE5', NULL, NULL, NULL, 1, 5, NULL);
 
 -- --------------------------------------------------------
 
@@ -1200,7 +1245,9 @@ INSERT INTO `django_migrations` (`id`, `app`, `name`, `applied`) VALUES
 (69, 'employee', '0033_leads_client_leads_title_employee_project', '2024-12-11 10:24:07.069849'),
 (70, 'finance', '0011_journal_entry_coa_type_journal_entry_current_status_and_more', '2024-12-27 05:36:50.389569'),
 (71, 'project_initiation', '0009_alter_heading_tendor_alter_item_unit_and_more', '2024-12-27 05:36:50.584526'),
-(72, 'finance', '0012_journal_entry_expected_date', '2024-12-27 07:17:38.227548');
+(72, 'finance', '0012_journal_entry_expected_date', '2024-12-27 07:17:38.227548'),
+(73, 'employee', '0034_bank_guaranty_guarantee_type', '2024-12-30 12:15:05.400387'),
+(74, 'finance', '0013_account_type_sequence_code_and_more', '2024-12-30 12:15:05.453685');
 
 -- --------------------------------------------------------
 
@@ -1299,6 +1346,7 @@ INSERT INTO `django_session` (`session_key`, `session_data`, `expire_date`) VALU
 ('8ecrxors5iml7e7ie4fpwdsjh1c11cuh', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1swxS9:6q5jJBTbPy6ZYoj_liSMx8MpFxMXBHn3AefSE6i5GFs', '2024-10-05 08:35:41.729030'),
 ('8h0wehbzgg7e29b7kr7prmwyigll6czy', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1sMPEA:PNA0iXUbJZAH-FGosiI-cuOy4xKDjBMplZvGTVLIwUE', '2024-06-26 12:46:10.557556'),
 ('8l2fekz16e96mi4aeovmcbseskgazwq9', '.eJxVjEEOwiAQRe_C2hAoHRCX7nsGMjCDVA0kpV0Z765NutDtf-_9lwi4rSVsnZcwk7gILU6_W8T04LoDumO9NZlaXZc5yl2RB-1yasTP6-H-HRTs5Vsry8OAZ1YEbAlGlaPXmSEZMFYbRzwaG0FrMJgjxERee3KYnM3oFIn3B-KgOCs:1t5Hro:vM4BAxBhOKpJjN_A0IXFPWERc3ZhRpWuuoUySrftpFY', '2024-10-28 08:00:36.000000'),
+('8ow1511zetoo2bzpy5yaoxgk0h74e45r', '.eJxVjDsOwjAQBe_iGln4uzYlPWew1rsGB5AtxUmFuDtESgHtm5n3EgnXpaZ1lDlNLE5CicPvlpEepW2A79huXVJvyzxluSlyp0NeOpfneXf_DiqO-q2zB_A2KNDaOLpSBoOgwSqH5BWBU1Yzx4CYOVqGYyyRnPEl-BxYs3h_AMSzN4U:1tS9wZ:Lc5tMGfBYFu7B2AvQxy9kzuU3LKly2_Rp5jO0yP8Cpc', '2024-12-30 10:12:03.727155'),
 ('9a090hipd9lv8c77py4kxhtnvuf0h1cp', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1sXDla:rnxAPazTGmOL_F0wH7e7eetONiA8YBHowvV6QhwhQ4s', '2024-07-26 08:45:22.613033'),
 ('9l56zojspd1gtc6ogg5qu74w67jc70tz', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1seT60:YNAgBhwSBQM9SdIGrrGJi1Y6Nyx25uKJBEX2-4eC0w4', '2024-08-15 08:32:24.819172'),
 ('9p5cue9g2f68luqo4gbsq3ogcpkncy1v', '.eJxVjDsOwjAQBe_iGln4uzYlPWew1rsGB5AtxUmFuDtESgHtm5n3EgnXpaZ1lDlNLE5CicPvlpEepW2A79huXVJvyzxluSlyp0NeOpfneXf_DiqO-q2zB_A2KNDaOLpSBoOgwSqH5BWBU1Yzx4CYOVqGYyyRnPEl-BxYs3h_AMSzN4U:1tLdFX:XF1oXians22g77S2IGnQ7F4mEY5vz-CVH19q-NPyni0', '2024-12-12 10:04:39.317759'),
@@ -1384,9 +1432,9 @@ INSERT INTO `django_session` (`session_key`, `session_data`, `expire_date`) VALU
 ('ikwfivif7s0f6ad1cpy5x7soy5rt7ifv', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rh0Iw:IY2gsXhQMhawZNmQffmy9CZE4OVAyLT-pQP7w7EU7as', '2024-03-04 05:41:58.112039'),
 ('ikygmn1b0100fejntgvkusw5jkzyqqx2', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rpLGH:Whb73ppENeouAT3kZzDfOTdyxKjeUxMHvzWHaOU6T4I', '2024-03-27 05:41:41.490198'),
 ('ionog86obd8957j1x2izcuapmahuu7ue', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rmpGA:5GjXIUzvVlTdIroHOsHv8QWz_jwi5AQeFrxN0so_hY0', '2024-03-20 07:07:10.328466'),
-('iwg73jugmommfjstrvrc65nzxtcge9hh', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rpN8O:5wFqnQP4_CpYQDaQt0fZbJaAerbSoqi8gGzPUw8FlfQ', '2024-03-27 07:41:40.753103'),
-('ix8h74qn06z2lszpaooewmoawf0000ej', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1s77kP:A4XEb-rvndSHI1MVMvHg7Lc03F7DSS9iKOMqAMvk_qo', '2024-05-15 06:54:17.624955');
+('iwg73jugmommfjstrvrc65nzxtcge9hh', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rpN8O:5wFqnQP4_CpYQDaQt0fZbJaAerbSoqi8gGzPUw8FlfQ', '2024-03-27 07:41:40.753103');
 INSERT INTO `django_session` (`session_key`, `session_data`, `expire_date`) VALUES
+('ix8h74qn06z2lszpaooewmoawf0000ej', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1s77kP:A4XEb-rvndSHI1MVMvHg7Lc03F7DSS9iKOMqAMvk_qo', '2024-05-15 06:54:17.624955'),
 ('ixir296czvuzp4gjbf8ckqd8sp0s530o', '.eJxVjDsOwjAQBe_iGln4uzYlPWew1rsGB5AtxUmFuDtESgHtm5n3EgnXpaZ1lDlNLE5CicPvlpEepW2A79huXVJvyzxluSlyp0NeOpfneXf_DiqO-q2zB_A2KNDaOLpSBoOgwSqH5BWBU1Yzx4CYOVqGYyyRnPEl-BxYs3h_AMSzN4U:1tPbDG:t8o0fcYPMxPn8BYtIGTsT6V8-O5y-HQfarVChCcXU6g', '2024-12-23 08:42:42.367906'),
 ('iyec4y5hln2gbiynq094pshdsvroq4r6', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1sQgE6:1PU1kBpnvBnfseuCW3yVkZEQ_mTzB4EyK7-WnE3cyTU', '2024-07-08 07:43:46.571355'),
 ('izb1vopn35voyri4pzsxb0nmf9x6pi3y', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1ri5r4:NMIitZt7wMHAe-er78tAxBtXRFEvoMH4BJ6qX3s8mDA', '2024-03-07 05:49:42.094215'),
@@ -1510,6 +1558,7 @@ INSERT INTO `django_session` (`session_key`, `session_data`, `expire_date`) VALU
 ('va0k0sxd35cn5hafocmydjmju8fczigi', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rkLOR:7-lJQ08ZQdko3fMG-rOzXpF0eZCGvlHUARLLytzbQoU', '2024-03-13 10:49:27.805812'),
 ('va75v556xx2ujung4ghtxy2i1y53wrjj', '.eJxVjDsOwjAQBe_iGln4uzYlPWew1rsGB5AtxUmFuDtESgHtm5n3EgnXpaZ1lDlNLE5CicPvlpEepW2A79huXVJvyzxluSlyp0NeOpfneXf_DiqO-q2zB_A2KNDaOLpSBoOgwSqH5BWBU1Yzx4CYOVqGYyyRnPEl-BxYs3h_AMSzN4U:1tQiet:0nmGzZj6KpWgd6zd7MxF6Iq2lyKi7s2M8vl_bb4Yas4', '2024-12-26 10:51:51.839738'),
 ('vb7si7cpsj3ekxyftg0xf9q5su5stsvh', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1s4I8t:nb-XetMTRVMqhyhpAF2bpDq5p-_bvUdXdat1CG06ZFE', '2024-05-07 11:23:51.262383'),
+('vckrqw3k8cf13xbqvlvzkjb3s7d79ei7', '.eJxVjDsOwjAQBe_iGln4uzYlPWew1rsGB5AtxUmFuDtESgHtm5n3EgnXpaZ1lDlNLE5CicPvlpEepW2A79huXVJvyzxluSlyp0NeOpfneXf_DiqO-q2zB_A2KNDaOLpSBoOgwSqH5BWBU1Yzx4CYOVqGYyyRnPEl-BxYs3h_AMSzN4U:1tSCZA:Xu4eRaTQf_tlMj8uWS0c1X5b1A82oi09en27NvixvKI', '2024-12-30 13:00:04.232069'),
 ('vekdawj7lbk719obxvcj6hqmpwzo7jts', '.eJxVjM0OwiAQhN-FsyH8LEU8evcZCOwuUjU0Ke3J-O62SQ96m8z3zbxFTOtS49p5jiOJi9Di9NvlhE9uO6BHavdJ4tSWecxyV-RBu7xNxK_r4f4d1NTrtkYNWZVkrdmSR19ocAMjcSmFIDgFmQ0bD84q9Hx2zqjgAQBz0BaU-HwB9Rw3nw:1tAMFT:ddxYJfS4R_NYay0OM8NM2RHwQMdzdDRs9Oft89phzgQ', '2024-11-11 07:41:59.947909'),
 ('vfl6j58rofirez9mk5q3ke6ptuewe2hn', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1t0ZZB:yW6e8iRVczQGBXPc8TnVU0slyC0UokxSq189c_5uoo0', '2024-10-15 07:53:53.583248'),
 ('vfvsqhl1hes918pxnz4dgenxcczisjaq', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rdQ9p:9RE_7HRZuTfpmioBE0ciRZQEZk0YjDWgnER080Iwe_c', '2024-02-23 08:29:45.844376'),
@@ -1525,6 +1574,7 @@ INSERT INTO `django_session` (`session_key`, `session_data`, `expire_date`) VALU
 ('wiymcl2nabcu67dv7bpb0pbppo25jq0n', '.eJxVjM0OwiAQhN-FsyH8LEU8evcZCOwuUjU0Ke3J-O62SQ96m8z3zbxFTOtS49p5jiOJi9Di9NvlhE9uO6BHavdJ4tSWecxyV-RBu7xNxK_r4f4d1NTrtkYNWZVkrdmSR19ocAMjcSmFIDgFmQ0bD84q9Hx2zqjgAQBz0BaU-HwB9Rw3nw:1t6RKh:2m0rpurDDd88xROBRncvngf7_iE6d1jwaAU37b09npE', '2024-10-31 12:19:11.752606'),
 ('wkvz0tg3vqj7fw6pkp553y3w0brv6r0n', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1sOvvE:j1MrrrAx2hHE4rIO_d1nyv-jzsELU2gJyBfy6X4zbOg', '2024-07-03 12:05:04.212108'),
 ('wlnsjrj497blp983w12mkhi7rl17z91y', '.eJxVjEEOgjAQRe_StWlgppTq0r1nIDOdqaCmTSisjHcXEha6_e-9_zYDrcs4rFXnYRJzMWBOvxtTfGregTwo34uNJS_zxHZX7EGrvRXR1_Vw_w5GquNWe-UupLPnJAkleUJ20SEANA69aqIQOu2BtW1CiyxEgn1sAZC7DZrPFwJ7OIg:1rcKkl:prPRAqCNDLiJqa6puARQS8PHt0WEYbMmuukkwQ6ylKQ', '2024-02-20 08:31:23.963577'),
+('wn1y9ve6rt3u2b2zgslr3sf1cfjrxc27', '.eJxVjDsOwjAQBe_iGln4uzYlPWew1rsGB5AtxUmFuDtESgHtm5n3EgnXpaZ1lDlNLE5CicPvlpEepW2A79huXVJvyzxluSlyp0NeOpfneXf_DiqO-q2zB_A2KNDaOLpSBoOgwSqH5BWBU1Yzx4CYOVqGYyyRnPEl-BxYs3h_AMSzN4U:1tSEEI:7F45cNndEg0g6Q70AWEHznJO1FztmlbG7qgqtU4a5yo', '2024-12-30 14:46:38.539556'),
 ('wr6amwinze7u07zwz214ydgsnlfs07h8', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1swaRh:52NffXa2JMAPXKTFY-wxPEutKJDHJggvWf0l6qzgek8', '2024-10-04 08:01:41.788415'),
 ('wu8zi681s99ugpaxhiwpgeg8x4ipksxo', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rhjFn:sxumIDAv36Kztpr0ZjmXHh4dDq65S1fYkgy5Umky6rc', '2024-03-06 05:41:43.299728'),
 ('x2b9iyautuacrjmolg6yrzrppfah1eh0', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1s1Ofy:OElvd5U8coR6C7AqUgweiJZjvGzrvZULRSrXGqIVXGw', '2024-04-29 11:46:02.653469'),
@@ -1545,6 +1595,7 @@ INSERT INTO `django_session` (`session_key`, `session_data`, `expire_date`) VALU
 ('z08g2oezf44slm31o8rb3jtze4aqs9z2', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rmWG8:2-vc62yOOI1ZOl77WdBm_tp2BcpOoNUCzC5kIk5bYNE', '2024-03-19 10:49:52.676243'),
 ('z0fqlpxr22cdc1cqk9qqjt5ddk9iw4v6', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1sYeo1:SWk6-1MavGauZsbTLYaP02IU014sPQ8MNcfq3Ia31QE', '2024-07-30 07:49:49.862061'),
 ('zfuggc992k1ss30ntwgc61l469dqgojl', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1sLc4L:vD7m553cjNSQ4dZd9-NO2tRLigGa_n106R4OkMbbsMQ', '2024-06-24 08:16:45.536497'),
+('zi05c3opbp5aa7txpl7lsmhecb851u68', '.eJxVjDsOwjAQBe_iGln4uzYlPWew1rsGB5AtxUmFuDtESgHtm5n3EgnXpaZ1lDlNLE5CicPvlpEepW2A79huXVJvyzxluSlyp0NeOpfneXf_DiqO-q2zB_A2KNDaOLpSBoOgwSqH5BWBU1Yzx4CYOVqGYyyRnPEl-BxYs3h_AMSzN4U:1tS7oD:Zq7CSeckDHhfPPBljNLErJS4ULsiuOHBvrAPMB0gOCk', '2024-12-30 07:55:17.194071'),
 ('zn94ywsbym89a1a0aonkht5hrnc6ymtb', '.eJxVjDsOwjAQBe_iGln4uzYlPWew1rsGB5AtxUmFuDtESgHtm5n3EgnXpaZ1lDlNLE5CicPvlpEepW2A79huXVJvyzxluSlyp0NeOpfneXf_DiqO-q2zB_A2KNDaOLpSBoOgwSqH5BWBU1Yzx4CYOVqGYyyRnPEl-BxYs3h_AMSzN4U:1tPenC:rPe1TguOwklORMEQZb3NtVbLivvopT2UvPY8u8Xo2bc', '2024-12-23 12:32:02.857179'),
 ('znzoxpvk7u8vcgwxsfx35midxzqfsjux', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1rkcm3:fmcog8HWBUFfCjnqZg20EFCGFOgC7lWJh5gLJ5kOmPQ', '2024-03-14 05:22:59.408115'),
 ('zvywshwffntyj3g63f6q7qpv1dx0fdqd', '.eJxVjDsOwjAQBe_iGllex19Kes5grT-LA8iW4qRC3B0ipYD2zcx7sYDbWsM2yhLmzM4M2Ol3i5gepe0g37HdOk-9rcsc-a7wgw5-7bk8L4f7d1Bx1G-tJ4sFJAkyRhtSiaLNWupJiITglECvrdNAPtpIID1a6QAzSURQObL3B9RIN8U:1s1gZC:Qqmf1N8Pz-VgzAvNhy2wS9-gD7-sorLA-xJbDm1uuOU', '2024-04-30 06:52:14.328178'),
@@ -2054,7 +2105,7 @@ CREATE TABLE `project` (
 
 INSERT INTO `project` (`id`, `title`, `start_date`, `end_date`, `duration`, `amount`, `tax`, `total`, `advance_tax`, `advance_amount`, `earnest_money`, `em_instrument_no`, `pg_start_date`, `pg_end_date`, `pg_validity`, `pg_percentage`, `pg_amount`, `pg_doc`, `project_doc`, `status`, `pg_instrument_no`, `project_type_id`, `keywords`, `branch_id`, `em_doc`, `em_expire_date`, `project_status`, `country_id`, `em_receive_date`, `em_received`, `po_scan_doc`, `scope`, `sector`, `client_id`, `initiated_by`, `lead_id`, `manager_id`, `team_id`, `close_date`, `closing_doc`, `closing_remarks`) VALUES
 (11, 'DMS', '2024-05-01', '2024-05-31', 1, 500000, 10, NULL, 5, 25000, 100000, 'tt4442f', '2024-05-01', '2024-05-31', '2024-06-05', 5, 25000, 'project\\DMS\\event (1).csv', 'project\\DMS\\Ref--No---CORP-8.pdf', 1, 'gr34431e', 2, 'f df sdf sf sfsdf sdfsf', 2, 'project\\DMS\\download.png', '2024-06-28', 'In Progress', 2, NULL, 'None', NULL, 'Local', 'Private', 1, 'None', 2, NULL, NULL, NULL, NULL, NULL),
-(14, 'KMC', '2024-05-01', '2024-05-31', 1, 100000, 10, NULL, 5, 50000, 100000, 'tt4442f', '2024-05-01', '2024-05-31', '2024-05-31', 5, 50000, 'project\\KMC\\Tender Doc.docx', 'project\\KMC\\new_protal_pdf.pdf', 1, 'gr34431e', 2, 'qdqdqd  qdqdq  qwqwqd', 2, 'project\\KMC\\signature.png', '2024-06-29', 'In Progress', 2, NULL, NULL, NULL, 'Local', 'Government', 1, 'person', NULL, NULL, NULL, NULL, NULL, NULL),
+(14, 'KMC', '2024-05-01', '2024-05-31', 1, 100000, 10, NULL, 5, 50000, 100000, 'tt4442f', '2024-05-01', '2024-05-31', '2024-05-31', 5, 50000, 'project\\KMC\\Tender Doc.docx', 'project\\KMC\\new_protal_pdf.pdf', 1, 'gr34431e', 2, 'qdqdqd  qdqdq  qwqwqd', 2, 'project\\KMC\\signature.png', '2024-06-29', 'Cancel', 2, NULL, NULL, NULL, 'Local', 'Government', 1, 'person', NULL, NULL, NULL, '2024-12-30', 'project\\14\\14_20241230152045.txt', 'yrwsrstr'),
 (23, 'LexFirma', '2024-05-01', '2024-05-31', 1, 50000, 10, NULL, 5, 2500, 10000, 'tt4442f', '2024-05-02', '2024-05-30', '2024-06-01', 5, 2500, 'project\\23\\23_20240723171349.png', 'project\\23\\AdminLTE 3  DataTables.xlsx', 1, 'gr34431e', 2, 'sf  fff  sf sfs sfs sff  sfs', 2, 'project\\23\\Employee Probation Evaluation Form.docx', '2024-06-30', 'In Progress', 2, NULL, NULL, 'project\\23\\download.png', 'International', 'Private', 1, 'Company', NULL, NULL, NULL, NULL, NULL, NULL),
 (24, 'CPO', '2024-07-01', '2024-07-31', 1, 10000, 5, NULL, 5, 500, 2000, 'tt4442f', '2024-07-01', '2024-07-31', '2024-07-31', 5, 500, NULL, 'project\\24\\24_20240723171836.pdf', 1, 'gr34431e', 2, 'tgdb dgdfg d', 2, 'project\\24\\24_20240723171836.docx', '2024-07-31', 'Cancel', 2, NULL, 'None', 'project\\24\\24_20240723171912.png', 'Local', 'Government', 1, 'None', 7, NULL, NULL, NULL, NULL, NULL),
 (25, 'Computer Equipment for Sindh Police  CFY 2023-24', '2024-05-16', '2024-09-17', 5, 126065800, 5, NULL, 0, 0, 8100000, 'IGT00380141724PK', '2024-05-07', '2025-05-06', '2025-05-06', 10, 12606600, 'project\\25\\25_20241119143555.pdf', 'project\\25\\25_20241119143555.pdf', 1, '2120IGT2401116PK', 3, 'Atif Sahab', 2, 'project\\25\\25_20241119143555.jpeg', '2024-06-30', 'Completed', 2, '2024-07-15', 'YES', 'project\\25\\25_20241119143555.pdf', 'Local', 'Government', 1, 'Sale Person', 7, NULL, NULL, NULL, NULL, NULL);
@@ -2919,7 +2970,7 @@ ALTER TABLE `zone`
 -- AUTO_INCREMENT for table `account_type`
 --
 ALTER TABLE `account_type`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `area`
@@ -3009,7 +3060,7 @@ ALTER TABLE `certifications`
 -- AUTO_INCREMENT for table `chart_of_accounts`
 --
 ALTER TABLE `chart_of_accounts`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=63;
 
 --
 -- AUTO_INCREMENT for table `client`
@@ -3063,7 +3114,7 @@ ALTER TABLE `designation`
 -- AUTO_INCREMENT for table `detail_type`
 --
 ALTER TABLE `detail_type`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `django_admin_log`
@@ -3081,7 +3132,7 @@ ALTER TABLE `django_content_type`
 -- AUTO_INCREMENT for table `django_migrations`
 --
 ALTER TABLE `django_migrations`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=73;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=75;
 
 --
 -- AUTO_INCREMENT for table `document_type`

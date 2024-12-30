@@ -125,7 +125,7 @@
                     <div class="col-md-12">
                       <div class="alert alert-primary">
                          <h2 ><span style="width:100%;    font-size: 24px;
-    font-weight: 700;" class="text-left">${summary.project.title} <span class='badge badge-warning'><a href="${ MEDIA_URL }${ summary.project.project_doc }" target="_blank"><i class="fa fa-folder"></i></a></span> <span style="float:right;    margin-top: 5px;" class='badge badge-warning'>${summary.project.project_status}...</span></span></h2>
+    font-weight: 700;" class="text-left">${summary.project.title} <span class='badge badge-warning'><a href="${ MEDIA_URL }${ summary.project.project_doc }" target="_blank"><i class="fa fa-folder"></i></a></span>${summary.project.project_status === 'Completed' ? '<span style="float:right; margin-top: 5px;" class="badge badge-success">'+summary.project.project_status+'...</span>' : summary.project.project_status === 'In Progress' ? '<span style="float:right; margin-top: 5px;" class="badge badge-warning">'+summary.project.project_status+'...</span>' : '<span style="float:right; margin-top: 5px;" class="badge badge-danger">'+summary.project.project_status+'...</span>'}</span></h2>
                       </div>
                       
                     </div>
@@ -137,9 +137,9 @@
                 <h5 class="card-title">General Info</h5>
               </div>
               <div class="card-body">
-                <p><strong>Client:</strong> ${summary.client.client_name}</p>
+                <p><strong>Client:</strong> ${summary.client == null  ? '-' : summary.client.client_name}</p>
                 <p><strong>Client's POC:</strong> -</p>
-                <p><strong>PM:</strong> ${summary.manager.manager_name}</p>
+                <p><strong>PM:</strong> ${summary.manager  == null  ? '-' : summary.manager.manager_name}</p>
                 
                 
               </div>
@@ -349,7 +349,7 @@
                                   
                               <div class="card">
               <div class="card-header">
-                Project Team
+                <h5 class="card-title">Team</h5>
               </div>
               <div class="card-body">    
 
@@ -380,7 +380,7 @@
                                   
                                   <div class="card">
               <div class="card-header">
-                Project Documents
+                <h5 class="card-title">Documents</h5>
               </div>
               <div class="card-body">    
 

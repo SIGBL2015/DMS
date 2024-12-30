@@ -213,6 +213,7 @@ class Bank(models.Model):
         db_table = "bank"
 
 class Bank_guaranty(models.Model):  
+    guarantee_type = models.CharField(max_length=50,null=True, blank=True)
     project = models.ForeignKey(Project, on_delete=models.CASCADE,null=True)
     bank = models.ForeignKey(Bank, on_delete=models.CASCADE,null=True)   
     duration = models.IntegerField(null=True)
