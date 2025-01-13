@@ -10,7 +10,13 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.db.models import Q
 from django.contrib import messages
 # Create your views here.
+from rest_framework.serializers import ModelSerializer
 
+# Define the serializer
+class ProjectSerializer(ModelSerializer):
+    class Meta:
+        model = Project
+        fields = '__all__'
 
 # Chart_of_accounts
 @login_required 
@@ -308,3 +314,28 @@ def load_account(request):
     coaid = request.GET.get('coaid')
     account = Chart_of_accounts.objects.get(id=coaid,status=1)
     return JsonResponse({"account":account.account_type.title,"detail":account.detail_type.title}, safe=False)
+
+#Generate Report
+@login_required 
+# @permission_required('employee.add_employee_project', raise_exception=True)
+def generate_balance_sheet(request):  
+    if request.method == "POST":    
+        # Initialize the queryset
+        project = request.POST.get('project')
+        from_date = request.POST.get('from_date')
+        to_date = request.POST.get('to_date')
+        query = Journal_entry.objects.filter(project=project)
+        print(query[0].bank.bank_name)
+        _project = Project.objects.get(id=project)
+        # Use the serializer
+        project_data = ProjectSerializer(_project).data
+        total = sum([item.total_amount for item in query])
+        pnl= _project.amount - total
+        query_data = list(query.values())
+        data ={'data': query_data, 'cost':_project.amount,'pnl':pnl, 'project':project_data}
+        # print(data)
+        return JsonResponse({'status': 'success', 'final_data': data}, status=200)
+        return render(request, 'journal_entry/generate_pnl.html', {'data': query, 'cost':cost.amount,'pnl':pnl, 'project':cost})
+    else:  
+        projects = Project.objects.filter(status=1).values('id','title')
+    return render(request,'journal_entry/balance_sheet.html',{'projects':projects})

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+  {% load static %} 
+  {% include 'layout/style.html' %} 
+  {% load humanize %}
+<body>
+  <div id="app">
+    <div class="main-wrapper">
+      {% include 'layout/header.html' %}
+      {% include 'layout/sidebar.html' %}
+      <div class="main-content">
+        <section class="section">
+          <h1 class="section-header">
+            <div>Balance Sheet</div>
+          </h1>
+          <div class="col-md-12">
+            <div class="card card-primary">
+              <div class="card-body">
+                <form class="formnew" method="POST" data-url="{% url 'generate_balance_sheet' %}" id="myForm4">
+                  {% csrf_token %}
+                  <div class="row">
+                    <div class="form-group col-3"> 
+                      <label for="email">From Date</label>
+                      <input id="from_date" type="date" class="form-control" name="from_date">
+                    </div>
+                    <div class="form-group col-3"> 
+                        <label for="email">To Date</label>
+                        <input id="to_date" type="date" class="form-control" name="to_date">
+                    </div>  
+                    
+                    <div class="form-group col-3">
+                        <label>Project</label>
+                        <select class="form-control js-example-basic-multiple" id="project" name="project" required>
+                        <option value="">-- Select --</option>
+                        {% for project in projects %}
+                            <option value="{{ project.id }}">{{ project.title }}</option>
+                        {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group col-3">
+                      <label></label>
+                      <div class="form-group">
+                        <button type="submit" class="btn btn-primary">
+                            Generate
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div> 
+
+         <div class="section-body" id="main"></div>
+        </section>
+      </div>
+      {% include 'layout/footer.html' %}
+    </div>
+  </div>
+
+  {% include 'layout/script.html' %}
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+        $('.formnew').on('submit',function (e) {
+            e.preventDefault();
+            var form = $(this)[0];
+            var formData = new FormData(form); 
+            var url = $(this).data('url');
+            $('#main').empty();
+            $.ajax({
+                type: 'POST',
+                url: '{{ HOST }}'+url,
+                data: formData,
+                traditional: true,
+                processData: false,
+                contentType: false,
+                success: function (data) {
+                  if (data.status === "success") {
+                    console.log(data.final_data)
+
+                    const finalData = data.final_data;
+                    // console.log(finalData)
+                    let htmlContent = `  <div class="row mt-5">
+                      <div class="col-12">
+                        <div class="card">
+                          <div class="card-header">
+                            <p class="text-center font-weight-bold"></p>
+                            <div class="float-right">
+                              <form>
+                              
+                              </form>
+                            </div>
+                            <h4 class="">Report</h4>
+                          </div>
+                          <div class="card-body">
+                            <div class="table-responsive">
+                              <table class="table table-striped">
+                                <tr>
+                                  <th rowspan=2 class="text-center">S.No</th>
+                                  <th rowspan=2 class="text-center">Date</th>
+                                  <th rowspan=2 class="text-center">Particulars</th>
+                                  <th rowspan=2 class="text-center">Transaction Type</th>
+                                  <th colspan=2 class="text-center">Amount</th>
+                                  <th rowspan=2 class="text-center">Balance</th>        
+                                </tr>
+                                <tr>                              
+                                  <th class="text-center">Debit</th>
+                                  <th class="text-center">Credit</th>
+                                          
+                                </tr>
+                                `;
+                                finalData.data.forEach((data, index) => {
+                                  opening_balance = 0;                              
+                                  balance_amount = 0
+                                  credit_amount = 0
+                                  debit_amount = 0
+                                  
+                                  // if(index==0)
+                                  //   if(data.transaction_type == "Debit")
+                                  //     opening_balance = data.total_amount * -1                                
+                                  //   else
+                                  //     opening_balance = data.total_amount
+                                  balance_amount = opening_balance
+                                  
+                                  if(data.transaction_type == "Debit") {
+                                    debit_amount = data.total_amount
+                                    balance_amount = opening_balance - data.total_amount
+                                  }
+                                  else {
+                                    credit_amount = data.total_amount
+                                    balance_amount = opening_balance + data.total_amount
+                                  }
+                                  htmlContent += ` <tr>  
+                                        <td class="text-center">${index + 1}</td>
+                                        <td class="text-center">${ data.created_at }</td>
+                                        <td class="text-center">${ data.ref_no + "<br>" + data.description + "<br>"+ data.cheque_no + "<br>"+ data.receive_person }</td>
+                                        <td class="text-center">${ data.transaction_type }</td>
+                                        <td class="text-center">${ debit_amount }</td>
+                                        <td class="text-center">${ credit_amount }</td>
+                                        <td class="text-center">${ balance_amount }</td>                                
+                                    </tr> `;
+                            });
+
+                        htmlContent += `</table>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                  </div>`;
+
+                // Append the generated HTML to #main
+                $('#main').append(htmlContent);
+            } else {
+                console.error("Unexpected status:", data.status);
+            }
+        },
+                error: function (xhr, status, error) {
+                    console.error("Error:", error);
+                }
+            });
+        });
+    
+    });
+</script>
+</body>
+
+</html>

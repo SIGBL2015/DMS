@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
     'finance',
     'project_initiation',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [

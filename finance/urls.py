@@ -24,6 +24,7 @@ urlpatterns = [
     path('generate_refno', views.generate_refno, name="generate_refno"),
     path('generate_pnl', views.generate_pnl, name="generate_pnl"),
     path('load_account', views.load_account, name="load_account"),
-    path('u_status', views.u_status, name="u_status")
+    path('u_status', views.u_status, name="u_status"),
+    path('generate_balance_sheet', views.generate_balance_sheet, name="generate_balance_sheet"),
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
