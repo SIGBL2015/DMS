@@ -66,4 +66,16 @@ urlpatterns = [
     path('load_boq_items', views.load_boq_items, name="load_boq_items"),
     path('test', views.test, name="test"),
 
+     #iso
+    path('save_iso', views.add_iso, name="save_iso"),
+    path('save_iso_detail', views.add_iso_detail, name="save_iso_detail"),  
+    path('show_iso',views.show_iso, name="show_iso"),  
+    path('e_iso/<int:id>', views.e_iso, name="e_iso"),  
+    path('u_iso/<int:id>', views.u_iso, name="u_iso"),  
+    path('d_iso/<int:id>', views.d_iso, name="d_iso"),
+    path('load_tax', views.load_tax, name="load_tax"),
+    path('load_category', views.load_category, name="load_category"),
+    path('show_iso_detail/<int:id>',views.show_iso_detail, name="show_iso_detail"), 
+    path('iso_det_delete/<int:id>/', views.delete_iso_detail, name='delete_iso_detail'),
+
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

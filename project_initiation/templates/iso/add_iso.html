@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+  {% load static %} 
+  {% include 'layout/style.html' %}
+
+<body>
+  <div id="app">
+    <div class="main-wrapper">
+      {% include 'layout/header.html' %}
+      {% include 'layout/sidebar.html' %}
+      <div class="main-content">
+        <section class="section">
+          <h1 class="section-header">
+            <div>Add ISO</div>
+          </h1>
+          {% include 'layout/status.html' %}
+          <form method="POST" id="isoMasterForm">
+            {% csrf_token %}
+          <div class="col-md-12">
+            <div class="card card-primary">
+                <div class="card-header"><h4>Add</h4></div>
+                <div class="card-body">
+                 
+                    <div class="row">
+                      <div class="form-group col-md-3">
+                        <label for="frist_name">Tender</label>
+                        <select class="form-control" id="tendor" name="tendor">
+                          <option value="">-- Select --</option>
+                          {% for tendor in tendors %}
+                              <option value="{{ tendor.id }}">{{ tendor.title }}</option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                      <div class="form-group col-md-3">
+                        <label for="frist_name">Client</label>
+                        <select class="form-control" id="client" name="client">
+                          <option value="">-- Select --</option>
+                          {% for client in clients %}
+                              <option value="{{ client.id }}">{{ client.client_name }}</option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                      <div class="form-group col-md-3">
+                        <label for="frist_name">EM %</label>
+                        <input id="em_percentage" type="number" class="form-control" name="em_percentage" step="0.01">
+                      </div>
+                      <div class="form-group col-md-3">
+                          <label for="frist_name">EM Amount</label>
+                          <input id="em_amount" type="number" class="form-control" name="em_amount" step="0.01">
+                      </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-md-3">
+                            <label for="frist_name">BG %</label>
+                            <input id="bg_percentage" type="number" class="form-control" name="bg_percentage" step="0.01">
+                        </div>
+                        <div class="form-group col-md-3">
+                            <label for="frist_name">BG Amount</label>
+                            <input id="bg_amount" type="number" class="form-control" name="bg_amount" step="0.01">
+                        </div>
+                        <div class="form-group col-md-3">
+                          <label for="frist_name">PG %</label>
+                          <input id="pg_percentage" type="number" class="form-control" name="pg_percentage" step="0.01">
+                      </div>
+                      <div class="form-group col-md-3">
+                        <label for="frist_name">PG Amount</label>
+                        <input id="pg_amount" type="number" class="form-control" name="pg_amount" step="0.01">
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="form-group col-md-3">
+                        <label for="frist_name">Delivery Type</label>
+                        <select class="form-control" id="delivery_type" name="delivery_type">
+                          <option value="">-- Select --</option>
+                          <option value="1">Yes</option>
+                          <option value="0">No</option>
+                        </select>
+                      </div>
+                      <div class="form-group col-md-3">
+                        <label for="frist_name">Exchange Rate</label>
+                        <input id="exchange_rate" type="number" class="form-control" name="exchange_rate" step="0.01">
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <input type="button" value="save" class="btn btn-primary" id="saveIsoMasterBtn"/>
+                    </div>
+                  
+                </div>
+              </div>
+            </div>
+
+            <div class="col-12">
+              <div class="card">
+                  <div class="card-header">
+                    <h3 class="card-title">ISO Item Details</h3>
+                    <input type="button" id="addItemBtn" value="Add Row" class="btn btn-primary" data-toggle="modal" data-target="#additem" style="float: right;"/>
+                  </div>
+                  
+                  <!-- /.card-header -->
+                  <div class="card-body">
+                    {% csrf_token %}
+                    <table id="isoTable" class="table table-bordered table-striped">
+                      <thead>
+                        <tr id="isoHeader">
+                            <!-- <th>Item</th>
+                            <th>Category</th>
+                            <th>IsImported</th>
+                            <th>Import Factor</th>
+                            <th>Tax</th>
+                            <th>Unit</th>
+                            <th>Unit Cost</th>
+                            <th>T.Unit Cost</th>
+                            <th>GST %</th>
+                            <th>Est.GP% </th>
+                            <th>Est.GP.Amt</th>
+                            <th>Sell.Unit.Price</th>
+                            <th>Delivery Charges</th>
+                            <th>T.S.Price w.o GST</th>
+                            <th>GST.Amt</th>
+                            <th>T.S.Price with GST</th>
+                            <th>Tax adjustment</th>
+                            <th>GP</th>
+                            <th>GP %</th>
+                            <th>Actions</th> -->
+
+                        </tr>
+                      </thead>
+                    </table>
+                  </div>
+                  <!-- /.card-body -->
+                </div>
+                <!-- /.card -->
+            </div>
+          </form>
+        </section>
+         <!-- Add Item Modal -->
+         <div class="modal fade" id="additem" tabindex="-1" aria-labelledby="additemLabel" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="additemLabel">Add Item</h5>
+                <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <form method="POST"  id="itemModal">
+                  <!-- {% csrf_token %} -->
+                  <h4>Items</h4>
+                  <hr class="my-4">
+                  <div class="row">
+                    <div class="form-group col-4">
+                      <label for="frist_name">Item</label>
+                      <input type="hidden" name="iso_master" id="iso_master">
+                      <select name="item" id="item" class="form-control">
+                        <option value="">--Select--</option>
+                        {% for item in items %}
+                          <option value="{{ item.id }}">{{ item.name }}</option>
+                        {% endfor %}
+                      </select>
+                    </div>
+                    <div class="form-group col-4">
+                      <label for="email">Category</label>
+                      <input type="text" name="category" id="category" placeholder="category" class="form-control" readonly/>
+                    </div>
+                    <div class="form-group col-4">
+                      <label for="frist_name">Delivery Type</label>
+                      <select name="delivery_type" class="form-control">
+                          <option value="Over Land">Over Land</option>
+                          <option value="Over Night">Over Night</option>
+                          <option value="Karachi">Karachi</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="form-group col-4">
+                      <label for="frist_name">Tax</label>
+                      <select name="sales_tax_category" id="sales_tax_category" class="form-control">
+                        <option value="">--Select--</option>
+                        {% for tax in taxes %}
+                          <option value="{{ tax.id }}">{{ tax.name }}</option>
+                        {% endfor %}
+                      </select>
+                    </div>
+                    <div class="form-group col-4"> 
+                      <label for="email">Tax %</label>
+                      <input type="number" name="gst_percentage" id="gst_percentage" placeholder="Enter GST %" class="form-control" readonly/>
+                    </div>
+                    <div class="form-group col-1">
+                      <label for="email">Import</label>
+                      <input type="checkbox" name="isimported" id="isimported" class="form-control" />
+                    </div>
+                    <div class="form-group col-3">
+                      <label for="email"> </label>
+                      <input type="number" name="import_factor" id="import_factor" placeholder="import_factor" class="form-control" readonly/>
+                    </div>
+                  </div>
+                  <h4>Cost</h4>
+                  <hr class="my-4">
+                  <div class="row">
+                    <div class="form-group col-4">
+                      <label for="frist_name">Unit</label>
+                      <input type="number" name="unit" id="unit" placeholder="Enter Unit" class="form-control" />
+                    </div>
+                    <div class="form-group col-4">
+                      <label for="frist_name">Unit Cost</label>
+                      <input type="number" name="unit_cost" id="unit_cost" placeholder="Enter Unit Cost" class="form-control" />
+                    </div>
+                    <div class="form-group col-4"> 
+                      <label for="email">T.Unit Cost</label>
+                      <input type="number" name="total_pkr" id="total_pkr" placeholder="Enter Total Unit Cost"  class="form-control" readonly/>
+                    </div>
+                  </div>
+  
+                  <div class="row">
+                    <div class="form-group col-4"> 
+                      <label for="email">Import Amt Per Unit</label><label id="importlabel"></label>
+                      <input type="number" name="import_amt" id="import_amt" class="form-control" readonly/>
+                    </div>
+                    <div class="form-group col-4"> 
+                      <label for="email">T.With import Cost</label>
+                      <input type="number" name="t_with_taxes" id="t_with_taxes" class="form-control" readonly/>
+                    </div>
+                  </div>
+                  <h4>Estimation</h4>
+                  <hr class="my-4">
+                  <div class="row">
+                    <div class="form-group col-4"> 
+                      <label for="email">EST.GP%</label>
+                      <input type="number" name="est_gp_perc" id="est_gp_perc" placeholder="Enter EST.GP%" class="form-control" />
+                    </div>
+                    <div class="form-group col-4"> 
+                      <label for="email">EST.Unit.GP.Amt</label>
+                      <input type="number" name="est_unit_gp_amt" id="est_unit_gp_amt" class="form-control" readonly/>
+                    </div>
+                    <div class="form-group col-4"> 
+                      <label for="email">EST.Total.GP.Amt</label>
+                      <input type="number" name="est_gp_amt" id="est_gp_amt" class="form-control" readonly/>
+                    </div>
+                  </div>
+                  <h4>Selling</h4>
+                  <hr class="my-4">
+                  <div class="row">
+                    <div class="form-group col-3"> 
+                      <label for="email">Sell Unit Price</label>
+                      <input id="unit_selling_pkr" type="number" class="form-control" name="unit_selling_pkr" id="unit_selling_pkr" readonly>
+                    </div>
+                    <div class="form-group col-3"> 
+                      <label for="email">Delivery Charges</label>
+                      <input id="delivery_charges" type="number" class="form-control" name="delivery_charges" id="delivery_charges">
+                    </div>
+                    <div class="form-group col-3"> 
+                      <label for="email">T.Selling Price</label>
+                      <input type="number" name="total_selling_price" id="total_selling_price" placeholder="Enter T.Selling Price" class="form-control" readonly/>
+                    </div>
+                    <div class="form-group col-3"> 
+                      <label for="email">Tax Amt </label><label id="taxlabel"></label>
+                      <input type="number" name="gst_amount" id="gst_amount"  class="form-control" readonly/>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="form-group col-3"> 
+                      <label for="email">Total With Tax</label>
+                      <input type="number" name="total_with_gst" id="total_with_gst" placeholder="Enter Total With Tax" class="form-control" readonly/>
+                    </div>
+                    <div class="form-group col-3"> 
+                      <label for="email">I.Tax / Adjustment(%)</label>
+                      <input type="number" name="tax_adjusment" id="tax_adjusment" placeholder="Enter" class="form-control" />
+                    </div>
+                    <div class="form-group col-3"> 
+                      <label for="email">I.Tax / Adjustment(Amt)</label>
+                      <input type="number" name="tax_adjusment_amt" id="tax_adjusment_amt" placeholder="Enter" class="form-control" readonly/>
+                    </div>
+                  </div>
+                  <h4>Actual</h4>
+                  <hr class="my-4">
+                  <div class="row">
+                    <div class="form-group col-3"> 
+                      <label for="email">GP</label>
+                      <input type="text" name="gp_amount" id="gp_amount" class="form-control" readonly/>
+                    </div>
+                    <div class="form-group col-3"> 
+                      <label for="email">GP %</label>
+                      <input type="text" name="gp_percentage" id="gp_percentage" class="form-control" readonly/>
+                    </div>
+                  </div>
+  
+                  <div class="form-group">
+                    <button type="button"  value="save" class="btn btn-primary submit-btn" id="saveItemBtn">
+                      Save
+                    </button>
+                    <button type="button" class="btn btn-secondary btn-close" data-dismiss="modal">Cancel</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Add Item Modal -->
+      </div>
+      {% include 'layout/footer.html' %}
+    </div>
+  </div>
+  {% include 'layout/script.html' %}
+  <script type="text/javascript">
+    $(".btn-close").on('click',function() {
+      $("#additem").modal('toggle');
+    });
+    $(document).ready(function () {
+          // Save ISO Master
+        // let isoMasterId = null;
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        // function fetchIsoDetails(isoMasterId) {
+        //     if (!isoMasterId) return; // Prevent fetching if ID is null
+
+        //     $.ajax({
+        //         url: `/initiation/show_iso_detail/${isoMasterId}`,
+        //         type: 'GET',
+        //         success: function (data) {
+        //             if (!data || data.length === 0) {
+        //                 console.warn("No data received for isoTable.");
+        //                 return;
+        //             }
+
+        //             let tableElement = $('#isoTable');
+
+        //             // Destroy existing DataTable to avoid multiple initializations
+        //             if ($.fn.DataTable.isDataTable("#isoTable")) {
+        //                 tableElement.DataTable().clear().destroy();
+        //             }
+
+        //             // Ensure data is an array
+        //             if (!Array.isArray(data)) {
+        //                 console.error("Invalid data format received:", data);
+        //                 return;
+        //             }
+
+        //             // Dynamically create columns
+        //             let columns = Object.keys(data[0]).map(key => ({
+        //                 data: key,
+        //                 title: key.replace(/_/g, ' ').toUpperCase()
+        //             }));
+
+        //             // Add Delete Column
+        //             columns.push({
+        //                 data: 'id',
+        //                 title: 'Actions',
+        //                 render: function (data) {
+        //                     return `<button class="btn btn-danger delete-btn" data-id="${data}">Delete</button>`;
+        //                 }
+        //             });
+
+        //             // Reinitialize DataTable
+        //             tableElement.DataTable({
+        //                 data: data,
+        //                 columns: columns,
+        //                 scrollX: true,
+        //                 autoWidth: false,
+        //                 dom: 'Bfrtip',
+        //                 buttons: ['colvis'],
+        //                 destroy: true, // Ensure old instance is removed
+        //             });
+
+        //             console.log("DataTable updated successfully");
+        //         },
+        //         error: function (xhr, status, error) {
+        //             console.error("Error fetching ISO details:", error);
+        //             alert('Error loading data.');
+        //         }
+        //     });
+        // }
+        // Delete Function
+        // $('#isoTable').on('click', '.delete-btn', function (e) {
+        //     e.preventDefault(); // Prevent default behavior
+        //     let row = $(this).closest('tr');
+        //     let id = $(this).data('id');
+        //     deleteRow(id, row);
+        // });
+
+        // function deleteRow(id, row) {
+        //     if (confirm('Are you sure you want to delete this record?')) {
+        //         const url = '/initiation/iso_det_delete/'
+        //         $.ajax({
+        //             url: '{{ HOST }}'+url+id,  // Point to Django delete endpoint
+        //             type: 'DELETE',
+        //             headers: { 'X-CSRFToken': getCSRFToken() },
+        //             success: function (response) {
+        //                 alert('Row deleted successfully');
+        //                 $('#isoTable').DataTable().row(row).remove().draw(false);
+        //             },
+        //             error: function (xhr) {
+        //                 alert('Error: ' + xhr.responseText);
+        //             }
+        //         });
+        //     }
+        // }
+        // $('#isoMasterForm').submit(function (e) {
+        //     e.preventDefault();
+            
+        //     var form = $(this)[0];
+        //     var formData = new FormData(form);
+        //     var url = $(this).attr('data-url');
+        //     $.ajax({
+        //         url: '{{ HOST }}'+url,
+        //         type: 'POST',
+        //         processData: false,
+        //         contentType: false,
+        //         data: formData,
+        //         success: function (response) {
+        //             alert(response.message);
+        //             isoMasterId = response.id;
+
+        //             // Freeze form fields
+        //             $('#isoMasterForm :input, #isoMasterForm textarea, #isoMasterForm select').prop('readonly', true);
+        //             $('#saveIsoMasterBtn').prop('disabled', true);
+
+        //             // Enable Add Item Button
+        //             $('#addItemBtn').prop('disabled', false);
+
+        //             // Fetch and update table after saving ISO Master
+        //             fetchIsoDetails();
+        //         },
+        //         error: function () {
+        //             alert('Error saving ISO Master');
+        //         }
+        //         });
+        // });
+
+        // $('#itemModal').submit(function (e) {
+        //     e.preventDefault(); // Prevent default form submission
+
+        //     if (!isoMasterId) {
+        //         alert("Please save ISO Master first.");
+        //         return;
+        //     }
+
+        //     let form = $(this)[0]; 
+        //     let formData = new FormData(form);
+        //     formData.append("iso_master", isoMasterId);  // Manually add ISO master ID
+        //     $.ajax({
+        //         url: $(this).attr('data-url'),
+        //         type: 'POST',
+        //         processData: false,  // Important: prevents jQuery from converting data
+        //         contentType: false,  // Important: ensures correct encoding
+        //         data: formData,  // Send as FormData
+        //         success: function (response) {
+        //             alert(response.message);
+
+        //             // Update DataTable
+        //             fetchIsoDetails(isoMasterId);
+
+        //             // Close Modal Safely
+        //             let modal = $('#additem');
+        //             modal.modal('hide'); // Ensure modal ID is correct
+
+        //             // Remove aria-hidden attribute after hiding modal
+        //             modal.on('hidden.bs.modal', function () {
+        //                 $(this).removeAttr('aria-hidden');
+        //                 $(this).removeData('bs.modal'); // Fix Bootstrap modal reloading issue
+        //             });
+
+        //             // Reset Form
+        //             $('#itemModal')[0].reset();
+
+        //             console.log("Modal closed successfully");
+        //         },
+        //         error: function () {
+        //             alert('Error saving item');
+        //         }
+        //     });
+        // });
+
+        let isoMasterData = {
+            formFields: {},   // Holds form input values
+            tableRows: []     // Holds table data (ISO details)
+        };
+
+        $('#isoMasterForm :input, #isoMasterForm textarea, #isoMasterForm select').on('input change', function () {
+            let name = $(this).attr('name');
+            let value = $(this).val();
+            if (name) {
+                isoMasterData.formFields[name] = value;
+            }
+        });
+
+        // Initialize DataTable with a default structure
+        let table = $('#isoTable').DataTable({
+            data: [],  // Initially empty
+            columns: [
+                { data: null, title: 'Placeholder' } // Prevent errors on empty initialization
+            ],
+            scrollX: true,
+            autoWidth: false
+        });
+
+        $('#saveItemBtn').click(function () {
+          let rowData = {};
+
+          // Iterate over all inputs, selects, and textareas in the modal
+          $('#itemModal').find('input, select, textarea').each(function () {
+              let name = $(this).attr('name');
+              let value = $(this).val();
+              
+              if (name) { // Ensure the field has a name
+                  rowData[name] = value;
+              }
+          });
+
+            isoMasterData.tableRows.push(rowData);
+
+           // If it's the first row, define columns dynamically
+            if (isoMasterData.tableRows.length === 1) {
+                let columns = Object.keys(rowData).map(key => ({
+                    data: key,
+                    title: key.replace(/_/g, ' ').toUpperCase()
+                }));
+
+                // Add Delete Column to the end dynamically
+                columns.push({
+                    data: null,
+                    title: 'Actions',
+                    render: function (data, type, row, meta) {
+                        return `<button type="button" class="btn btn-danger delete-btn" data-row-index="${meta.row}">Delete</button>`;
+                    }
+                });
+
+
+                table.destroy();
+                $('#isoTable').empty(); // Clear table
+                table = $('#isoTable').DataTable({
+                    data: isoMasterData.tableRows,
+                    columns: columns,
+                    scrollX: true,
+                    autoWidth: false
+                });
+            } else {
+                table.row.add(rowData).draw();
+            }
+
+            // Close modal & reset form
+            $('#additem').modal('hide');
+            $('#itemModal')[0].reset();
+        });
+
+        // Handle delete functionality
+        $('#isoTable').on('click', '.delete-btn', function () {
+            let rowIndex = $(this).data('row-index');  // Get the index of the row to delete
+            
+            // Show confirmation dialog
+            if (confirm("Are you sure you want to delete this row?")) {
+                // Remove from isoMasterData.tableRows
+                isoMasterData.tableRows.splice(rowIndex, 1);
+
+                // Remove from DataTable
+                table.row($(this).closest('tr')).remove().draw();
+
+                alert('Row deleted successfully');
+            } 
+        });
+
+        $('#saveIsoMasterBtn').click(function () {
+            var url = "{% url 'save_iso' %}";
+            $.ajax({
+                url: url,
+                type: 'POST',
+                contentType: 'application/json',
+                headers: { "X-CSRFToken": csrfToken },
+                data: JSON.stringify(isoMasterData),
+                success: function (response) {
+                    alert('Data saved successfully');
+                    location.reload();
+                },
+                error: function () {
+                    alert('Error saving data');
+                }
+            });
+        });
+
+        // Get CSRF Token Helper
+        function getCSRFToken() {
+            return document.querySelector('[name=csrfmiddlewaretoken]').value;
+        }
+
+
+        $('#sales_tax_category').change(function () {
+          if ($("#sales_tax_category").val() != '') {
+                var url = "{% url 'load_tax' %}";
+                var sales_tax_category = $(this).val();
+                $('#taxlabel').html('');
+                $.ajax({
+                    url: url,
+                    data: {
+                        'sales_tax_category': sales_tax_category
+                    },
+                    traditional: true,
+                    success: function (data) {
+                        $('#gst_percentage').val(data.percentage);
+                        $('#taxlabel').html(' ('+data.percentage+'%)');
+                        calculation()
+                    },
+                    error: function (error) {
+                      $('#gst_percentage').val('');
+                      $('#taxlabel').html('');
+                    }
+                });
+              }
+              else{
+                $('#gst_percentage').val('');
+                $('#taxlabel').html('');
+              }
+          });
+
+          $('#import_factor').keyup(function () {
+          if ($("#import_factor").val() != '') {
+                $('#importlabel').html('');
+                var import_factor = $(this).val();
+                $('#importlabel').html(' ('+import_factor+'%)');
+                
+              }
+              else{
+                $('#importlabel').html('');
+              }
+          });
+
+          $('#item').change(function () {
+          if ($("#item").val() != '') {
+                var url = "{% url 'load_category' %}";
+                var item = $(this).val();
+
+                $.ajax({
+                    url: url,
+                    data: {
+                        'item': item
+                    },
+                    traditional: true,
+                    success: function (data) {
+                        $('#category').val(data.title);
+                    },
+                    error: function (error) {
+                      $('#category').val('');
+                    }
+                });
+              }
+              else{
+                $('#category').val('');
+              }
+          });
+
+          function calculation() {
+              var unit = parseFloat($('#unit').val()) || 0;
+              var rate = parseFloat($('#unit_cost').val()) || 0;
+              var tax = parseFloat($('#gst_percentage').val()) || 0;
+              var import_factor = parseFloat($('#import_factor').val()) || 0;
+              var est_gp = parseFloat($('#est_gp_perc').val()) || 0;
+              var delivery_charges = parseFloat($('#delivery_charges').val()) || 0;
+              var tax_adjusment = parseFloat($('#tax_adjusment').val()) || 0;
+              
+              var total = rate * unit;
+              var tax_cal = rate * tax / 100;
+              var impt_cal = rate * import_factor / 100;
+              var tax_total = tax_cal * unit;
+              var impt_total = impt_cal * unit;
+              var total_with_tax= total + impt_total
+              var unit_with_tax= rate + impt_cal
+              var est_gp_amt = total_with_tax * est_gp / 100;
+              var est_gp_unit = unit_with_tax * est_gp / 100;
+              var selling = unit_with_tax + est_gp_unit
+              var total_selling=selling * unit + delivery_charges
+              var selling_with_tax= total_selling * tax / 100
+              var total_sell_tax = total_selling + selling_with_tax
+              var income_cal = total_selling * tax_adjusment / 100
+              var after_adjustment= total_selling - income_cal
+              var final_gp_amt= after_adjustment - total_with_tax
+              var final_gp_per= final_gp_amt/total_selling *100
+
+              $('#total_pkr').val(total.toFixed(2));
+              $('#gst_amount').val(selling_with_tax.toFixed(2));
+              $('#import_amt').val(impt_cal.toFixed(2));
+              $('#t_with_taxes').val(total_with_tax.toFixed(2));
+              $('#est_gp_amt').val(est_gp_amt.toFixed(2));
+              $('#est_unit_gp_amt').val(est_gp_unit.toFixed(2));
+              $('#unit_selling_pkr').val(selling.toFixed(2));
+              $('#total_selling_price').val(total_selling.toFixed(2));
+              $('#total_with_gst').val(total_sell_tax.toFixed(2));
+              $('#tax_adjusment_amt').val(income_cal.toFixed(2));
+              $('#gp_amount').val(final_gp_amt.toFixed(2));
+              $('#gp_percentage').val(final_gp_per.toFixed(2));
+          }
+
+          // Enable/disable import factor based on checkbox
+          $('#isimported').on('change', function () {
+              if ($(this).is(':checked')) {
+                  $('#import_factor').prop('readonly', false).val('');
+              } else {
+                  $('#import_factor').prop('readonly', true).val('');
+              }
+              calculation();
+          });
+
+          // Attach the event listeners
+          $('#unit, #unit_cost, #gst_percentage, #import_factor, #sales_tax_category, #est_gp_perc, #delivery_charges, #tax_adjusment').on('keyup change', calculation);
+
+          // Initial calculation if values are pre-filled
+          calculation();
+      });
+  
+</script>
+</body>
+</html>

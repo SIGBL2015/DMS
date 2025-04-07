@@ -1,5 +1,5 @@
 from django import forms  
-from project_initiation.models import Tax, Tendor, Unit, Category, Item, Heading, Sub_heading, Boq_items
+from project_initiation.models import Tax, Tendor, Unit, Category, Item, Heading, Sub_heading, Boq_items, Iso_detail, Iso_master
 
 class TendorForm(forms.ModelForm):  
     class Meta:  
@@ -40,3 +40,13 @@ class Boq_itemsForm(forms.ModelForm):
     class Meta:  
         model = Boq_items  
         fields = ('id','item', 'heading', 'sub_heading', 'tendor', 'groupid', 'unit', 'unit_price', 'quantity', 'total_amount', 'is_imported', 'currency', 'conversion_rate')
+
+class Iso_masterForm(forms.ModelForm):  
+    class Meta:  
+        model = Iso_master  
+        fields = ('id','tendor', 'version', 'date', 'delivery_date_commeted', 'delivery_date_required', 'payment_term', 'em_percentage', 'em_amount', 'bg_percentage', 'bg_amount', 'pg_percentage', 'pg_amount', 'total_value_iso', 'total_cost_iso', 'initial_gp_planned', 'gp_after_tax', 'total_sales_promo', 'final_gp_after_promo', 'total_financial_charges', 'initial_gp_percentage', 'final_gp_percentage', 'final_gp_after_financial', 'client', 'city', 'shipping_address', 'customer_po_no', 'po_doc', 'mode_of_shipment', 'sales_person', 'approved_by', 'exchange_rate', 'delivery_type')
+
+class Iso_detailForm(forms.ModelForm):  
+    class Meta:  
+        model = Iso_detail  
+        fields = ('id','iso_master','item', 'delivery_type', 'sales_tax_category', 'gst_percentage', 'import_factor', 'unit', 'unit_cost', 'unit_cost_pkr', 'total_pkr', 'gp_calculation', 'unit_selling_pkr', 'delivery_charges', 'total_selling_price', 'gst_amount', 'total_with_gst', 'income_tax_adjustment', 'gp_percentage', 'gp_amount')

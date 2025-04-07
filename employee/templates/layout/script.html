@@ -122,7 +122,8 @@ var myChart = new Chart(ctx, {
 <script>
   $(function () {
     $("#example3").DataTable({
-      "responsive": false, "lengthChange": false, "autoWidth": false,"paging": false, "info": false,
+      "responsive": false, "lengthChange": false, "autoWidth": false,"paging": false, "info": false, "sScrollX": "100%",
+        "sScrollXInner": "110%",
       "buttons": [{ extend: 'print',footer: true},{extend: 'excel',footer: true},{extend: 'pdf', footer: true} ]
     }).buttons().container().appendTo('#example3_wrapper .col-md-6:eq(0)');
   });

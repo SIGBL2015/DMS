@@ -325,7 +325,7 @@ def generate_balance_sheet(request):
         from_date = request.POST.get('from_date')
         to_date = request.POST.get('to_date')
         query = Journal_entry.objects.filter(project=project)
-        print(query[0].bank.bank_name)
+        # print(query[0].bank.bank_name)
         _project = Project.objects.get(id=project)
         # Use the serializer
         project_data = ProjectSerializer(_project).data

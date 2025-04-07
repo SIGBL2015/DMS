@@ -1,3 +1,4 @@
+import json
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from datetime import datetime
@@ -5,11 +6,13 @@ import os
 from django.conf import settings
 from employee.models import Client, Department
 from finance.models import Currency
-from project_initiation.forms import TaxForm, TendorForm, UnitForm, CategoryForm, ItemForm, HeadingForm, Sub_headingForm, Boq_itemsForm
-from project_initiation.models import Tax, Tendor, Unit, Category, Item, Heading, Sub_heading, Boq_items
+from project_initiation.forms import TaxForm, TendorForm, UnitForm, CategoryForm, ItemForm, HeadingForm, Sub_headingForm, Boq_itemsForm, Iso_masterForm, Iso_detailForm
+from project_initiation.models import Tax, Tendor, Unit, Category, Item, Heading, Sub_heading, Boq_items, Iso_master, Iso_detail
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db.models import Q
 from django.contrib import messages
+from django.forms.models import model_to_dict
+from django.views.decorators.csrf import csrf_exempt
 
 # Create your views here.
 # tendor
@@ -590,7 +593,6 @@ def add_boq_items(request):
                 form.save()  
                 return JsonResponse({'status': 'success'}, status=200)
             except Exception as e:  
-  
                 return JsonResponse({'status': 'error', 'message': 'Unhandled request method'}, status=400) 
     else:  
         form = Boq_itemsForm() 
@@ -655,6 +657,207 @@ def test(request):
     return render(request,"boq_items/test.html", {'tendors':tendors, 'items':items, 'units':units, 'taxes':taxes, 'currencies':currencies})  
 
 
+# iso
+@login_required 
+@permission_required('project_initiation.add_iso', raise_exception=True)
+def add_iso(request): 
+    if request.method == "POST":  
+        # Parse incoming JSON data
+        data = json.loads(request.body)
+
+        # Retrieve Tendor instance based on the provided ID
+        tendor_id = data['formFields'].get('tendor')
+        try:
+            tendor_instance = Tendor.objects.get(id=tendor_id)
+        except Tendor.DoesNotExist:
+            return JsonResponse({'error': 'Tendor with given ID does not exist'}, status=400)
+
+        # Retrieve Client instance based on the provided ID
+        client_id = data['formFields'].get('client')
+        try:
+            client_instance = Client.objects.get(id=client_id)
+        except Client.DoesNotExist:
+            return JsonResponse({'error': 'Client with given ID does not exist'}, status=400)
+
+        # Remove 'tendor' and 'client' from formFields to avoid passing them twice
+        data['formFields'].pop('tendor', None)
+        data['formFields'].pop('client', None)
+
+        # Save ISO Master with the Tendor and Client instances
+        master = Iso_master.objects.create(
+            tendor=tendor_instance,
+            client=client_instance,
+            **data['formFields']
+        )
+
+         # Save ISO Details
+        for item in data['tableRows']:
+             # Remove frontend calculation fields before saving to Iso_detail
+            frontend_fields = ['category', 'isimported', 'import_amt', 't_with_taxes', 'est_gp_perc', 'est_unit_gp_amt', 'est_gp_amt', 'tax_adjusment_amt']
+            for field in frontend_fields:
+                if field in item:
+                    del item[field]  # Remove these fields from the data
+
+            # Ensure 'iso_master' is explicitly passed to Iso_detail
+            item['iso_master'] = master  # Add the iso_master to each item
+
+            # Fetch Item instance if item ID is provided
+            item_id = item.get('item')
+            if item_id:
+                try:
+                    item_instance = Item.objects.get(id=item_id)
+                    item['item'] = item_instance  # Assign the Item instance to 'item'
+                except Item.DoesNotExist:
+                    return JsonResponse({'error': f'Item with ID {item_id} does not exist'}, status=400)
+
+            # Fetch Tax instance if sales_tax_category ID is provided
+            tax_id = item.get('sales_tax_category')
+            if tax_id:
+                try:
+                    tax_instance = Tax.objects.get(id=tax_id)
+                    item['sales_tax_category'] = tax_instance  # Assign the Tax instance to 'sales_tax_category'
+                except Tax.DoesNotExist:
+                    return JsonResponse({'error': f'Tax with ID {tax_id} does not exist'}, status=400)
+
+            Iso_detail.objects.create(**item)  # Pass the rest of the item as **item
+
+        # Return success response
+        return JsonResponse({'message': 'Data saved successfully'})
+        # form = Iso_masterForm(request.POST) 
+        # if form.is_valid():
+        #     try:  
+
+        #         master_instance = form.save()  
+        #         return JsonResponse({
+        #             "id": master_instance.id,
+        #             "message": "ISO Master saved successfully."
+        #         })
+        #         # item_ids = request.POST.getlist('item[]')
+        #         # tax_ids = request.POST.getlist('sales_tax_category[]')
+        #         # # Collect all dynamic fields
+        #         # field_names = [field.name for field in Iso_detail._meta.fields if field.name not in ['id', 'iso_master','item','sales_tax_category','status']]
+        #         # # Collect data for all fields
+        #         # data = {field: request.POST.getlist(f'{field}[]') for field in field_names}
+        #         # # Ensure rows are of equal length
+        #         # num_rows = len(item_ids)
+                
+                
+        #         # # Save each row to the database
+        #         # for i in range(num_rows):
+        #         #     item = Item.objects.get(id=item_ids[i])
+        #         #     tax = Tax.objects.get(id=tax_ids[i])
+        #         #     row_data = {field: data[field][i] if i < len(data[field]) else None for field in field_names}
+        #         #     print(row_data)
+        #         #     # Create and save the item
+        #         #     Iso_detail.objects.create(item_id=item.id,sales_tax_category=tax,iso_master_id=master_instance.id, **row_data)
+        #         # messages.success(request, "Data added successfully!") 
+        #         # return redirect('show_iso')
+            
+        #     except Exception as e:
+        #         print(e)
+        #         return JsonResponse({'status': 'error', 'message': 'Unhandled request method'}, status=400) 
+    else:  
+        form = Iso_masterForm() 
+        tendors = Tendor.objects.filter(status=1).values('id','title')
+        clients = Client.objects.filter(status=1).values('id','client_name')
+        items = Item.objects.filter(status=1).values('id','name')
+        taxes = Tax.objects.filter(status=1).values('id','name')
+    return render(request,'iso/add_iso.html',{'form':form, 'tendors':tendors, 'clients':clients, 'items':items, 'taxes':taxes})  
+
+@login_required 
+@permission_required('project_initiation.add_iso', raise_exception=True)
+def add_iso_detail(request): 
+    if request.method == "POST":  
+        form = Iso_detailForm(request.POST) 
+        if form.is_valid():
+            try:  
+                form.save()  # Don't save to DB yet
+                messages.success(request, "Data added successfully!") 
+            except Exception as e:  
+                messages.error(request, f"Internal Server Error: {str(e)}")
+        else:
+            error_messages = form.errors.as_json()
+            messages.error(request, f"Form validation failed: {error_messages}")
+    iso = Iso_master.objects.get(id=request.POST.get('iso_master')) 
+    tendors = Tendor.objects.filter(status=1).values('id','title')
+    items = Item.objects.filter(status=1).values('id','name')
+    taxes = Tax.objects.filter(status=1).values('id','name')
+    clients = Client.objects.filter(status=1).values('id','client_name')
+    iso_detail = Iso_detail.objects.filter(iso_master_id=request.POST.get('iso_master'),status=1)  
+    return render(request,'iso/e_iso.html', {'iso':iso, 'tendors':tendors, 'clients':clients, 'iso_details':iso_detail, 'items':items, 'taxes':taxes})  
+
+@login_required    
+@permission_required('project_initiation.view_iso', raise_exception=True)
+def show_iso(request):  
+    iso = Iso_master.objects.filter(status=1)  
+    return render(request,"iso/show_iso.html",{'iso_mas':iso})
+  
+@login_required    
+@permission_required('project_initiation.view_iso', raise_exception=True)
+def show_iso_detail(request, id):  
+    iso_detail = Iso_detail.objects.filter(iso_master_id=id,status=1)  
+    data = [model_to_dict(item) for item in iso_detail]  # Serialize all fields
+    return JsonResponse(data, safe=False)
+
+@login_required  
+@permission_required('project_initiation.change_iso', raise_exception=True)
+def e_iso(request, id):  
+    iso = Iso_master.objects.get(id=id) 
+    tendors = Tendor.objects.filter(status=1).values('id','title')
+    clients = Client.objects.filter(status=1).values('id','client_name')
+    items = Item.objects.filter(status=1).values('id','name')
+    taxes = Tax.objects.filter(status=1).values('id','name')
+    iso_detail = Iso_detail.objects.filter(iso_master_id=id,status=1)  
+    return render(request,'iso/e_iso.html', {'iso':iso, 'tendors':tendors, 'clients':clients, 'iso_details':iso_detail, 'items':items, 'taxes':taxes})  
+
+@login_required  
+def u_iso(request, id):  
+    iso = Iso_master.objects.get(id=id)  
+    form = Iso_masterForm(request.POST, instance = iso)  
+    if form.is_valid():  
+        form.save()  
+        messages.success(request, "ISO Master Data Updated successfully!")   
+    iso_after = Iso_master.objects.get(id=id)
+    tendors = Tendor.objects.filter(status=1).values('id','title')
+    clients = Client.objects.filter(status=1).values('id','client_name')
+    items = Item.objects.filter(status=1).values('id','name')
+    taxes = Tax.objects.filter(status=1).values('id','name')
+    iso_detail = Iso_detail.objects.filter(iso_master_id=id,status=1)  
+    return render(request,'iso/e_iso.html', {'iso':iso_after, 'tendors':tendors, 'clients':clients, 'iso_details':iso_detail, 'items':items, 'taxes':taxes})    
+
+@login_required  
+@permission_required('project_initiation.delete_iso', raise_exception=True)
+def d_iso(request, id):  
+    iso = Iso_master.objects.get(id=id)  
+    iso.status=0  
+    iso.save()
+    return redirect("show_iso")
+
+@login_required
+@permission_required('project_initiation.delete_iso', raise_exception=True)
+@csrf_exempt
+def delete_iso_detail(request, id):
+    iso_det = Iso_detail.objects.get(id=id)
+    iso_det.status=0  
+    iso_det.save()
+    iso = Iso_master.objects.get(id=iso_det.iso_master.id) 
+    tendors = Tendor.objects.filter(status=1).values('id','title')
+    clients = Client.objects.filter(status=1).values('id','client_name')
+    items = Item.objects.filter(status=1).values('id','name')
+    taxes = Tax.objects.filter(status=1).values('id','name')
+    iso_detail = Iso_detail.objects.filter(iso_master_id=iso_det.iso_master.id,status=1)  
+    return render(request,'iso/e_iso.html', {'iso':iso, 'tendors':tendors, 'clients':clients, 'iso_details':iso_detail, 'items':items, 'taxes':taxes})  
+           
+
+def load_tax(request):
+    sales_tax_category = request.GET.get('sales_tax_category')
+    gst_percentage = Tax.objects.get(id=sales_tax_category)
+    return JsonResponse({ 'percentage':gst_percentage.percentage}, safe=False)
+
+def load_category(request):
+    item = request.GET.get('item')
+    cat = Item.objects.get(id=item)
+    return JsonResponse({ 'title':cat.category.title}, safe=False)
 
 # SELECT 
 #         id, unit_price, quantity, total_amount, tendor_id, parent_id
