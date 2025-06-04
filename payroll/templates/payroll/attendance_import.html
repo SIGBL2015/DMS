@@ -1,0 +1,155 @@
+{% extends 'payroll/base.html' %}
+{% load static %}
+
+{% block title %}Import Attendance{% endblock %}
+
+{% block header_buttons %}
+<a href="{% url 'payroll:attendance_list' %}" class="btn btn-default btn-sm">
+    <i class="fas fa-arrow-left"></i> Back to List
+</a>
+{% endblock %}
+
+{% block card_title %}Import Attendance Records{% endblock %}
+
+{% block card_content %}
+{% if messages %}
+<div class="messages">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}">
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% if import_errors %}
+<div class="alert alert-danger">
+    <h5><i class="icon fas fa-exclamation-triangle"></i> Import Errors</h5>
+    <ul>
+        {% for error in import_errors %}
+        <li>{{ error }}</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    
+    <div class="form-group">
+        <label>Import Method</label>
+        <div class="import-type-options">
+            {% for radio in form.import_type %}
+            <div class="custom-control custom-radio">
+                {{ radio }}
+                <label class="custom-control-label" for="{{ radio.id_for_label }}">
+                    {{ radio.choice_label }}
+                </label>
+            </div>
+            {% endfor %}
+        </div>
+        {% if form.import_type.errors %}
+            <div class="invalid-feedback d-block">
+                {{ form.import_type.errors }}
+            </div>
+        {% endif %}
+    </div>
+    
+    <div id="file-import-section" class="import-section">
+        <div class="form-group">
+            <label>Upload File</label>
+            {{ form.file }}
+            {% if form.file.help_text %}
+                <small class="form-text text-muted">{{ form.file.help_text }}</small>
+            {% endif %}
+            {% if form.file.errors %}
+                <div class="invalid-feedback d-block">
+                    {{ form.file.errors }}
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="alert alert-info">
+            <h5><i class="icon fas fa-info"></i> File Format Requirements</h5>
+            <p>Your file should contain the following columns:</p>
+            <ul>
+                <li><strong>employee_id</strong> - Employee ID</li>
+                <li><strong>date</strong> - Date (YYYY-MM-DD)</li>
+                <li><strong>time_in</strong> - Time In (HH:MM:SS)</li>
+                <li><strong>time_out</strong> - Time Out (HH:MM:SS) - Optional</li>
+            </ul>
+            <p>Download a sample template: <a href="{% url 'payroll:attendance_export' %}?template=1">CSV Template</a></p>
+        </div>
+    </div>
+    
+    <div id="device-sync-section" class="import-section" style="display: none;">
+        <div class="alert alert-info">
+            <h5><i class="icon fas fa-info"></i> Device Sync</h5>
+            <p>This will sync attendance records from the configured ZKTeco device.</p>
+            <p>Make sure the device is properly connected and configured in the system settings.</p>
+        </div>
+    </div>
+    
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">
+            <i class="fas fa-upload"></i> Import Records
+        </button>
+    </div>
+</form>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Import Instructions</h3>
+            </div>
+            <div class="card-body">
+                <h5>File Format Requirements:</h5>
+                <ul>
+                    <li>Supported formats: CSV, Excel (.xlsx, .xls)</li>
+                    <li>Maximum file size: 5MB</li>
+                    <li>Required columns:
+                        <ul>
+                            <li><code>employee_id</code> - Employee ID number</li>
+                            <li><code>check_in</code> - Check-in date and time (YYYY-MM-DD HH:MM:SS)</li>
+                            <li><code>check_out</code> - Check-out date and time (YYYY-MM-DD HH:MM:SS) - Optional</li>
+                        </ul>
+                    </li>
+                </ul>
+                <h5>Example CSV Format:</h5>
+                <pre>employee_id,check_in,check_out
+EMP001,2024-03-20 09:00:00,2024-03-20 17:00:00
+EMP002,2024-03-20 08:45:00,2024-03-20 16:30:00</pre>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Handle import type change
+    $('input[name="import_type"]').change(function() {
+        if ($(this).val() === 'file') {
+            $('#file-import-section').show();
+            $('#device-sync-section').hide();
+        } else {
+            $('#file-import-section').hide();
+            $('#device-sync-section').show();
+        }
+    });
+    
+    // Initialize with correct section visibility
+    $('input[name="import_type"]:checked').trigger('change');
+
+    // Initialize file input
+    $('input[type="file"]').fileinput({
+        showUpload: false,
+        showRemove: true,
+        showPreview: false,
+        allowedFileExtensions: ['csv', 'xlsx', 'xls']
+    });
+});
+</script>
+{% endblock %} 

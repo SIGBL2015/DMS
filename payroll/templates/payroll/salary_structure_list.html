@@ -1,0 +1,99 @@
+{% extends 'payroll/base.html' %}
+{% load static %}
+
+{% block title %}Salary Structures{% endblock %}
+
+{% block card_title %}Manage Salary Structures{% endblock %}
+
+{% block header_buttons %}
+<div class="card-header-action">
+    <a href="{% url 'payroll:structure_create' %}" class="btn btn-primary">
+        <i class="ion ion-plus"></i> New Structure
+    </a>
+</div>
+{% endblock %}
+
+{% block card_content %}
+<div class="table-responsive">
+    <table class="table table-striped" id="structure-table">
+        <thead>
+            <tr>
+                <th>Employee</th>
+                <th>Basic Salary</th>
+                <th>Effective From</th>
+                <th>Effective To</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for structure in structures %}
+            <tr>
+                <td>{{ structure.employee.ename }}</td>
+                <td>{{ structure.basic_salary }}</td>
+                <td>{{ structure.effective_from|date:"d M Y" }}</td>
+                <td>{{ structure.effective_to|date:"d M Y"|default:"-" }}</td>
+                <td>
+                    {% if structure.is_active %}
+                    <span class="badge badge-success">Active</span>
+                    {% else %}
+                    <span class="badge badge-danger">Inactive</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{% url 'payroll:structure_update' structure.pk %}" class="btn btn-sm btn-info">
+                        <i class="ion ion-edit"></i>
+                    </a>
+                    <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#deleteModal{{ structure.pk }}">
+                        <i class="ion ion-trash-b"></i>
+                    </button>
+                </td>
+            </tr>
+
+            <!-- Delete Modal -->
+            <div class="modal fade" id="deleteModal{{ structure.pk }}" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
+                            <button type="button" class="close btn-close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            Are you sure you want to delete the salary structure for {{ structure.employee.ename }}?
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary btn-close" data-dismiss="modal">Cancel</button>
+                            <form action="{% url 'payroll:structure_delete' structure.pk %}" method="post" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger">Delete</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <tr>
+                <td colspan="6" class="text-center">No salary structures found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        $('#structure-table').DataTable({
+            "order": [[2, "desc"]], // Sort by effective from date by default
+            "pageLength": 10,
+            "language": {
+                "emptyTable": "No salary structures found",
+                "zeroRecords": "No matching salary structures found"
+            }
+        });
+    });
+</script>
+{% endblock %} 

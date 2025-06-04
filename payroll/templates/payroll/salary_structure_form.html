@@ -1,0 +1,125 @@
+{% extends 'payroll/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block title %}
+    {% if form.instance.pk %}
+        Edit Salary Structure
+    {% else %}
+        New Salary Structure
+    {% endif %}
+{% endblock %}
+
+{% block card_title %}
+    {% if form.instance.pk %}
+        Edit Salary Structure
+    {% else %}
+        Create New Salary Structure
+    {% endif %}
+{% endblock %}
+
+{% block header_buttons %}
+<div class="card-header-action">
+    <a href="{% url 'payroll:structure_list' %}" class="btn btn-secondary">
+        <i class="ion ion-arrow-left-a"></i> Back to List
+    </a>
+</div>
+{% endblock %}
+
+{% block card_content %}
+<form method="post" class="needs-validation" novalidate>
+    {% csrf_token %}
+    
+    <div class="row">
+        <div class="col-md-6">
+            {{ form.employee|as_crispy_field }}
+        </div>
+        <div class="col-md-6">
+            {{ form.basic_salary|as_crispy_field }}
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6">
+            {{ form.effective_from|as_crispy_field }}
+        </div>
+        <div class="col-md-6">
+            {{ form.effective_to|as_crispy_field }}
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-12">
+            {{ form.is_active|as_crispy_field }}
+        </div>
+    </div>
+    
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">
+            <i class="ion ion-checkmark"></i> Save
+        </button>
+        <a href="{% url 'payroll:structure_list' %}" class="btn btn-secondary">Cancel</a>
+    </div>
+</form>
+
+<div class="card mt-4">
+    <div class="card-header">
+        <h4>About Salary Structures</h4>
+    </div>
+    <div class="card-body">
+        <p>Salary structures define the basic salary and effective dates for employees. They form the foundation for payroll calculations.</p>
+        <h5>Tips:</h5>
+        <ul>
+            <li>Set the effective from date to when the salary structure should start being used</li>
+            <li>Leave the effective to date empty if the structure is ongoing</li>
+            <li>Only one active salary structure can exist for an employee at a time</li>
+            <li>The basic salary is used as the foundation for calculating other salary components</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        // Initialize select2 for dropdowns
+        $('.select2').select2({
+            theme: 'bootstrap4',
+            width: '100%'
+        });
+        
+        // Initialize datepickers
+        $('#id_effective_from, #id_effective_to').datepicker({
+            format: 'yyyy-mm-dd',
+            autoclose: true,
+            todayHighlight: true
+        });
+        
+        // Form validation
+        (function() {
+            'use strict';
+            window.addEventListener('load', function() {
+                var forms = document.getElementsByClassName('needs-validation');
+                var validation = Array.prototype.filter.call(forms, function(form) {
+                    form.addEventListener('submit', function(event) {
+                        if (form.checkValidity() === false) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        }
+                        form.classList.add('was-validated');
+                    }, false);
+                });
+            }, false);
+        })();
+        
+        // Ensure effective_to is not before effective_from
+        $('#id_effective_from').on('changeDate', function(e) {
+            $('#id_effective_to').datepicker('setStartDate', e.date);
+        });
+        
+        $('#id_effective_to').on('changeDate', function(e) {
+            $('#id_effective_from').datepicker('setEndDate', e.date);
+        });
+    });
+</script>
+{% endblock %} 

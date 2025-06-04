@@ -1,0 +1,151 @@
+{% extends "payroll/base.html" %}
+
+{% block card_title %}
+Workflow: {{ workflow.name }}
+{% endblock %}
+
+{% block header_buttons %}
+<a href="{% url 'payroll:workflow_list' %}" class="btn btn-secondary">
+    <i class="ion-arrow-left"></i> Back to Workflows
+</a>
+<a href="{% url 'payroll:workflow_update' workflow.pk %}" class="btn btn-primary">
+    <i class="ion-edit"></i> Edit Workflow
+</a>
+{% endblock %}
+
+{% block card_content %}
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Workflow Details</h5>
+            </div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-4">Status</dt>
+                    <dd class="col-sm-8">
+                        <span class="badge {% if workflow.is_active %}bg-success{% else %}bg-danger{% endif %}">
+                            {{ workflow.is_active|yesno:"Active,Inactive" }}
+                        </span>
+                    </dd>
+
+                    <dt class="col-sm-4">Description</dt>
+                    <dd class="col-sm-8">{{ workflow.description|default:"No description provided" }}</dd>
+
+                    <dt class="col-sm-4">Created By</dt>
+                    <dd class="col-sm-8">{{ workflow.created_by.get_full_name }}</dd>
+
+                    <dt class="col-sm-4">Created At</dt>
+                    <dd class="col-sm-8">{{ workflow.created_at|date:"F j, Y, g:i a" }}</dd>
+
+                    <dt class="col-sm-4">Last Updated</dt>
+                    <dd class="col-sm-8">{{ workflow.updated_at|date:"F j, Y, g:i a" }}</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Assigned Roles</h5>
+            </div>
+            <div class="card-body">
+                {% if workflow.roles.all %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Role</th>
+                                <th>Users</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for role in workflow.roles.all %}
+                            <tr>
+                                <td>{{ role.name }}</td>
+                                <td>
+                                    {% for user in role.users.all %}
+                                    <span class="badge bg-info">{{ user.get_full_name }}</span>
+                                    {% endfor %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted mb-0">No roles assigned to this workflow.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card mt-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="card-title mb-0">Workflow Steps</h5>
+        <a href="{% url 'payroll:workflow_step_create' workflow.pk %}" class="btn btn-primary btn-sm">
+            <i class="ion-plus"></i> Add Step
+        </a>
+    </div>
+    <div class="card-body">
+        {% if workflow.steps.all %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Order</th>
+                        <th>Name</th>
+                        <th>Required Role</th>
+                        <th>Timeout</th>
+                        <th>Actions</th>
+                        <th>Operations</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for step in workflow.steps.all %}
+                    <tr>
+                        <td>{{ step.order }}</td>
+                        <td>{{ step.name }}</td>
+                        <td>{{ step.role.name }}</td>
+                        <td>{{ step.timeout_days }} days</td>
+                        <td>
+                            {% for action in step.actions.all %}
+                            <span class="badge bg-secondary">{{ action.name }}</span>
+                            {% endfor %}
+                        </td>
+                        <td>
+                            <a href="{% url 'payroll:workflow_step_update' workflow.pk step.pk %}" class="btn btn-sm btn-info">
+                                <i class="ion-edit"></i>
+                            </a>
+                            <a href="{% url 'payroll:workflow_step_delete' workflow.pk step.pk %}" class="btn btn-sm btn-danger">
+                                <i class="ion-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-muted mb-0">No steps defined for this workflow.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        // Initialize DataTable for workflow steps
+        $('.table').DataTable({
+            order: [[0, 'asc']],
+            pageLength: 10,
+            language: {
+                emptyTable: "No steps defined for this workflow."
+            }
+        });
+    });
+</script>
+{% endblock %} 

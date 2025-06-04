@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+{% include 'layout/style.html' %}
+
+<body>
+  <div id="app">
+    <div class="main-wrapper">
+      {% include 'layout/header.html' %}
+      {% include 'layout/sidebar.html' %}
+      <div class="main-content">
+        <section class="section">
+          <h1 class="section-header">
+            <div>{% block title %}{% endblock %}</div>
+            <div class="float-right">
+              {% block header_buttons %}{% endblock %}
+            </div>
+          </h1>
+          {% include 'layout/status.html' %}
+          <div class="section-body">
+            {% block payroll_content %}
+              <div class="row">
+                <div class="col-12">
+                  <div class="card">
+                    <div class="card-header">
+                      <h4>{% block card_title %}{% endblock %}</h4>
+                    </div>
+                    <div class="card-body">
+                      {% block card_content %}{% endblock %}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {% endblock %}
+          </div>
+        </section>
+      </div>
+      {% include 'layout/footer.html' %}
+    </div>
+  </div>
+
+  {% include 'layout/script.html' %}
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script>
+    // Ensure any modal is moved to <body> on show so it sits above the backdrop
+    $(document).on('show.bs.modal', '.modal', function () {
+      $(this).appendTo('body');
+    });
+    // Remove leftover backdrop and modal-open class when modal hides
+    $(document).on('hidden.bs.modal', '.modal', function () {
+      $('.modal-backdrop').remove();
+      $('body').removeClass('modal-open');
+    });
+    $(".btn-close").on('click', function() {
+      $(this).closest('.modal').modal('hide');
+    });
+  </script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html> 

@@ -1,0 +1,286 @@
+{% extends 'payroll/base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Payroll Dashboard{% endblock %}
+
+{% block card_title %}Payroll Dashboard{% endblock %}
+
+{% block card_content %}
+<div class="row">
+    <!-- Summary Cards -->
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-1">Employees</h6>
+                        <h3 class="mb-0">{{ total_employees }}</h3>
+                    </div>
+                    <div class="bg-primary text-white rounded-circle p-3">
+                        <i class="ion ion-person"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-1">Payroll Periods</h6>
+                        <h3 class="mb-0">{{ total_periods }}</h3>
+                    </div>
+                    <div class="bg-success text-white rounded-circle p-3">
+                        <i class="ion ion-calendar"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-1">Salary Components</h6>
+                        <h3 class="mb-0">{{ total_components }}</h3>
+                    </div>
+                    <div class="bg-info text-white rounded-circle p-3">
+                        <i class="ion ion-cash"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-1">Pending Payments</h6>
+                        <h3 class="mb-0">{{ pending_payments|length }}</h3>
+                    </div>
+                    <div class="bg-warning text-white rounded-circle p-3">
+                        <i class="ion ion-card"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <!-- Calculation Status -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Payroll Calculation Status</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <tr>
+                            <th>Draft</th>
+                            <td>{{ draft_calculations }}</td>
+                        </tr>
+                        <tr>
+                            <th>Processing</th>
+                            <td>{{ processing_calculations }}</td>
+                        </tr>
+                        <tr>
+                            <th>Completed</th>
+                            <td>{{ completed_calculations }}</td>
+                        </tr>
+                        <tr>
+                            <th>Paid</th>
+                            <td>{{ paid_calculations }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Active Periods -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Active Payroll Periods</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Type</th>
+                                <th>End Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for period in active_periods %}
+                                <tr>
+                                    <td>{{ period.name }}</td>
+                                    <td>{{ period.get_period_type_display }}</td>
+                                    <td>{{ period.end_date }}</td>
+                                    <td>
+                                        <a href="{% url 'payroll:calculation_create' %}?period={{ period.id }}" class="btn btn-sm btn-primary">
+                                            <i class="ion ion-calculator"></i> Calculate
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center">No active periods found.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <!-- Recent Calculations -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Recent Payroll Calculations</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Employee</th>
+                                <th>Period</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for calculation in recent_calculations %}
+                                <tr>
+                                    <td>{{ calculation.employee }}</td>
+                                    <td>{{ calculation.period }}</td>
+                                    <td>
+                                        <span class="badge {% if calculation.status == 'DRAFT' %}bg-secondary{% elif calculation.status == 'PROCESSING' %}bg-primary{% elif calculation.status == 'COMPLETED' %}bg-success{% elif calculation.status == 'PAID' %}bg-info{% else %}bg-danger{% endif %}">
+                                            {{ calculation.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'payroll:calculation_detail' calculation.pk %}" class="btn btn-sm btn-outline-primary">
+                                            <i class="ion ion-eye"></i> View
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center">No recent calculations found.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Pending Payments -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Pending Payments</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Employee</th>
+                                <th>Amount</th>
+                                <th>Due Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for payment in pending_payments %}
+                                <tr>
+                                    <td>{{ payment.payroll_calculation.employee }}</td>
+                                    <td>${{ payment.amount|floatformat:2|intcomma }}</td>
+                                    <td>{{ payment.payment_date }}</td>
+                                    <td>
+                                        <a href="{% url 'payroll:payment_update' payment.pk %}" class="btn btn-sm btn-outline-primary">
+                                            <i class="ion ion-card"></i> Process
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center">No pending payments found.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <!-- Audit Logs -->
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Recent Activity</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Action</th>
+                                <th>Details</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for log in recent_audit_logs %}
+                                <tr>
+                                    <td>{{ log.user }}</td>
+                                    <td>
+                                        <span class="badge {% if log.action == 'CREATE' %}bg-success{% elif log.action == 'UPDATE' %}bg-primary{% elif log.action == 'DELETE' %}bg-danger{% elif log.action == 'VIEW' %}bg-info{% elif log.action == 'EXPORT' %}bg-warning{% elif log.action == 'APPROVE' %}bg-success{% else %}bg-danger{% endif %}">
+                                            {{ log.get_action_display }}
+                                        </span>
+                                    </td>
+                                    <td>{{ log.details }}</td>
+                                    <td>{{ log.created_at|date:"M d, Y H:i" }}</td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center">No recent activity found.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        // Initialize any dashboard-specific JavaScript here
+    });
+</script>
+{% endblock %} 

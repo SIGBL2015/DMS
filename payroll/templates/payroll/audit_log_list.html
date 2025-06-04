@@ -1,0 +1,130 @@
+{% extends 'payroll/base.html' %}
+{% load crispy_forms_tags %}
+{% load payroll_extras %}
+
+{% block title %}Audit Logs{% endblock %}
+
+{% block card_title %}Audit Logs{% endblock %}
+
+{% block header_buttons %}
+<div class="d-flex gap-2">
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#filterModal">
+        <i class="bi bi-funnel"></i> Filter
+    </button>
+    <a href="{% url 'payroll:export_audit_logs' %}" class="btn btn-outline-success">
+        <i class="bi bi-download"></i> Export
+    </a>
+</div>
+{% endblock %}
+
+{% block card_content %}
+<div class="table-responsive">
+    <table id="auditLogTable" class="table table-hover">
+        <thead>
+            <tr>
+                <th>Timestamp</th>
+                <th>User</th>
+                <th>Action</th>
+                <th>Module</th>
+                <th>Details</th>
+                <th>IP Address</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for log in audit_logs %}
+            <tr>
+                <td>{{ log.created_at|date:"Y-m-d H:i:s" }}</td>
+                <td>{{ log.user.get_full_name|default:log.user.username }}</td>
+                <td><span class="badge bg-{{ log.action|action_badge }}">{{ log.action }}</span></td>
+                <td>{{ log.module }}</td>
+                <td>{{ log.details }}</td>
+                <td>{{ log.ip_address }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" class="text-center py-4">
+                    <div class="text-muted">
+                        <i class="bi bi-journal-text display-4"></i>
+                        <p class="mt-2">No audit logs found</p>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Filter Modal -->
+<div class="modal fade" id="filterModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Filter Audit Logs</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="get">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">User</label>
+                        <select name="user" class="form-select select2">
+                            <option value="">All Users</option>
+                            {% for user in users %}
+                            <option value="{{ user.id }}" {% if selected_user == user.id %}selected{% endif %}>
+                                {{ user.get_full_name|default:user.username }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Action</label>
+                        <select name="action" class="form-select select2">
+                            <option value="">All Actions</option>
+                            {% for action in action_types %}
+                            <option value="{{ action.0 }}" {% if selected_action == action.0 %}selected{% endif %}>
+                                {{ action.1 }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Date Range</label>
+                        <div class="input-group">
+                            <input type="date" name="start_date" class="form-control" value="{{ start_date|date:'Y-m-d' }}">
+                            <span class="input-group-text">to</span>
+                            <input type="date" name="end_date" class="form-control" value="{{ end_date|date:'Y-m-d' }}">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Apply Filters</button>
+                    <a href="{% url 'payroll:audit_log_list' %}" class="btn btn-secondary">Clear</a>
+                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        // Initialize DataTable
+        $('#auditLogTable').DataTable({
+            order: [[0, 'desc']],
+            pageLength: 25,
+            language: {
+                emptyTable: "No audit logs found"
+            }
+        });
+
+        // Initialize Select2
+        $('.select2').select2({
+            theme: 'bootstrap-5',
+            width: '100%'
+        });
+    });
+</script>
+{% endblock %} 

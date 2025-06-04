@@ -1,0 +1,131 @@
+{% extends 'payroll/base.html' %}
+
+{% block title %}Salary Components{% endblock %}
+
+{% block header_buttons %}
+<a href="{% url 'payroll:component_create' %}" class="btn btn-sm btn-danger">
+    <i class="fas fa-plus"></i> Add Component
+</a>
+{% endblock %}
+
+{% block payroll_content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h4>Salary Component Details</h4>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Code</th>
+                                <th>Type</th>
+                                <th>Taxable</th>
+                                <th>Mandatory</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for component in components %}
+                            <tr>
+                                <td>{{ component.name }}</td>
+                                <td>{{ component.code }}</td>
+                                <td>
+                                    <span class="badge {% if component.component_type == 'EARNING' %}badge-success{% else %}badge-danger{% endif %}">
+                                        {{ component.get_component_type_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge {% if component.is_taxable %}badge-info{% else %}badge-secondary{% endif %}">
+                                        {{ component.is_taxable|yesno:"Yes,No" }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge {% if component.is_mandatory %}badge-warning{% else %}badge-secondary{% endif %}">
+                                        {{ component.is_mandatory|yesno:"Yes,No" }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge {% if component.is_active %}badge-success{% else %}badge-danger{% endif %}">
+                                        {{ component.is_active|yesno:"Active,Inactive" }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="{% url 'payroll:component_update' component.pk %}" 
+                                       class="btn btn-primary btn-sm"
+                                       title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button type="button" 
+                                            class="btn btn-danger btn-sm"
+                                            title="Delete"
+                                            data-toggle="modal"
+                                            data-target="#deleteModal"
+                                            data-component-id="{{ component.pk }}"
+                                            data-component-name="{{ component.name }}">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="7" class="text-center">
+                                    <p class="text-muted my-3">No salary components found.</p>
+                                    <a href="{% url 'payroll:component_create' %}" class="btn btn-primary">
+                                        <i class="fas fa-plus"></i> Create First Component
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete Salary Component</h5>
+                <button type="button" class="close btn-close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete the salary component <strong id="componentName"></strong>?</p>
+                <p class="text-danger">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-close" data-dismiss="modal">Cancel</button>
+                <form id="deleteForm" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        $('#deleteModal').on('show.bs.modal', function(event) {
+            var button = $(event.relatedTarget);
+            var componentId = button.data('component-id');
+            var componentName = button.data('component-name');
+            
+            $('#componentName').text(componentName);
+            $('#deleteForm').attr('action', '/payroll/components/' + componentId + '/delete/');
+        });
+    });
+</script>
+{% endblock %} 

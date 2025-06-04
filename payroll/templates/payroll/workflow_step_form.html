@@ -1,0 +1,134 @@
+{% extends "payroll/base.html" %}
+
+{% block card_title %}
+{% if form.instance.pk %}Edit Workflow Step{% else %}Add Workflow Step{% endif %}
+{% endblock %}
+
+{% block header_buttons %}
+<a href="{% url 'payroll:workflow_detail' workflow.pk %}" class="btn btn-secondary">
+    <i class="ion-arrow-left"></i> Back to Workflow
+</a>
+{% endblock %}
+
+{% block card_content %}
+<form method="post" class="needs-validation" novalidate>
+    {% csrf_token %}
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label for="{{ form.name.id_for_label }}">Step Name</label>
+                {{ form.name }}
+                {% if form.name.errors %}
+                <div class="invalid-feedback d-block">
+                    {{ form.name.errors }}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <label for="{{ form.order.id_for_label }}">Order</label>
+                {{ form.order }}
+                {% if form.order.errors %}
+                <div class="invalid-feedback d-block">
+                    {{ form.order.errors }}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="{{ form.description.id_for_label }}">Description</label>
+        {{ form.description }}
+        {% if form.description.errors %}
+        <div class="invalid-feedback d-block">
+            {{ form.description.errors }}
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label for="{{ form.role.id_for_label }}">Required Role</label>
+                {{ form.role }}
+                {% if form.role.errors %}
+                <div class="invalid-feedback d-block">
+                    {{ form.role.errors }}
+                </div>
+                {% endif %}
+                <small class="form-text text-muted">Select the role required to complete this step.</small>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <label for="{{ form.timeout_days.id_for_label }}">Timeout (Days)</label>
+                {{ form.timeout_days }}
+                {% if form.timeout_days.errors %}
+                <div class="invalid-feedback d-block">
+                    {{ form.timeout_days.errors }}
+                </div>
+                {% endif %}
+                <small class="form-text text-muted">Number of days before this step times out.</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="{{ form.actions.id_for_label }}">Required Actions</label>
+        {{ form.actions }}
+        {% if form.actions.errors %}
+        <div class="invalid-feedback d-block">
+            {{ form.actions.errors }}
+        </div>
+        {% endif %}
+        <small class="form-text text-muted">Select the actions required to complete this step.</small>
+    </div>
+
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">
+            <i class="ion-checkmark"></i> Save
+        </button>
+        <a href="{% url 'payroll:workflow_detail' workflow.pk %}" class="btn btn-secondary">Cancel</a>
+    </div>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        // Initialize select2 for role and actions
+        $('#{{ form.role.id_for_label }}').select2({
+            theme: 'bootstrap4',
+            placeholder: 'Select role',
+            allowClear: true
+        });
+
+        $('#{{ form.actions.id_for_label }}').select2({
+            theme: 'bootstrap4',
+            placeholder: 'Select actions',
+            allowClear: true,
+            multiple: true
+        });
+
+        // Form validation
+        (function() {
+            'use strict';
+            window.addEventListener('load', function() {
+                var forms = document.getElementsByClassName('needs-validation');
+                var validation = Array.prototype.filter.call(forms, function(form) {
+                    form.addEventListener('submit', function(event) {
+                        if (form.checkValidity() === false) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        }
+                        form.classList.add('was-validated');
+                    }, false);
+                });
+            }, false);
+        })();
+    });
+</script>
+{% endblock %} 

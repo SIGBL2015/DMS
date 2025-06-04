@@ -347,13 +347,13 @@
                               <h4>Document</h4>
                               <hr class="my-4">
                               <div class="row">
-                                <div class="form-group col-6">
+                                <div class="form-group col-3">
                                   <label for="frist_name">Project</label>
                                   <select class="form-control" id="project" name="project" readonly>
                                       <option value="{{ project.id }}" selected>{{ project.title }}</option>
                                   </select>
                                 </div>
-                                <div class="form-group col-6">
+                                <div class="form-group col-3">
                                   <label for="email">Document_type</label>
                                   <select class="form-control" id="document_type" name="document_type" {{ permission }}>
                                       <option value="">-- Select Type --</option>
@@ -366,18 +366,35 @@
                                       {% endfor %}
                                   </select>
                                 </div>
+                                <div class="form-group col-3">
+                                  <label for="email">Company Document</label>
+                                  <select class="form-control" id="company_document" name="company_document" {{ permission }}>
+                                      <option value="">-- Select --</option>
+                                      {% for company_document in company_documents %}
+                                        {% if doc.company_document.id == company_document.id %}
+                                          <option value="{{ company_document.id }}" selected>{{ company_document.title }}</option>
+                                        {% else %}
+                                          <option value="{{ company_document.id }}">{{ company_document.title }}</option>
+                                        {% endif %}
+                                      {% endfor %}
+                                  </select>
+                                </div>
+                                <div class="form-group col-3">
+                                    <label for="id_ref_no">Ref No</label>
+                                    <input id="ref_no" type="text" class="form-control" name="ref_no" value="{{ doc.ref_no }}" {{ permission }}>
+                                </div>
                               </div>
                 
                                 <div class="row">
-                                  <div class="form-group col-6">
-                                    <label for="id_ref_no">Ref No</label>
-                                    <input id="ref_no" type="text" class="form-control" name="ref_no" value="{{ doc.ref_no }}" {{ permission }}>
-                                  </div>
-                                  <div class="form-group col-6">
+                                  <div class="form-group col-3">
                                     <label for="id_issuance_date">Issuance Date</label>
                                     <input id="issuance_date" type="date" class="form-control" name="issuance_date" value="{{ doc.issuance_date|date:'Y-m-d' }}" {{ permission }}>
                                   </div>
-                                  <div class="form-group col-6">
+                                  <div class="form-group col-3">
+                                    <label for="id_received_date">Received Date</label>
+                                    <input id="received_date" type="date" class="form-control" name="received_date" value="{{ doc.received_date|date:'Y-m-d' }}" {{ permission }}>
+                                  </div>
+                                  <div class="form-group col-3">
                                     <label for="frist_name">File</label>
                                     <div class="row">
                                       <div class="form-group col-10">
@@ -387,6 +404,14 @@
                                         <a href="{{ MEDIA_URL }}{{ doc.doc_path }}" target="_blank"><span class="ion-ios-eye" ></span></a>
                                       </div>
                                     </div>
+                                  </div>
+                                  <div class="form-group col-3">
+                                    <label for="id_document_direction">Document Direction</label>
+                                    <select class="form-control" id="document_direction" name="document_direction" {{ permission }}>
+                                        <option value="{{ doc.document_direction }}">{{ doc.document_direction }}</option>
+                                        <option value="Invert">Invert</option>
+                                        <option value="Outvert">Outvert</option>
+                                    </select>
                                   </div>
                                   <div class="form-group col-6">
                                     <label for="frist_name">Remarks</label>
@@ -757,18 +782,45 @@
                   </div>
                   <div class="row">
                     <div class="form-group col-6">
-                      <label for="id_doc_path">File</label>
-                      <input id="doc_path" type="file" class="form-control" name="doc_path" required>
+                      <label for="email">Company Document</label>
+                        <select class="form-control" id="company_document" name="company_document" {{ permission }}>
+                            <option value="">-- Select --</option>
+                            {% for company_document in company_documents %}
+                                <option value="{{ company_document.id }}">{{ company_document.title }}</option>
+                            {% endfor %}
+                        </select>
                     </div>
                     <div class="form-group col-6">
                       <label for="id_ref_no">Ref No</label>
                       <input id="ref_no" type="text" class="form-control" name="ref_no" required>
                     </div>
+                  </div>
+                  <div class="row">
                     <div class="form-group col-6">
                       <label for="id_issuance_date">Issuance Date</label>
                       <input id="issuance_date" type="date" class="form-control" name="issuance_date" required>
                     </div>
                     <div class="form-group col-6">
+                      <label for="id_received_date">Received Date</label>
+                      <input id="received_date" type="date" class="form-control" name="received_date">
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="form-group col-6">
+                      <label for="id_doc_path">File</label>
+                      <input id="doc_path" type="file" class="form-control" name="doc_path">
+                    </div>
+                    <div class="form-group col-6">
+                      <label for="id_document_direction">Document Direction</label>
+                      <select class="form-control" id="document_direction" name="document_direction">
+                          <option value="">--Select--</option>
+                          <option value="Invert">Invert</option>
+                          <option value="Outvert">Outvert</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="form-group col-12">
                       <label for="id_remarks">Remarks</label>
                       <textarea id="id_remarks" name="remarks" class="form-control" rows="4" cols="50" required></textarea>
                       <input id="modalfield" type="text" value="1" hidden class="form-control" name="modalfield">

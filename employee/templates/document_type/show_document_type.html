@@ -28,6 +28,7 @@
                         <tr>
                           <th>S.No</th>
                           <th>Type Name</th>
+                          <th>Purpose</th>
                           <th>Status</th>
                           <th>Action</th>
                         </tr>
@@ -37,6 +38,7 @@
                                 <tr>  
                                     <td>{{ forloop.counter }}</td>  
                                     <td>{{ document_type.title }}</td>
+                                    <td>{{ document_type.purpose }}</td>
                                     {% if document_type.status == 1 %}
                                       <td>Active</td>  
                                     {% else %}
@@ -53,6 +55,7 @@
                         <tr>
                             <th>S.No</th>
                             <th>Type Name</th>
+                            <th>Purpose</th>
                             <th>Status</th>
                             <th>Action</th>
                         </tr>

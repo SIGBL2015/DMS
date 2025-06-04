@@ -1,0 +1,100 @@
+{% extends 'payroll/base.html' %}
+
+{% block title %}Bulk Attendance Creation{% endblock %}
+
+{% block header_buttons %}
+  <a href="{% url 'payroll:attendance_list' %}" class="btn btn-secondary">
+    <i class="ion ion-arrow-left"></i> Back to List
+  </a>
+{% endblock %}
+
+{% block card_title %}Bulk Attendance Creation{% endblock %}
+
+{% block card_content %}
+  <form method="post" novalidate>
+    {% csrf_token %}
+    
+    <div class="row">
+      <div class="col-md-6">
+        <div class="form-group">
+          <label for="{{ form.date.id_for_label }}">Date</label>
+          {{ form.date }}
+          {% if form.date.errors %}
+            <div class="invalid-feedback d-block">
+              {{ form.date.errors }}
+            </div>
+          {% endif %}
+        </div>
+      </div>
+      
+      <div class="col-md-6">
+        <div class="form-group">
+          <label for="{{ form.status.id_for_label }}">Status</label>
+          {{ form.status }}
+          {% if form.status.errors %}
+            <div class="invalid-feedback d-block">
+              {{ form.status.errors }}
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    
+    <div class="form-group">
+      <label for="{{ form.employees.id_for_label }}">Employees</label>
+      <!-- {{ form.employees }}
+      {% if form.employees.errors %}
+        <div class="invalid-feedback d-block">
+          {{ form.employees.errors }}
+        </div>
+      {% endif %} -->
+      <select class="form-control select2" id="employees" name="employees" multiple required>
+        {% for employee in employees %}
+        <option value="{{ employee.id }}" {% if employee.id in selected_employees %}selected{% endif %}>
+            {{ employee.ename }}
+        </option>
+        {% endfor %}
+      </select>
+      <small class="form-text text-muted">
+        Select multiple employees to create attendance records for
+      </small>
+    </div>
+    
+    <div class="form-group">
+      <label for="{{ form.notes.id_for_label }}">Notes</label>
+      {{ form.notes }}
+      {% if form.notes.errors %}
+        <div class="invalid-feedback d-block">
+          {{ form.notes.errors }}
+        </div>
+      {% endif %}
+    </div>
+    
+    <div class="alert alert-info">
+      <i class="icon fas fa-info"></i> This will create attendance records for all selected employees for the specified date.
+      If a record already exists for an employee on that date, it will be skipped.
+    </div>
+    
+    <div class="form-group">
+      <button type="submit" class="btn btn-primary">Create Records</button>
+    </div>
+  </form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  $(document).ready(function() {
+    // Initialize Select2 for employees
+    $('#{{ form.employees.id_for_label }}').select2({
+      theme: 'bootstrap4',
+      placeholder: 'Select employees',
+      allowClear: true
+    });
+    
+    // Initialize Select2 for status
+    $('#{{ form.status.id_for_label }}').select2({
+      theme: 'bootstrap4'
+    });
+  });
+</script>
+{% endblock %} 

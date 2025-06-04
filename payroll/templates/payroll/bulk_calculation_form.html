@@ -1,0 +1,102 @@
+{% extends 'payroll/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Bulk Payroll Calculation{% endblock %}
+
+{% block payroll_content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Bulk Payroll Calculation</h3>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="bulkCalculationForm">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-6">
+                                {{ form|crispy }}
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h4 class="card-title">Help</h4>
+                                    </div>
+                                    <div class="card-body">
+                                        <h5>Bulk Payroll Calculation</h5>
+                                        <p>This form allows you to create payroll calculations for multiple employees at once.</p>
+                                        
+                                        <h5>How it works:</h5>
+                                        <ol>
+                                            <li>Select a payroll period</li>
+                                            <li>Choose one or more employees</li>
+                                            <li>The system will create draft calculations for each employee</li>
+                                            <li>Each calculation will include the employee's salary components</li>
+                                        </ol>
+                                        
+                                        <h5>Tips:</h5>
+                                        <ul>
+                                            <li>Make sure the selected period is active</li>
+                                            <li>Employees must have an active salary structure</li>
+                                            <li>You can review and edit individual calculations later</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <a href="{% url 'payroll:calculation_list' %}" class="btn btn-secondary">Cancel</a>
+                                <button type="submit" class="btn btn-primary">Create Calculations</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        // Initialize select2 for better employee selection
+        $('#id_employees').select2({
+            theme: 'bootstrap4',
+            placeholder: 'Select employees',
+            allowClear: true
+        });
+
+        // Handle form submission
+        $('#bulkCalculationForm').on('submit', function(e) {
+            e.preventDefault();
+            
+            $.ajax({
+                url: $(this).attr('action'),
+                type: 'POST',
+                data: $(this).serialize(),
+                success: function(response) {
+                    if (response.status === 'success') {
+                        // Show success message
+                        toastr.success('Successfully created ' + response.created_count + ' calculations');
+                        
+                        // Redirect to calculation list after a short delay
+                        setTimeout(function() {
+                            window.location.href = "{% url 'payroll:calculation_list' %}";
+                        }, 1500);
+                    } else {
+                        // Show error message
+                        toastr.error(response.message || 'An error occurred while creating calculations');
+                    }
+                },
+                error: function(xhr) {
+                    // Show error message
+                    toastr.error('An error occurred while creating calculations');
+                }
+            });
+        });
+    });
+</script>
+{% endblock %} 

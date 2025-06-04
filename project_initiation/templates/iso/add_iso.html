@@ -16,125 +16,99 @@
           {% include 'layout/status.html' %}
           <form method="POST" id="isoMasterForm">
             {% csrf_token %}
-          <div class="col-md-12">
-            <div class="card card-primary">
+            <div class="col-md-12">
+              <div class="card card-primary">
                 <div class="card-header"><h4>Add</h4></div>
                 <div class="card-body">
-                 
-                    <div class="row">
-                      <div class="form-group col-md-3">
-                        <label for="frist_name">Tender</label>
-                        <select class="form-control" id="tendor" name="tendor">
-                          <option value="">-- Select --</option>
-                          {% for tendor in tendors %}
-                              <option value="{{ tendor.id }}">{{ tendor.title }}</option>
-                          {% endfor %}
-                        </select>
-                      </div>
-                      <div class="form-group col-md-3">
-                        <label for="frist_name">Client</label>
-                        <select class="form-control" id="client" name="client">
-                          <option value="">-- Select --</option>
-                          {% for client in clients %}
-                              <option value="{{ client.id }}">{{ client.client_name }}</option>
-                          {% endfor %}
-                        </select>
-                      </div>
-                      <div class="form-group col-md-3">
-                        <label for="frist_name">EM %</label>
-                        <input id="em_percentage" type="number" class="form-control" name="em_percentage" step="0.01">
-                      </div>
-                      <div class="form-group col-md-3">
-                          <label for="frist_name">EM Amount</label>
-                          <input id="em_amount" type="number" class="form-control" name="em_amount" step="0.01">
-                      </div>
+                  <div class="row">
+                    <div class="form-group col-md-3">
+                      <label for="frist_name">Tender</label>
+                      <select class="form-control" id="tendor" name="tendor">
+                        <option value="">-- Select --</option>
+                        {% for tendor in tendors %}
+                            <option value="{{ tendor.id }}">{{ tendor.title }}</option>
+                        {% endfor %}
+                      </select>
                     </div>
-                    <div class="row">
-                        <div class="form-group col-md-3">
-                            <label for="frist_name">BG %</label>
-                            <input id="bg_percentage" type="number" class="form-control" name="bg_percentage" step="0.01">
-                        </div>
-                        <div class="form-group col-md-3">
-                            <label for="frist_name">BG Amount</label>
-                            <input id="bg_amount" type="number" class="form-control" name="bg_amount" step="0.01">
-                        </div>
-                        <div class="form-group col-md-3">
-                          <label for="frist_name">PG %</label>
-                          <input id="pg_percentage" type="number" class="form-control" name="pg_percentage" step="0.01">
-                      </div>
-                      <div class="form-group col-md-3">
-                        <label for="frist_name">PG Amount</label>
-                        <input id="pg_amount" type="number" class="form-control" name="pg_amount" step="0.01">
-                      </div>
+                    <div class="form-group col-md-3">
+                      <label for="frist_name">Client</label>
+                      <select class="form-control" id="client" name="client">
+                        <option value="">-- Select --</option>
+                        {% for client in clients %}
+                            <option value="{{ client.id }}">{{ client.client_name }}</option>
+                        {% endfor %}
+                      </select>
                     </div>
-                    <div class="row">
-                      <div class="form-group col-md-3">
-                        <label for="frist_name">Delivery Type</label>
-                        <select class="form-control" id="delivery_type" name="delivery_type">
-                          <option value="">-- Select --</option>
-                          <option value="1">Yes</option>
-                          <option value="0">No</option>
-                        </select>
-                      </div>
-                      <div class="form-group col-md-3">
-                        <label for="frist_name">Exchange Rate</label>
-                        <input id="exchange_rate" type="number" class="form-control" name="exchange_rate" step="0.01">
-                      </div>
+                    <div class="form-group col-md-3">
+                      <label for="frist_name">EM %</label>
+                      <input id="em_percentage" type="number" class="form-control" name="em_percentage" step="0.01">
                     </div>
-                    <div class="form-group">
-                      <input type="button" value="save" class="btn btn-primary" id="saveIsoMasterBtn"/>
+                    <div class="form-group col-md-3">
+                      <label for="frist_name">EM Amount</label>
+                      <input id="em_amount" type="number" class="form-control" name="em_amount" step="0.01">
                     </div>
-                  
+                  </div>
+                  <div class="row">
+                    <div class="form-group col-md-3">
+                      <label for="frist_name">BG %</label>
+                      <input id="bg_percentage" type="number" class="form-control" name="bg_percentage" step="0.01">
+                    </div>
+                    <div class="form-group col-md-3">
+                      <label for="frist_name">BG Amount</label>
+                      <input id="bg_amount" type="number" class="form-control" name="bg_amount" step="0.01">
+                    </div>
+                    <div class="form-group col-md-3">
+                      <label for="frist_name">PG %</label>
+                      <input id="pg_percentage" type="number" class="form-control" name="pg_percentage" step="0.01">
+                    </div>
+                    <div class="form-group col-md-3">
+                      <label for="frist_name">PG Amount</label>
+                      <input id="pg_amount" type="number" class="form-control" name="pg_amount" step="0.01">
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="form-group col-md-3">
+                      <label for="frist_name">Delivery Type</label>
+                      <select class="form-control" id="delivery_type" name="delivery_type">
+                        <option value="">-- Select --</option>
+                        <option value="By Sea">By Sea</option>
+                        <option value="By Air">By Air</option>
+                        <option value="By Road">By Road</option>
+                      </select>
+                    </div>
+                    <div class="form-group col-md-3">
+                      <label for="frist_name">Exchange Rate</label>
+                      <input id="exchange_rate" type="number" class="form-control" name="exchange_rate" step="0.01">
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <input type="button" value="save" class="btn btn-primary" id="saveIsoMasterBtn"/>
+                  </div>
                 </div>
               </div>
             </div>
-
             <div class="col-12">
               <div class="card">
-                  <div class="card-header">
-                    <h3 class="card-title">ISO Item Details</h3>
-                    <input type="button" id="addItemBtn" value="Add Row" class="btn btn-primary" data-toggle="modal" data-target="#additem" style="float: right;"/>
-                  </div>
-                  
-                  <!-- /.card-header -->
-                  <div class="card-body">
-                    {% csrf_token %}
-                    <table id="isoTable" class="table table-bordered table-striped">
-                      <thead>
-                        <tr id="isoHeader">
-                            <!-- <th>Item</th>
-                            <th>Category</th>
-                            <th>IsImported</th>
-                            <th>Import Factor</th>
-                            <th>Tax</th>
-                            <th>Unit</th>
-                            <th>Unit Cost</th>
-                            <th>T.Unit Cost</th>
-                            <th>GST %</th>
-                            <th>Est.GP% </th>
-                            <th>Est.GP.Amt</th>
-                            <th>Sell.Unit.Price</th>
-                            <th>Delivery Charges</th>
-                            <th>T.S.Price w.o GST</th>
-                            <th>GST.Amt</th>
-                            <th>T.S.Price with GST</th>
-                            <th>Tax adjustment</th>
-                            <th>GP</th>
-                            <th>GP %</th>
-                            <th>Actions</th> -->
-
-                        </tr>
-                      </thead>
-                    </table>
-                  </div>
-                  <!-- /.card-body -->
+                <div class="card-header">
+                  <h3 class="card-title">ISO Item Details</h3>
+                  <input type="button" id="addItemBtn" value="Add Row" class="btn btn-primary" data-toggle="modal" data-target="#additem" style="float: right;"/>
                 </div>
-                <!-- /.card -->
+                <div class="card-body">
+                  {% csrf_token %}
+                  <table id="isoTable" class="table table-bordered table-striped">
+                    <thead>
+                      <tr id="isoHeader">
+
+                      </tr>
+                    </thead>
+                  </table>
+                </div>
+              </div>
             </div>
           </form>
         </section>
-         <!-- Add Item Modal -->
-         <div class="modal fade" id="additem" tabindex="-1" aria-labelledby="additemLabel" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+        <!-- Add Item Modal -->
+        <div class="modal fade" id="additem" tabindex="-1" aria-labelledby="additemLabel" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false">
           <div class="modal-dialog modal-lg">
             <div class="modal-content">
               <div class="modal-header">
@@ -209,7 +183,6 @@
                       <input type="number" name="total_pkr" id="total_pkr" placeholder="Enter Total Unit Cost"  class="form-control" readonly/>
                     </div>
                   </div>
-  
                   <div class="row">
                     <div class="form-group col-4"> 
                       <label for="email">Import Amt Per Unit</label><label id="importlabel"></label>
@@ -282,7 +255,6 @@
                       <input type="text" name="gp_percentage" id="gp_percentage" class="form-control" readonly/>
                     </div>
                   </div>
-  
                   <div class="form-group">
                     <button type="button"  value="save" class="btn btn-primary submit-btn" id="saveItemBtn">
                       Save
@@ -308,165 +280,6 @@
           // Save ISO Master
         // let isoMasterId = null;
         const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-        // function fetchIsoDetails(isoMasterId) {
-        //     if (!isoMasterId) return; // Prevent fetching if ID is null
-
-        //     $.ajax({
-        //         url: `/initiation/show_iso_detail/${isoMasterId}`,
-        //         type: 'GET',
-        //         success: function (data) {
-        //             if (!data || data.length === 0) {
-        //                 console.warn("No data received for isoTable.");
-        //                 return;
-        //             }
-
-        //             let tableElement = $('#isoTable');
-
-        //             // Destroy existing DataTable to avoid multiple initializations
-        //             if ($.fn.DataTable.isDataTable("#isoTable")) {
-        //                 tableElement.DataTable().clear().destroy();
-        //             }
-
-        //             // Ensure data is an array
-        //             if (!Array.isArray(data)) {
-        //                 console.error("Invalid data format received:", data);
-        //                 return;
-        //             }
-
-        //             // Dynamically create columns
-        //             let columns = Object.keys(data[0]).map(key => ({
-        //                 data: key,
-        //                 title: key.replace(/_/g, ' ').toUpperCase()
-        //             }));
-
-        //             // Add Delete Column
-        //             columns.push({
-        //                 data: 'id',
-        //                 title: 'Actions',
-        //                 render: function (data) {
-        //                     return `<button class="btn btn-danger delete-btn" data-id="${data}">Delete</button>`;
-        //                 }
-        //             });
-
-        //             // Reinitialize DataTable
-        //             tableElement.DataTable({
-        //                 data: data,
-        //                 columns: columns,
-        //                 scrollX: true,
-        //                 autoWidth: false,
-        //                 dom: 'Bfrtip',
-        //                 buttons: ['colvis'],
-        //                 destroy: true, // Ensure old instance is removed
-        //             });
-
-        //             console.log("DataTable updated successfully");
-        //         },
-        //         error: function (xhr, status, error) {
-        //             console.error("Error fetching ISO details:", error);
-        //             alert('Error loading data.');
-        //         }
-        //     });
-        // }
-        // Delete Function
-        // $('#isoTable').on('click', '.delete-btn', function (e) {
-        //     e.preventDefault(); // Prevent default behavior
-        //     let row = $(this).closest('tr');
-        //     let id = $(this).data('id');
-        //     deleteRow(id, row);
-        // });
-
-        // function deleteRow(id, row) {
-        //     if (confirm('Are you sure you want to delete this record?')) {
-        //         const url = '/initiation/iso_det_delete/'
-        //         $.ajax({
-        //             url: '{{ HOST }}'+url+id,  // Point to Django delete endpoint
-        //             type: 'DELETE',
-        //             headers: { 'X-CSRFToken': getCSRFToken() },
-        //             success: function (response) {
-        //                 alert('Row deleted successfully');
-        //                 $('#isoTable').DataTable().row(row).remove().draw(false);
-        //             },
-        //             error: function (xhr) {
-        //                 alert('Error: ' + xhr.responseText);
-        //             }
-        //         });
-        //     }
-        // }
-        // $('#isoMasterForm').submit(function (e) {
-        //     e.preventDefault();
-            
-        //     var form = $(this)[0];
-        //     var formData = new FormData(form);
-        //     var url = $(this).attr('data-url');
-        //     $.ajax({
-        //         url: '{{ HOST }}'+url,
-        //         type: 'POST',
-        //         processData: false,
-        //         contentType: false,
-        //         data: formData,
-        //         success: function (response) {
-        //             alert(response.message);
-        //             isoMasterId = response.id;
-
-        //             // Freeze form fields
-        //             $('#isoMasterForm :input, #isoMasterForm textarea, #isoMasterForm select').prop('readonly', true);
-        //             $('#saveIsoMasterBtn').prop('disabled', true);
-
-        //             // Enable Add Item Button
-        //             $('#addItemBtn').prop('disabled', false);
-
-        //             // Fetch and update table after saving ISO Master
-        //             fetchIsoDetails();
-        //         },
-        //         error: function () {
-        //             alert('Error saving ISO Master');
-        //         }
-        //         });
-        // });
-
-        // $('#itemModal').submit(function (e) {
-        //     e.preventDefault(); // Prevent default form submission
-
-        //     if (!isoMasterId) {
-        //         alert("Please save ISO Master first.");
-        //         return;
-        //     }
-
-        //     let form = $(this)[0]; 
-        //     let formData = new FormData(form);
-        //     formData.append("iso_master", isoMasterId);  // Manually add ISO master ID
-        //     $.ajax({
-        //         url: $(this).attr('data-url'),
-        //         type: 'POST',
-        //         processData: false,  // Important: prevents jQuery from converting data
-        //         contentType: false,  // Important: ensures correct encoding
-        //         data: formData,  // Send as FormData
-        //         success: function (response) {
-        //             alert(response.message);
-
-        //             // Update DataTable
-        //             fetchIsoDetails(isoMasterId);
-
-        //             // Close Modal Safely
-        //             let modal = $('#additem');
-        //             modal.modal('hide'); // Ensure modal ID is correct
-
-        //             // Remove aria-hidden attribute after hiding modal
-        //             modal.on('hidden.bs.modal', function () {
-        //                 $(this).removeAttr('aria-hidden');
-        //                 $(this).removeData('bs.modal'); // Fix Bootstrap modal reloading issue
-        //             });
-
-        //             // Reset Form
-        //             $('#itemModal')[0].reset();
-
-        //             console.log("Modal closed successfully");
-        //         },
-        //         error: function () {
-        //             alert('Error saving item');
-        //         }
-        //     });
-        // });
 
         let isoMasterData = {
             formFields: {},   // Holds form input values

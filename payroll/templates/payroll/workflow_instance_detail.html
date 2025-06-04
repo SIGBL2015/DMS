@@ -1,0 +1,207 @@
+{% extends "payroll/base.html" %}
+{% load static %}
+
+{% block title %}Workflow Instance Details{% endblock %}
+
+{% block card_title %}Workflow Instance Details{% endblock %}
+
+{% block card_header_buttons %}
+<div class="btn-group">
+    <a href="{% url 'payroll:workflow_instance_list' %}" class="btn btn-outline-primary">
+        <i class="fas fa-arrow-left"></i> Back to List
+    </a>
+    {% if instance.status == 'PENDING' %}
+    <a href="{% url 'payroll:workflow_instance_start' instance.pk %}" class="btn btn-success">
+        <i class="fas fa-play"></i> Start Workflow
+    </a>
+    {% endif %}
+    {% if instance.status == 'IN_PROGRESS' %}
+    <a href="{% url 'payroll:workflow_instance_complete' instance.pk %}" class="btn btn-success">
+        <i class="fas fa-check"></i> Complete Workflow
+    </a>
+    <a href="{% url 'payroll:workflow_instance_cancel' instance.pk %}" class="btn btn-danger">
+        <i class="fas fa-times"></i> Cancel Workflow
+    </a>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block card_content %}
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Instance Information</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-bordered">
+                    <tr>
+                        <th>Workflow</th>
+                        <td>{{ instance.workflow.name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Payroll Calculation</th>
+                        <td>{{ instance.payroll_calculation }}</td>
+                    </tr>
+                    <tr>
+                        <th>Status</th>
+                        <td>
+                            <span class="badge badge-{{ instance.status|lower }}">
+                                {{ instance.get_status_display }}
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Started At</th>
+                        <td>{{ instance.started_at|default:"-" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Completed At</th>
+                        <td>{{ instance.completed_at|default:"-" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Current Step</th>
+                        <td>{{ instance.current_step.name|default:"-" }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Workflow Steps</h5>
+            </div>
+            <div class="card-body">
+                <div class="workflow-steps">
+                    {% for step in instance.workflow.steps.all %}
+                    <div class="workflow-step {% if step == instance.current_step %}active{% endif %}">
+                        <div class="step-number">{{ forloop.counter }}</div>
+                        <div class="step-content">
+                            <h6>{{ step.name }}</h6>
+                            <p class="mb-0">{{ step.description }}</p>
+                            <small class="text-muted">Required Role: {{ step.required_role.name }}</small>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Task History</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Step</th>
+                                <th>Assigned To</th>
+                                <th>Status</th>
+                                <th>Started At</th>
+                                <th>Completed At</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for task in tasks %}
+                            <tr>
+                                <td>{{ task.step.name }}</td>
+                                <td>{{ task.assigned_to.get_full_name|default:task.assigned_to.username }}</td>
+                                <td>
+                                    <span class="badge badge-{{ task.status|lower }}">
+                                        {{ task.get_status_display }}
+                                    </span>
+                                </td>
+                                <td>{{ task.started_at|default:"-" }}</td>
+                                <td>{{ task.completed_at|default:"-" }}</td>
+                                <td>
+                                    <div class="btn-group">
+                                        {% if task.status == 'PENDING' and user.payroll_role == task.step.required_role %}
+                                        <a href="{% url 'payroll:workflow_task_assign' task.pk %}" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-user-check"></i>
+                                        </a>
+                                        {% endif %}
+                                        {% if task.status == 'IN_PROGRESS' and task.assigned_to == user %}
+                                        <a href="{% url 'payroll:workflow_task_complete' task.pk %}" class="btn btn-sm btn-success">
+                                            <i class="fas fa-check"></i>
+                                        </a>
+                                        <a href="{% url 'payroll:workflow_task_reject' task.pk %}" class="btn btn-sm btn-danger">
+                                            <i class="fas fa-times"></i>
+                                        </a>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center">No tasks found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .badge-pending { background-color: #6c757d; }
+    .badge-in_progress { background-color: #17a2b8; }
+    .badge-completed { background-color: #28a745; }
+    .badge-cancelled { background-color: #dc3545; }
+    .badge-rejected { background-color: #dc3545; }
+
+    .workflow-steps {
+        position: relative;
+        padding: 20px 0;
+    }
+
+    .workflow-step {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 20px;
+        position: relative;
+    }
+
+    .workflow-step:not(:last-child):after {
+        content: '';
+        position: absolute;
+        left: 20px;
+        top: 40px;
+        bottom: 0;
+        width: 2px;
+        background-color: #e9ecef;
+    }
+
+    .step-number {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #e9ecef;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 15px;
+        font-weight: bold;
+    }
+
+    .workflow-step.active .step-number {
+        background-color: #007bff;
+        color: white;
+    }
+
+    .step-content {
+        flex: 1;
+    }
+</style>
+{% endblock %} 

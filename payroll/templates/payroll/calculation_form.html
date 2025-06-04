@@ -1,0 +1,114 @@
+{% extends 'payroll/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+    {% if form.instance.pk %}Edit{% else %}New{% endif %} Payroll Calculation
+{% endblock %}
+
+{% block payroll_content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">
+        {% if form.instance.pk %}
+            Edit Payroll Calculation
+        {% else %}
+            New Payroll Calculation
+        {% endif %}
+    </h1>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <form method="post" class="needs-validation" novalidate>
+                    {% csrf_token %}
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.employee|as_crispy_field }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.period|as_crispy_field }}
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            {{ form.gross_salary|as_crispy_field }}
+                        </div>
+                        <div class="col-md-4">
+                            {{ form.total_deductions|as_crispy_field }}
+                        </div>
+                        <div class="col-md-4">
+                            {{ form.net_salary|as_crispy_field }}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.status|as_crispy_field }}
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'payroll:calculation_list' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to List
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Save Calculation
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Help</h5>
+            </div>
+            <div class="card-body">
+                <h6>About Payroll Calculations</h6>
+                <p>Payroll calculations determine the final salary amount for each employee based on their salary structure and the selected payroll period.</p>
+                
+                <h6>Calculation Components</h6>
+                <ul>
+                    <li><strong>Gross Salary:</strong> Total earnings before deductions</li>
+                    <li><strong>Total Deductions:</strong> Sum of all deductions</li>
+                    <li><strong>Net Salary:</strong> Final amount after deductions</li>
+                </ul>
+
+                <h6>Status Types</h6>
+                <ul>
+                    <li><strong>Draft:</strong> Initial state, can be modified</li>
+                    <li><strong>Processing:</strong> Being calculated</li>
+                    <li><strong>Completed:</strong> Calculation finished</li>
+                    <li><strong>Paid:</strong> Payment processed</li>
+                    <li><strong>Cancelled:</strong> Calculation cancelled</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Auto-calculate net salary
+        const grossSalaryInput = document.getElementById('{{ form.gross_salary.id_for_label }}');
+        const totalDeductionsInput = document.getElementById('{{ form.total_deductions.id_for_label }}');
+        const netSalaryInput = document.getElementById('{{ form.net_salary.id_for_label }}');
+
+        function calculateNetSalary() {
+            const grossSalary = parseFloat(grossSalaryInput.value) || 0;
+            const totalDeductions = parseFloat(totalDeductionsInput.value) || 0;
+            const netSalary = grossSalary - totalDeductions;
+            netSalaryInput.value = netSalary.toFixed(2);
+        }
+
+        grossSalaryInput.addEventListener('input', calculateNetSalary);
+        totalDeductionsInput.addEventListener('input', calculateNetSalary);
+    });
+</script>
+{% endblock %} 

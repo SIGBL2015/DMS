@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Tax Report - {{ selected_year }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title">Tax Report for {{ selected_year }}</h4>
+                </div>
+                <div class="card-body">
+                    <!-- Company Information -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h5>Company Information</h5>
+                            <p class="mb-1"><strong>Company Name:</strong> {{ company_name }}</p>
+                            <p class="mb-1"><strong>Tax Year:</strong> {{ selected_year }}</p>
+                            <p class="mb-1"><strong>Generated Date:</strong> {% now "F d, Y" %}</p>
+                        </div>
+                    </div>
+
+                    <!-- Summary Section -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h5>Tax Summary</h5>
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <tr>
+                                        <th>Total Taxable Amount</th>
+                                        <td>${{ total_taxable_amount|floatformat:2|intcomma }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Total Tax Amount</th>
+                                        <td>${{ total_tax_amount|floatformat:2|intcomma }}</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Detailed Calculations -->
+                    <div class="row">
+                        <div class="col-12">
+                            <h5>Detailed Tax Calculations</h5>
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Employee</th>
+                                            <th>Period</th>
+                                            <th>Taxable Amount</th>
+                                            <th>Tax Amount</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for calculation in calculations %}
+                                            {% for tax_calc in calculation.tax_calculations.all %}
+                                                {% if tax_calc.tax_year == selected_year %}
+                                                    <tr>
+                                                        <td>{{ calculation.employee }}</td>
+                                                        <td>{{ calculation.period }}</td>
+                                                        <td>${{ tax_calc.taxable_amount|floatformat:2|intcomma }}</td>
+                                                        <td>${{ tax_calc.tax_amount|floatformat:2|intcomma }}</td>
+                                                    </tr>
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% empty %}
+                                            <tr>
+                                                <td colspan="4" class="text-center">No tax calculations found for {{ selected_year }}.</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Notes Section -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h5>Notes</h5>
+                            <ul>
+                                <li>This report is generated for tax reporting purposes.</li>
+                                <li>All amounts are in USD.</li>
+                                <li>Tax calculations are based on the applicable tax rates for {{ selected_year }}.</li>
+                                <li>Please verify all calculations before submission to tax authorities.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

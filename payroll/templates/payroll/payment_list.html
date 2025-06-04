@@ -1,0 +1,160 @@
+{% extends 'payroll/base.html' %}
+{% load humanize %}
+{% load payroll_extras %}
+{% load static %}
+
+{% block title %}Payroll Payments{% endblock %}
+
+{% block breadcrumb %}Payroll Payments{% endblock %}
+
+{% block card_title %}Payroll Payments{% endblock %}
+
+{% block header_buttons %}
+<div class="float-end">
+    <div class="d-flex align-items-center">
+        <select id="calculation_select" class="form-select me-2" style="width: 300px;">
+            <option value="">Select a calculation...</option>
+            {% for calculation in calculations %}
+            <option value="{{ calculation.id }}">
+                {{ calculation.employee.ename }} - {{ calculation.period.name }} 
+                ({{ calculation.net_salary|floatformat:2 }})
+            </option>
+            {% endfor %}
+        </select>
+        <button type="button" class="btn btn-primary" onclick="createPayment()">
+            <i class="fas fa-plus"></i> New Payment
+        </button>
+    </div>
+</div>
+<div class="dropdown ms-2">
+    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown">
+        <i class="fas fa-download"></i> Export
+    </button>
+    <ul class="dropdown-menu">
+        <li><a class="dropdown-item" href="#" onclick="exportPayments('excel')">Export to Excel</a></li>
+        <li><a class="dropdown-item" href="#" onclick="exportPayments('pdf')">Export to PDF</a></li>
+    </ul>
+</div>
+{% endblock %}
+
+{% block payroll_content %}
+<!-- Filters -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-4">
+                <label for="calculation" class="form-label">Calculation</label>
+                <select class="form-select" id="calculation" name="calculation">
+                    <option value="">All Calculations</option>
+                    {% for calculation in calculations %}
+                    <option value="{{ calculation.id }}" {% if request.GET.calculation == calculation.id|stringformat:"s" %}selected{% endif %}>
+                        {{ calculation.employee.ename }} - {{ calculation.period.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="status" class="form-label">Status</label>
+                <select class="form-select" id="status" name="status">
+                    <option value="">All Statuses</option>
+                    <option value="pending" {% if request.GET.status == 'pending' %}selected{% endif %}>Pending</option>
+                    <option value="completed" {% if request.GET.status == 'completed' %}selected{% endif %}>Completed</option>
+                </select>
+            </div>
+            <div class="col-md-4 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary me-2">Filter</button>
+                <a href="{% url 'payroll:payment_list' %}" class="btn btn-secondary">Clear</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Payments Table -->
+<div class="table-responsive">
+    <table id="paymentTable" class="table table-hover">
+        <thead>
+            <tr>
+                <th>Employee</th>
+                <th>Period</th>
+                <th>Amount</th>
+                <th>Payment Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for payment in payments %}
+            <tr>
+                <td>{{ payment.payroll_calculation.employee.ename }}</td>
+                <td>{{ payment.payroll_calculation.period.name }}</td>
+                <td>{{ payment.amount|floatformat:2 }}</td>
+                <td>{{ payment.payment_date|date:"M d, Y" }}</td>
+                <td>
+                    <span class="badge {% if payment.status == 'pending' %}bg-warning{% else %}bg-success{% endif %}">
+                        {{ payment.get_status_display }}
+                    </span>
+                </td>
+                <td>
+                    <div class="btn-group">
+                        <a href="{% url 'payroll:payment_detail' payment.pk %}" 
+                           class="btn btn-sm btn-outline-primary"
+                           title="View Details">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                        {% if payment.status == 'pending' %}
+                        <a href="{% url 'payroll:payment_update' payment.pk %}" 
+                           class="btn btn-sm btn-outline-warning"
+                           title="Edit Payment">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" class="text-center">
+                    <p class="text-muted my-3">No payroll payments found.</p>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        // Initialize DataTable
+        $('#paymentTable').DataTable({
+            "responsive": true,
+            "lengthChange": false,
+            "autoWidth": false,
+            "buttons": ["copy", "csv", "excel", "pdf", "print"]
+        });
+
+        // Initialize Select2 for calculation dropdown
+        $('#calculation_select').select2({
+            theme: 'bootstrap4',
+            placeholder: 'Select a calculation...',
+            allowClear: true
+        });
+    });
+    
+    function createPayment() {
+        const calculationId = document.getElementById('calculation_select').value;
+        if (calculationId) {
+            window.location.href = "{% url 'payroll:payment_create' calculation_id=0 %}".replace('0', calculationId);
+        } else {
+            alert('Please select a calculation');
+        }
+    }
+    
+    function exportPayments(format) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('export', format);
+        window.location.href = url.toString();
+    }
+</script>
+{% endblock %} 

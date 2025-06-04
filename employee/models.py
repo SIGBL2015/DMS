@@ -81,6 +81,8 @@ class Employee(models.Model):
     deliverable_task = models.CharField(max_length=1000,null=True)
     e_address = models.CharField(max_length=100,null=True)
     cv_doc = models.CharField(max_length=255,null=True, blank=True) 
+    expected_start_time = models.TimeField(null=True, blank=True, help_text="Expected start time for the employee")
+    expected_end_time = models.TimeField(null=True, blank=True, help_text="Expected end time for the employee")
     status = models.IntegerField(default=1) 
 
     class Meta:  
@@ -323,12 +325,37 @@ class Template_column(models.Model):
 
 class Document_type(models.Model): 
     title = models.CharField(max_length=100, null=True)
+    purpose = models.CharField(max_length=100, null=True)
     created_at = models.DateField(auto_now_add=True, null=True)
     updated_at = models.DateField(auto_now=True,null=True)
     deleted_at = models.DateField(null=True)
     status = models.IntegerField(default=1) 
     class Meta:  
         db_table = "document_type"
+
+class Issuing_authority(models.Model): 
+    full_name = models.CharField(max_length=100, null=True)
+    short_name = models.CharField(max_length=100, null=True)
+    created_at = models.DateField(auto_now_add=True, null=True)
+    updated_at = models.DateField(auto_now=True,null=True)
+    deleted_at = models.DateField(null=True)
+    status = models.IntegerField(default=1) 
+    class Meta:  
+        db_table = "issuing_authority"
+
+class Company_document(models.Model):
+    title = models.CharField(max_length=255, null=True, blank=True)
+    issuance_date = models.DateField(null=True)
+    expire_date = models.DateField(null=True)
+    doc_path = models.CharField(max_length=255, null=True, blank=True)
+    reg_no = models.CharField(max_length=255, null=True, blank=True)
+    issuing_authority = models.ForeignKey(Issuing_authority, on_delete=models.CASCADE,null=True)
+    created_at = models.DateField(auto_now_add=True, null=True)
+    updated_at = models.DateField(auto_now=True, null=True)
+    deleted_at = models.DateField(null=True, blank=True)
+    status = models.IntegerField(default=1) 
+    class Meta:  
+        db_table = "company_document"
 
 class Project_document(models.Model): 
     project = models.ForeignKey(Project, on_delete=models.CASCADE,null=True)
@@ -337,6 +364,9 @@ class Project_document(models.Model):
     remarks = models.CharField(max_length=255, null=True)
     ref_no = models.CharField(max_length=100, null=True)
     issuance_date = models.DateField(null=True)
+    received_date = models.DateField(null=True,  blank=True)
+    company_document = models.ForeignKey(Company_document, on_delete=models.CASCADE,null=True,  blank=True)
+    document_direction = models.CharField(max_length=100, null=True)
     created_at = models.DateField(auto_now_add=True, null=True)
     updated_at = models.DateField(auto_now=True, null=True)
     deleted_at = models.DateField(null=True, blank=True)

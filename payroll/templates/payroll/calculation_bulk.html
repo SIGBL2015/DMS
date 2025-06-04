@@ -1,0 +1,102 @@
+{% extends 'payroll/base.html' %}
+{% load humanize %}
+{% load payroll_extras %}
+{% load static %}
+
+{% block title %}Bulk Payroll Calculation{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'payroll:calculation_list' %}">Calculations</a></li>
+<li class="breadcrumb-item active">Bulk Calculation</li>
+{% endblock %}
+
+{% block card_title %}Bulk Payroll Calculation{% endblock %}
+
+{% block payroll_content %}
+<div class="card">
+    <div class="card-body">
+        <div class="alert alert-info">
+            <h5 class="alert-heading">How it works</h5>
+            <p class="mb-0">
+                This form allows you to create payroll calculations for multiple employees at once. 
+                Select a payroll period and the employees you want to calculate for.
+            </p>
+        </div>
+
+        <form method="post" class="needs-validation" novalidate>
+            {% csrf_token %}
+            
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="payroll_period">Payroll Period</label>
+                        <select class="form-control select2" id="payroll_period" name="payroll_period" required>
+                            <option value="">Select a period...</option>
+                            {% for period in payroll_periods %}
+                            <option value="{{ period.id }}" {% if selected_period == period.id %}selected{% endif %}>
+                                {{ period.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <div class="invalid-feedback">
+                            Please select a payroll period.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="employees">Employees</label>
+                        <select class="form-control select2" id="employees" name="employees" multiple required>
+                            {% for employee in employees %}
+                            <option value="{{ employee.id }}" {% if employee.id in selected_employees %}selected{% endif %}>
+                                {{ employee.ename }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <div class="invalid-feedback">
+                            Please select at least one employee.
+                        </div>
+                        <small class="text-muted">Hold Ctrl/Cmd to select multiple employees</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-calculator"></i> Calculate
+                    </button>
+                    <a href="{% url 'payroll:calculation_list' %}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        // Initialize Select2
+        $('.select2').select2({
+            theme: 'bootstrap4',
+            width: '100%'
+        });
+
+        // Form validation
+        var forms = document.querySelectorAll('.needs-validation');
+        Array.prototype.slice.call(forms).forEach(function(form) {
+            form.addEventListener('submit', function(event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    });
+</script>
+{% endblock %} 

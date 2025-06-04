@@ -1,0 +1,51 @@
+{% extends 'payroll/base.html' %}
+{% load static %}
+
+{% block title %}Attendance Rules{% endblock %}
+
+{% block header_buttons %}
+<a href="{% url 'payroll:attendance_rule_create' %}" class="btn btn-primary btn-sm">
+    <i class="fas fa-plus"></i> Add Rule
+</a>
+{% endblock %}
+
+{% block card_title %}Attendance Rules{% endblock %}
+
+{% block card_content %}
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Value</th>
+            <th>Description</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for rule in object_list %}
+        <tr>
+            <td>{{ rule.name }}</td>
+            <td>{{ rule.late_deduction_type }}</td>
+            <td>{{ rule.late_deduction_amount	 }}</td>
+            <td>{{ rule.description }}</td>
+            <td>
+                <a href="{% url 'payroll:attendance_rule_detail' rule.pk %}" class="btn btn-info btn-sm">
+                    <i class="fas fa-eye"></i>
+                </a>
+                <a href="{% url 'payroll:attendance_rule_update' rule.pk %}" class="btn btn-warning btn-sm">
+                    <i class="fas fa-edit"></i>
+                </a>
+                <a href="{% url 'payroll:attendance_rule_delete' rule.pk %}" class="btn btn-danger btn-sm">
+                    <i class="fas fa-trash"></i>
+                </a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="5" class="text-center">No attendance rules found.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %} 

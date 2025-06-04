@@ -1,0 +1,44 @@
+{% extends 'payroll/base.html' %}
+{% load static %}
+
+{% block title %}Attendance Rule Details{% endblock %}
+
+{% block header_buttons %}
+<a href="{% url 'payroll:attendance_rule_update' object.pk %}" class="btn btn-warning btn-sm">
+    <i class="fas fa-edit"></i> Edit
+</a>
+<a href="{% url 'payroll:attendance_rule_list' %}" class="btn btn-default btn-sm">
+    <i class="fas fa-arrow-left"></i> Back to List
+</a>
+{% endblock %}
+
+{% block card_title %}Attendance Rule Details{% endblock %}
+
+{% block card_content %}
+<div class="row">
+    <div class="col-md-6">
+        <dl class="row">
+            <dt class="col-sm-4">Name</dt>
+            <dd class="col-sm-8">{{ object.name }}</dd>
+
+            <dt class="col-sm-4">Type</dt>
+            <dd class="col-sm-8">{{ object.get_rule_type_display }}</dd>
+
+            <dt class="col-sm-4">Value</dt>
+            <dd class="col-sm-8">{{ object.value }}</dd>
+
+            <dt class="col-sm-4">Description</dt>
+            <dd class="col-sm-8">{{ object.description|default:"No description provided" }}</dd>
+
+            <dt class="col-sm-4">Status</dt>
+            <dd class="col-sm-8">
+                {% if object.is_active %}
+                <span class="badge badge-success">Active</span>
+                {% else %}
+                <span class="badge badge-danger">Inactive</span>
+                {% endif %}
+            </dd>
+        </dl>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+  {% load static %} 
+  {% include 'layout/style.html' %}
+
+<body>
+  <div id="app">
+    <div class="main-wrapper">
+      {% include 'layout/header.html' %}
+      {% include 'layout/sidebar.html' %}
+      <div class="main-content">
+        <section class="section">
+          <h1 class="section-header">
+            <div>Edit Company Document</div>
+          </h1>
+          {% include 'layout/status.html' %}
+          <div class="card card-primary">
+            <div class="card-header"><h4>Edit</h4></div>
+
+            <div class="card-body">
+              <form method="POST" action="/employee/u_company_document/{{company_document.id}}" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="row">
+                  <div class="form-group col-4">
+                    <label for="frist_name">Issuing authority</label>
+                    <select class="form-control" id="issuing_authority" name="issuing_authority">
+                        <option value=""> Select </option>
+                        {% for issuing_authority in issuing_authorities %}
+                          {% if company_document.issuing_authority.id == issuing_authority.id %}                         
+                            <option value="{{ issuing_authority.id }}" selected>{{ issuing_authority.full_name }}</option>
+                          {% else %}
+                            <option value="{{ issuing_authority.id }}">{{ issuing_authority.full_name }}</option>
+                          {% endif %}
+                        {% endfor %}
+                    </select>
+                  </div>
+                  <div class="form-group col-4"> 
+                    <label for="email">Title</label>
+                    <input id="title" type="text" class="form-control" name="title" value="{{ company_document.title }}">
+                  </div>
+                  <div class="form-group col-4"> 
+                    <label for="email">Reg No</label>
+                    <input id="reg_no" type="text" class="form-control" name="reg_no" value="{{ company_document.reg_no }}">
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="form-group col-4"> 
+                    <label for="email">Document File</label>
+                    <div class="row">
+                      <div class="form-group col-10">
+                        <input id="doc_path" type="file" class="form-control" name="doc_path" value="{{ company_document.doc_path }}">
+                      </div>
+                      <div class="form-group col-1">
+                        <a href="{{ MEDIA_URL }}{{ company_document.doc_path }}" target="_blank"><span class="ion-ios-eye" ></span></a>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="form-group col-4">
+                    <label>Issuance Date</label>
+                    <input id="issuance_date" type="date" class="form-control" name="issuance_date" value="{{ company_document.issuance_date|date:'Y-m-d' }}">
+                  </div>
+
+                  <div class="form-group col-4">
+                    <label>Expiry Date</label>
+                    <input id="expire_date" type="date" class="form-control" name="expire_date" value="{{ company_document.expire_date|date:'Y-m-d' }}">
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <button type="submit" class="btn btn-primary">
+                    Update
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </section>
+      </div>
+      {% include 'layout/footer.html' %}
+    </div>
+  </div>
+
+  {% include 'layout/script.html' %}
+</body>
+</html>

@@ -10,7 +10,7 @@
         newFieldSet.className = "field-set row";
         newFieldSet.innerHTML = `
             
-            <div class="form-group col-4">
+            <div class="form-group col-3">
               <label for="id_document_type_${fieldCount}">Document Type</label>
               <select class="form-control" id="id_document_type_${fieldCount}" name="document_type" required>
                   <option value="">-- Select Type --</option>
@@ -20,8 +20,17 @@
               </select>
             </div>
             <div class="form-group col-3">
+              <label for="id_company_document_${fieldCount}">Company Document</label>
+              <select class="form-control" id="id_company_document_${fieldCount}" name="company_document">
+                  <option value="">-- Select Type --</option>
+                  {% for company_document in company_documents %}
+                      <option value="{{ company_document.id }}">{{ company_document.title }}</option>
+                  {% endfor %}
+              </select>
+            </div>
+            <div class="form-group col-3">
               <label for="id_doc_path_${fieldCount}">File</label>
-              <input id="doc_path_${fieldCount}" type="file" class="form-control" name="doc_path" required>
+              <input id="doc_path_${fieldCount}" type="file" class="form-control" name="doc_path">
             </div>
              <div class="form-group col-3">
               <label for="id_ref_no_${fieldCount}">Ref no</label>
@@ -30,6 +39,18 @@
              <div class="form-group col-3">
               <label for="id_issuance_date_${fieldCount}">Issuance Date</label>
               <input id="issuance_date_${fieldCount}" type="date" class="form-control" name="issuance_date" required>
+            </div>
+            <div class="form-group col-3">
+              <label for="id_received_date_${fieldCount}">Received Date</label>
+              <input id="received_date_${fieldCount}" type="date" class="form-control" name="received_date">
+            </div>
+            <div class="form-group col-3">
+              <label for="id_document_direction_${fieldCount}">Document Direction</label>
+              <select class="form-control" id="id_document_direction_${fieldCount}" name="document_direction" required>
+                  <option value="">-- Select Direction --</option>
+                  <option value="Invert">Invert</option>
+                  <option value="Outvert">Outvert</option>
+              </select>
             </div>
             <div class="form-group col-4">
               <label for="id_remarks_${fieldCount}">Remarks</label>

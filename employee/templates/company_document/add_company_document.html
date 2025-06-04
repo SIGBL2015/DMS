@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+  {% load static %} 
+  {% include 'layout/style.html' %}
+
+<body>
+  <div id="app">
+    <div class="main-wrapper">
+      {% include 'layout/header.html' %}
+      {% include 'layout/sidebar.html' %}
+      <div class="main-content">
+        <section class="section">
+          <h1 class="section-header">
+            <div>Add Company Document</div>
+          </h1>
+          {% include 'layout/status.html' %}
+          <div class="card card-primary">
+            <div class="card-header"><h4>Add</h4></div>
+
+            <div class="card-body">
+              <form method="POST" action="save_company_document" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="row">
+                  <div class="form-group col-4">
+                    <label for="frist_name">Issuing authority</label>
+                    <select class="form-control" id="issuing_authority" name="issuing_authority">
+                        <option value="">-- Select --</option>
+                        {% for issuing_authority in issuing_authorities %}
+                            <option value="{{ issuing_authority.id }}">{{ issuing_authority.full_name }}</option>
+                        {% endfor %}
+                      </select>
+                  </div>
+                  <div class="form-group col-4"> 
+                    <label for="email">Title</label>
+                    <input id="title" type="text" class="form-control" name="title">
+                  </div>
+                  <div class="form-group col-4"> 
+                    <label for="email">Reg No</label>
+                    <input id="reg_no" type="text" class="form-control" name="reg_no">
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="form-group col-4"> 
+                    <label for="email">Document File</label>
+                    <input id="doc_path" type="file" class="form-control" name="doc_path">
+                  </div>
+
+                  <div class="form-group col-4">
+                    <label>Issuance Date</label>
+                    <input id="issuance_date" type="date" class="form-control" name="issuance_date">
+                  </div>
+
+                  <div class="form-group col-4">
+                    <label>Expiry Date</label>
+                    <input id="expire_date" type="date" class="form-control" name="expire_date">
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <button type="submit" class="btn btn-primary">
+                    Save
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </section>
+      </div>
+      {% include 'layout/footer.html' %}
+    </div>
+  </div>
+
+  {% include 'layout/script.html' %}
+</body>
+</html>

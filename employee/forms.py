@@ -1,5 +1,5 @@
 from django import forms  
-from employee.models import Employee, Department, Designation, Region, Education,Project, Employment_Record, Certifications, Skills, Company, Module, Mainmenu, Submenu, Role, Company_module, Role_permission, CV_template, Template_column, Project_type, Project, Bank, Bank_guaranty, Liquidity_damages, Insurance_type, Insurance_detail, Country, Zone, Area, Branch, Client, Document_type, Project_document, Sales, Leads,Quarters, Employee_target, Vendor, Employee_project
+from employee.models import Company_document, Employee, Department, Designation, Issuing_authority, Region, Education,Project, Employment_Record, Certifications, Skills, Company, Module, Mainmenu, Submenu, Role, Company_module, Role_permission, CV_template, Template_column, Project_type, Project, Bank, Bank_guaranty, Liquidity_damages, Insurance_type, Insurance_detail, Country, Zone, Area, Branch, Client, Document_type, Project_document, Sales, Leads,Quarters, Employee_target, Vendor, Employee_project
 
 class EmployeeForm(forms.ModelForm):  
     class Meta:  
@@ -154,12 +154,22 @@ class Template_columnForm(forms.ModelForm):
 class Document_typeForm(forms.ModelForm):  
     class Meta:  
         model = Document_type  
-        fields = ('id','title')
+        fields = ('id','title','purpose')
+
+class Issuing_authorityForm(forms.ModelForm):  
+    class Meta:  
+        model = Issuing_authority  
+        fields = ('id','full_name','short_name')
+
+class Company_documentForm(forms.ModelForm):  
+    class Meta:  
+        model = Company_document  
+        fields = ('id','title','expire_date','doc_path','issuing_authority','reg_no','issuance_date')
 
 class Project_documentForm(forms.ModelForm):  
     class Meta:  
         model = Project_document  
-        fields = ('id','project','document_type','doc_path','remarks','ref_no','issuance_date')
+        fields = ('id','project','document_type','doc_path','remarks','ref_no','issuance_date','received_date','company_document','document_direction')
 
 class QuartersForm(forms.ModelForm):  
     class Meta:  

@@ -1,0 +1,138 @@
+{% extends 'payroll/base.html' %}
+
+{% block title %}
+  {% if form.instance.pk %}
+    Edit Attendance Record
+  {% else %}
+    New Attendance Record
+  {% endif %}
+{% endblock %}
+
+{% block header_buttons %}
+  <a href="{% url 'payroll:attendance_list' %}" class="btn btn-secondary">
+    <i class="ion ion-arrow-left"></i> Back to List
+  </a>
+{% endblock %}
+
+{% block card_title %}
+  {% if form.instance.pk %}
+    Edit Attendance Record
+  {% else %}
+    New Attendance Record
+  {% endif %}
+{% endblock %}
+
+{% block card_content %}
+  <form method="post" novalidate>
+    {% csrf_token %}
+    
+    <div class="row">
+      <div class="col-md-6">
+        <div class="form-group">
+          <label for="{{ form.employee.id_for_label }}">Employee</label>
+          <!-- {{ form.employee }}
+          {% if form.employee.errors %}
+            <div class="invalid-feedback d-block">
+              {{ form.employee.errors }}
+            </div>
+          {% endif %} -->
+          <select class="form-control select2" id="employee" name="employee" required>
+            {% for employee in employees %}
+            <option value="{{ employee.id }}" {% if employee.id in selected_employee %}selected{% endif %}>
+              {{ employee.ename }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      
+      <div class="col-md-6">
+        <div class="form-group">
+          <label for="{{ form.date.id_for_label }}">Date</label>
+          {{ form.date }}
+          {% if form.date.errors %}
+            <div class="invalid-feedback d-block">
+              {{ form.date.errors }}
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-md-6">
+        <div class="form-group">
+          <label for="{{ form.clock_in.id_for_label }}">Clock In</label>
+          {{ form.clock_in }}
+          {% if form.clock_in.errors %}
+            <div class="invalid-feedback d-block">
+              {{ form.clock_in.errors }}
+            </div>
+          {% endif %}
+        </div>
+      </div>
+      
+      <div class="col-md-6">
+        <div class="form-group">
+          <label for="{{ form.clock_out.id_for_label }}">Clock Out</label>
+          {{ form.clock_out }}
+          {% if form.clock_out.errors %}
+            <div class="invalid-feedback d-block">
+              {{ form.clock_out.errors }}
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-md-6">
+        <div class="form-group">
+          <label for="{{ form.status.id_for_label }}">Status</label>
+          {{ form.status }}
+          {% if form.status.errors %}
+            <div class="invalid-feedback d-block">
+              {{ form.status.errors }}
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    
+    <div class="form-group">
+      <label for="{{ form.notes.id_for_label }}">Notes</label>
+      {{ form.notes }}
+      {% if form.notes.errors %}
+        <div class="invalid-feedback d-block">
+          {{ form.notes.errors }}
+        </div>
+      {% endif %}
+    </div>
+    
+    <div class="form-group">
+      <button type="submit" class="btn btn-primary">
+        {% if form.instance.pk %}
+          Update Record
+        {% else %}
+          Create Record
+        {% endif %}
+      </button>
+    </div>
+  </form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  $(document).ready(function() {
+    // Initialize Select2
+    $('#{{ form.employee.id_for_label }}').select2({
+      theme: 'bootstrap4'
+    });
+    
+    // Initialize Select2 for status
+    $('#{{ form.status.id_for_label }}').select2({
+      theme: 'bootstrap4'
+    });
+  });
+</script>
+{% endblock %} 

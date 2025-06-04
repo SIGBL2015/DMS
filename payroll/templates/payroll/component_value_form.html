@@ -1,0 +1,111 @@
+{% extends 'payroll/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}{% if form.instance.pk %}Edit{% else %}Add{% endif %} Component Value{% endblock %}
+
+{% block header_buttons %}
+<a href="{% url 'payroll:component_value_list' %}" class="btn btn-sm btn-secondary">
+    <i class="fas fa-arrow-left"></i> Back
+</a>
+{% endblock %}
+
+{% block payroll_content %}
+<div class="row">
+    <div class="col-12 col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h4>{% if form.instance.pk %}Edit{% else %}Add{% endif %} Component Value</h4>
+            </div>
+            <div class="card-body">
+                <form method="post" class="needs-validation" novalidate>
+                    {% csrf_token %}
+                    <div class="form-group">
+                        {{ form.salary_structure|as_crispy_field }}
+                    </div>
+                    <div class="form-group">
+                        {{ form.component|as_crispy_field }}
+                    </div>
+                    <div class="form-group">
+                        {{ form.amount|as_crispy_field }}
+                    </div>
+                    <div class="form-group">
+                        {{ form.is_percentage|as_crispy_field }}
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary btn-lg btn-block">
+                            <i class="fas fa-save"></i> Save Value
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h4><i class="fas fa-info-circle"></i> Help</h4>
+            </div>
+            <div class="card-body">
+                <h6>About Component Values</h6>
+                <p>Component values define how much each salary component contributes to an employee's salary structure.</p>
+                
+                <h6>Value Types</h6>
+                <ul>
+                    <li><strong>Fixed Amount:</strong> A specific monetary value</li>
+                    <li><strong>Percentage:</strong> A percentage of the basic salary</li>
+                </ul>
+
+                <h6>Tips</h6>
+                <ul>
+                    <li>Select the correct salary structure and component</li>
+                    <li>Choose between fixed amount or percentage</li>
+                    <li>For percentages, enter the value as a decimal (e.g., 0.15 for 15%)</li>
+                    <li>Ensure the value aligns with company policies</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        // Initialize select2 for dropdowns
+        $('select').select2({
+            theme: 'bootstrap4'
+        });
+
+        // Form validation
+        (function() {
+            'use strict';
+            window.addEventListener('load', function() {
+                var forms = document.getElementsByClassName('needs-validation');
+                var validation = Array.prototype.filter.call(forms, function(form) {
+                    form.addEventListener('submit', function(event) {
+                        if (form.checkValidity() === false) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        }
+                        form.classList.add('was-validated');
+                    }, false);
+                });
+            }, false);
+        })();
+
+        // Handle percentage toggle
+        $('#id_is_percentage').change(function() {
+            var amountField = $('#id_amount');
+            if ($(this).is(':checked')) {
+                amountField.attr('min', '0');
+                amountField.attr('max', '1');
+                amountField.attr('step', '0.01');
+            } else {
+                amountField.removeAttr('min');
+                amountField.removeAttr('max');
+                amountField.removeAttr('step');
+            }
+        });
+    });
+</script>
+{% endblock %} 

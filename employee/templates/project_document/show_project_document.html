@@ -33,6 +33,9 @@
                           <th>File</th>
                           <th>RefNo</th>
                           <th>Issuance Date</th>
+                          <th>Expire Date</th>
+                          <th>Direction</th>
+                          <th>Comp Doc</th>
                           <th>Remarks</th>
                           <th>Status</th>
                           <th>Action</th>
@@ -47,6 +50,9 @@
                                     <td><a href="{{ MEDIA_URL }}{{ project_document.doc_path }}" target="_blank">{{project_document.document_type.title}}</a></td>   
                                     <td>{{ project_document.ref_no }}</td>
                                     <td>{{ project_document.issuance_date }}</td>
+                                    <td>{{ project_document.received_date }}</td>
+                                    <td>{{ project_document.document_direction }}</td>
+                                    <td>{{ project_document.company_document.title }}</td>
                                     <td>{{ project_document.remarks }}</td>
                                     {% if project_document.status == 1 %}
                                       <td>Active</td>  
@@ -68,6 +74,9 @@
                             <th>File</th>
                             <th>RefNo</th>
                             <th>Issuance Date</th>
+                            <th>Expire Date</th>
+                            <th>Direction</th>
+                            <th>Comp Doc</th>
                             <th>Remarks</th>
                             <th>Status</th>
                             <th>Action</th>

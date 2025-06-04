@@ -1,0 +1,111 @@
+{% extends 'payroll/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+    {% if form.instance.pk %}
+        Edit Document
+    {% else %}
+        Upload Document
+    {% endif %}
+{% endblock %}
+
+{% block card_title %}
+    {% if form.instance.pk %}
+        Edit Document
+    {% else %}
+        Upload Document
+    {% endif %}
+{% endblock %}
+
+{% block header_buttons %}
+<div class="card-header-action">
+    <a href="{% url 'payroll:document_list' %}" class="btn btn-secondary">
+        <i class="ion ion-arrow-left"></i> Back to List
+    </a>
+</div>
+{% endblock %}
+
+{% block card_content %}
+<form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+    {% csrf_token %}
+    
+    <div class="row">
+        <div class="col-md-6">
+            {{ form.payroll_calculation|as_crispy_field }}
+        </div>
+        <div class="col-md-6">
+            {{ form.document_type|as_crispy_field }}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            {{ form.file|as_crispy_field }}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            {{ form.description|as_crispy_field }}
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <button type="submit" class="btn btn-primary">
+                <i class="ion ion-checkmark"></i> Save Document
+            </button>
+            <a href="{% url 'payroll:document_list' %}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </div>
+</form>
+
+<!-- Help Card -->
+<div class="card mt-4">
+    <div class="card-header">
+        <h4>Document Information</h4>
+    </div>
+    <div class="card-body">
+        <p>This form allows you to upload and manage payroll-related documents. Here's what you need to know:</p>
+        <ul>
+            <li><strong>Payroll Calculation:</strong> Select the payroll calculation this document is associated with.</li>
+            <li><strong>Document Type:</strong> Choose the type of document you're uploading (Payslip, Tax Form, Bank Statement, or Other).</li>
+            <li><strong>File:</strong> Select the file to upload. Supported formats include PDF, Word documents, Excel spreadsheets, and images.</li>
+            <li><strong>Description:</strong> Provide a brief description of the document to help identify its purpose.</li>
+        </ul>
+        <div class="alert alert-info">
+            <i class="ion ion-information-circle"></i> 
+            <strong>Note:</strong> Make sure the file you're uploading is clear and legible. For security reasons, only authorized personnel can access these documents.
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        // Initialize select2 for dropdowns
+        $('.select2').select2({
+            theme: 'bootstrap4',
+            width: '100%'
+        });
+
+        // Form validation
+        (function() {
+            'use strict';
+            window.addEventListener('load', function() {
+                var forms = document.getElementsByClassName('needs-validation');
+                var validation = Array.prototype.filter.call(forms, function(form) {
+                    form.addEventListener('submit', function(event) {
+                        if (form.checkValidity() === false) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        }
+                        form.classList.add('was-validated');
+                    }, false);
+                });
+            }, false);
+        })();
+    });
+</script>
+{% endblock %} 

@@ -1,0 +1,163 @@
+{% extends 'payroll/base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Role: {{ role.name }}{% endblock %}
+
+{% block card_title %}Role: {{ role.name }}{% endblock %}
+
+{% block header_buttons %}
+<div class="card-header-action">
+    <a href="{% url 'payroll:role_update' role.pk %}" class="btn btn-primary">
+        <i class="ion ion-edit"></i> Edit Role
+    </a>
+    <a href="{% url 'payroll:role_list' %}" class="btn btn-outline-secondary">
+        <i class="ion ion-arrow-left"></i> Back to List
+    </a>
+</div>
+{% endblock %}
+
+{% block card_content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Role Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <strong>Name:</strong>
+                    </div>
+                    <div class="col-md-9">
+                        {{ role.name }}
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <strong>Description:</strong>
+                    </div>
+                    <div class="col-md-9">
+                        {{ role.description|default:"No description provided" }}
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <strong>Created At:</strong>
+                    </div>
+                    <div class="col-md-9">
+                        {{ role.created_at|date:"Y-m-d H:i" }}
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <strong>Last Updated:</strong>
+                    </div>
+                    <div class="col-md-9">
+                        {{ role.updated_at|date:"Y-m-d H:i" }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0">Permissions</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for module, permissions in permissions_by_module.items %}
+                    <div class="col-md-6 mb-4">
+                        <div class="card">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0">{{ module }}</h6>
+                            </div>
+                            <div class="card-body">
+                                {% for permission in permissions %}
+                                <div class="mb-2">
+                                    {% if permission in role.permissions.all %}
+                                    <span class="badge bg-success">{{ permission.get_permission_type_display }}</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">{{ permission.get_permission_type_display }}</span>
+                                    {% endif %}
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Users with this Role</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Assigned By</th>
+                                <th>Assigned At</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user_role in role.userpayrollrole_set.all %}
+                            <tr>
+                                <td>{{ user_role.user.get_full_name|default:user_role.user.username }}</td>
+                                <td>{{ user_role.assigned_by.get_full_name|default:user_role.assigned_by.username }}</td>
+                                <td>{{ user_role.assigned_at|date:"Y-m-d" }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="3" class="text-center">No users assigned to this role</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0">Actions</h5>
+            </div>
+            <div class="card-body">
+                <a href="{% url 'payroll:role_update' role.pk %}" class="btn btn-primary btn-block mb-2">
+                    <i class="ion ion-edit"></i> Edit Role
+                </a>
+                <button type="button" class="btn btn-danger btn-block" data-toggle="modal" data-target="#deleteModal">
+                    <i class="ion ion-trash"></i> Delete Role
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Delete</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete the role <strong>{{ role.name }}</strong>?</p>
+                <p class="text-danger">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <a href="{% url 'payroll:role_delete' role.pk %}" class="btn btn-danger">Delete</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

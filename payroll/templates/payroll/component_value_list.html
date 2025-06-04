@@ -1,0 +1,119 @@
+{% extends 'payroll/base.html' %}
+{% load humanize %}
+
+{% block title %}Salary Component Values{% endblock %}
+
+{% block payroll_content %}
+<div class="container-fluid">
+    <div class="card">
+        <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <h3 class="card-title">Salary Component Values</h3>
+                <a href="{% url 'payroll:component_value_create' %}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> New Value
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Employee</th>
+                            <th>Component</th>
+                            <th>Amount</th>
+                            <th>Type</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for value in component_values %}
+                        <tr>
+                            <td>{{ value.salary_structure.employee.get_full_name }}</td>
+                            <td>{{ value.component.name }}</td>
+                            <td>{{ value.amount|floatformat:2 }}</td>
+                            <td>
+                                {% if value.is_percentage %}
+                                    <span class="badge bg-info">Percentage</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Fixed</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    <a href="{% url 'payroll:component_value_update' value.pk %}" 
+                                       class="btn btn-sm btn-outline-primary"
+                                       title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button type="button" 
+                                            class="btn btn-sm btn-outline-danger"
+                                            title="Delete"
+                                            data-toggle="modal"
+                                            data-target="#deleteModal"
+                                            data-value-id="{{ value.pk }}"
+                                            data-value-name="{{ value.component.name }}">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center">
+                                <p class="text-muted my-3">No component values found.</p>
+                                <a href="{% url 'payroll:component_value_create' %}" class="btn btn-primary">
+                                    <i class="fas fa-plus"></i> Create First Value
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete Component Value</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete the component value for <strong id="valueName"></strong>?</p>
+                <p class="text-danger">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <form id="deleteForm" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        // Handle delete modal
+        $('#deleteModal').on('show.bs.modal', function (event) {
+            const button = $(event.relatedTarget);
+            const valueId = button.data('value-id');
+            const valueName = button.data('value-name');
+            
+            const modal = $(this);
+            modal.find('#valueName').text(valueName);
+            modal.find('#deleteForm').attr('action', `/payroll/component-values/${valueId}/delete/`);
+        });
+    });
+</script>
+{% endblock %} 

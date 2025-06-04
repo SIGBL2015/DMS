@@ -1,10 +1,10 @@
 # from pyexpat.errors import messages
 from django.contrib import messages
-from django.forms import model_to_dict
+from django.forms import ValidationError, model_to_dict
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, render, redirect  
-from employee.forms import Employee_projectForm, EmployeeForm, DepartmentForm, DesignationForm, RegionForm, EducationForm, Employment_RecordForm, CertificationsForm, SkillsForm, CompanyForm, Project_typeForm, ProjectForm, ModuleForm, MainmenuForm, SubmenuForm, RoleForm, Company_moduleForm, Role_permissionForm, CV_templateForm, Template_columnForm, BankForm, Bank_guarantyForm, Liquidity_damagesForm, Insurance_typeForm, Insurance_detailForm, CountryForm, ZoneForm, AreaForm, BranchForm, ClientForm, Document_typeForm, Project_documentForm, Employee_targetForm, SalesForm, QuartersForm, LeadsForm, VendorForm
-from employee.models import Employee, Department, Designation, Employee_project, Region, Education, Employment_Record, Certifications, Skills, Company, Module, Mainmenu, Submenu, Role, Company_module, Role_permission, CV_template, Template_column, Project_type, Project, Bank, Bank_guaranty, Liquidity_damages, Insurance_type, Insurance_detail, Country, Zone, Area, Branch, Client, Document_type, Project_document, Employee_target, Sales, Quarters, Leads, Vendor
+from employee.forms import Company_documentForm, Employee_projectForm, EmployeeForm, DepartmentForm, DesignationForm, Issuing_authorityForm, RegionForm, EducationForm, Employment_RecordForm, CertificationsForm, SkillsForm, CompanyForm, Project_typeForm, ProjectForm, ModuleForm, MainmenuForm, SubmenuForm, RoleForm, Company_moduleForm, Role_permissionForm, CV_templateForm, Template_columnForm, BankForm, Bank_guarantyForm, Liquidity_damagesForm, Insurance_typeForm, Insurance_detailForm, CountryForm, ZoneForm, AreaForm, BranchForm, ClientForm, Document_typeForm, Project_documentForm, Employee_targetForm, SalesForm, QuartersForm, LeadsForm, VendorForm
+from employee.models import Company_document, Employee, Department, Designation, Employee_project, Issuing_authority, Region, Education, Employment_Record, Certifications, Skills, Company, Module, Mainmenu, Submenu, Role, Company_module, Role_permission, CV_template, Template_column, Project_type, Project, Bank, Bank_guaranty, Liquidity_damages, Insurance_type, Insurance_detail, Country, Zone, Area, Branch, Client, Document_type, Project_document, Employee_target, Sales, Quarters, Leads, Vendor
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db import connection
 import json
@@ -19,7 +19,7 @@ from datetime import datetime, timedelta
 from django.utils import timezone
 import logging
 from django.db.models import Sum, Subquery, Count, Q
-
+from employee.validator import validate_allowed_file_type
 from finance.models import Journal_entry
 
 # Set up logging
@@ -1602,7 +1602,8 @@ def project_details(request, id):
     context['countries'] = Country.objects.filter(status=1).values('id', 'country_name')
     context['employees'] = Employee.objects.filter(status=1).values('id', 'ename')
     context['leads'] = Leads.objects.filter(status=1).values('id', 'title')
-    
+    context['company_documents'] = Company_document.objects.filter(status=1)
+
     return render(request, 'project/project_details.html', context)
 
 def manual_update_project(request, id):
@@ -2465,7 +2466,8 @@ def add_document_type(request):
     if request.method == "POST":  
         form = Document_typeForm(request.POST) 
         title = request.POST.get('title').strip().lower()
-        doc_type = Document_type.objects.filter(title__iexact=title, status=1)
+        purpose = request.POST.get('purpose')
+        doc_type = Document_type.objects.filter(title__iexact=title,purpose=purpose, status=1)
         if form.is_valid():
             if doc_type.exists():
                 messages.error(request, "This Document type already exist.")
@@ -2503,7 +2505,8 @@ def u_document_type(request, id):
     document_type = Document_type.objects.get(id=id)  
     form = Document_typeForm(request.POST, instance = document_type)
     title = request.POST.get('title').strip().lower()
-    doc_type = Document_type.objects.filter(title__iexact=title, status=1)  
+    purpose = request.POST.get('purpose')
+    doc_type = Document_type.objects.filter(title__iexact=title, purpose=purpose, status=1)  
     if form.is_valid():  
         if doc_type.exists():
             messages.error(request, "This Document type already exist.")
@@ -2531,6 +2534,7 @@ def d_document_type(request, id):
 def add_project_document(request): 
     projects = Project.objects.filter(status=1).values('id','title')
     document_types = Document_type.objects.filter(status=1).values('id','title')
+    company_documents = Company_document.objects.filter(status=1).values('id','title')
     if request.method == "POST": 
         # Manually handle form validation
         project = request.POST.get('project')
@@ -2539,8 +2543,12 @@ def add_project_document(request):
         remarks = request.POST.getlist('remarks')
         ref_nos = request.POST.getlist('ref_no')
         issuance_dates = request.POST.getlist('issuance_date')
+        received_dates = request.POST.getlist('received_date')
+        company_documents = request.POST.getlist('company_document')
+        document_directions = request.POST.getlist('document_direction')
         modalfield_value = request.POST.get('modalfield')
-
+        print(company_documents)
+        print(doc_paths)
         # Check if the common project field is provided
         if not project:
             if modalfield_value == '1':
@@ -2549,13 +2557,13 @@ def add_project_document(request):
                 messages.error(request, "Project is required")
                 return render(request, 'project_document/add_project_document.html')
 
-        # Ensure that all dynamic fields have values
-        if len(document_types) != len(doc_paths) or len(doc_paths) != len(remarks) or len(ref_nos) != len(issuance_dates):
-            if modalfield_value == '1':
-                return JsonResponse({'status': 'error', 'message': "Mismatched form fields"}, status=400)
-            else:
-                messages.error(request, "Mismatched form fields")
-                return render(request, 'project_document/add_project_document.html')
+        # # Ensure that all dynamic fields have values
+        # if len(document_types) != len(doc_paths) or len(doc_paths) != len(remarks) or len(ref_nos) != len(issuance_dates):
+        #     if modalfield_value == '1':
+        #         return JsonResponse({'status': 'error', 'message': "Mismatched form fields"}, status=400)
+        #     else:
+        #         messages.error(request, "Mismatched form fields")
+        #         return render(request, 'project_document/add_project_document.html')
 
         # Process and save the data 
         try: 
@@ -2566,47 +2574,120 @@ def add_project_document(request):
             if not os.path.exists(folder_path):
                 print(f"An error occurred this path does not exist: {folder_path}")
 
-            # Process dynamic fields and save them to the database
-            for document_type, doc_path, remark, ref_no, issuance_date in zip(document_types, doc_paths, remarks, ref_nos, issuance_dates):
-               # Generate the new file name
-                doc_type_title = Document_type.objects.get(id=document_type)
-                timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
-                new_file_name = f"{project}_{doc_type_title.title}_{timestamp}{os.path.splitext(doc_path.name)[1]}"
-                new_file_path = os.path.join(folder_path, new_file_name)
+            responses = []
+            total_rows = len(document_types)
+            for i in range(total_rows):
+                document_type = document_types[i] if i < len(document_types) else ''
+                remark = remarks[i] if i < len(remarks) else ''
+                ref_no = ref_nos[i] if i < len(ref_nos) else ''
+                issuance_date = issuance_dates[i] if i < len(issuance_dates) else ''
+                received_date = received_dates[i] if i < len(received_dates) else ''
+                company_document = company_documents[i] if i < len(company_documents) else ''
+                company_document = company_document.strip()
+                document_direction = document_directions[i] if i < len(document_directions) else ''
 
-                # Save file to the generated path
-                with open(new_file_path, 'wb') as f:
-                    for chunk in doc_path.chunks():
-                        f.write(chunk)
+                doc_path = doc_paths[i] if i < len(doc_paths) else None
+                doc_path_name = getattr(doc_path, 'name', '').strip() if doc_path else ''
+                
 
-                # Update the file field with the relative path to the file
-                relative_file_path = os.path.relpath(new_file_path, settings.MEDIA_ROOT)
+                has_doc_path = bool(doc_path_name)
+                has_company_document = bool(company_document)
 
+                # Validation: Either doc_path or company_document (not both or none)
+                if has_doc_path == has_company_document:
+                    responses.append({
+                        'row': i + 1,
+                        'status': 'error',
+                        'message': 'Provide either a document upload OR select a company document — not both or none.'
+                    })
+                    continue
+
+                # Required field validation
+                if not all([document_type, remark, ref_no, issuance_date]):
+                    responses.append({
+                        'row': i + 1,
+                        'status': 'error',
+                        'message': 'Required fields (document_type, ref_no, remarks, issuance_date) are missing.'
+                    })
+                    continue
+
+                try:
+                    doc_type_title = Document_type.objects.get(id=document_type)
+                except Document_type.DoesNotExist:
+                    responses.append({
+                        'row': i + 1,
+                        'status': 'error',
+                        'message': f'Document type with id {document_type} does not exist.'
+                    })
+                    continue
+
+                # Handle file upload
+                relative_file_path = None
+                if has_doc_path:
+                    timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+                    file_ext = os.path.splitext(doc_path_name)[1]
+                    new_file_name = f"{project}_{doc_type_title.title}_{timestamp}{file_ext}"
+                    new_file_path = os.path.join(folder_path, new_file_name)
+
+                    with open(new_file_path, 'wb') as f:
+                        for chunk in doc_path.chunks():
+                            f.write(chunk)
+
+                    relative_file_path = os.path.relpath(new_file_path, settings.MEDIA_ROOT)
+
+                # Resolve company document object
+                company_doc_obj = None
+                if has_company_document:
+                    try:
+                        company_doc_obj = Company_document.objects.get(id=company_document)
+                    except Company_document.DoesNotExist:
+                        responses.append({
+                            'row': i + 1,
+                            'status': 'error',
+                            'message': f'Company document with id {company_document} does not exist.'
+                        })
+                        continue
+
+                # Save to database
                 Project_document.objects.create(
                     project_id=project,
                     document_type_id=document_type,
                     doc_path=relative_file_path,
                     remarks=remark,
                     ref_no=ref_no,
-                    issuance_date=issuance_date
-                    )
+                    issuance_date=issuance_date,
+                    received_date=received_date or None,
+                    company_document=company_doc_obj,
+                    document_direction=document_direction or ''
+                )
+
                 
-            
+                if responses:
+                    responses.append({
+                    'row': i+1,
+                    'status': 'partial_error',
+                    'message': 'Some rows have error.'
+                })
+                else:
+                    responses.append({
+                    'status': 'success',
+                    'message': 'All rows saved successfully'
+                })
             if modalfield_value == '1':
-                messages.success(request, "Data added successfully!")
-                return JsonResponse({'status': 'success'}, status=200)
+                messages.success(request,responses, "Data added successfully!")
+                return JsonResponse({'status': 'success', 'result': responses}, status=200)
             else:
-                messages.success(request, "Data added successfully!")
+                messages.success(request,responses, "Data added successfully!")
                 return redirect('show_project_document')  
         except Exception as e:  
             if modalfield_value == '1':
                 return JsonResponse({'status': 'error', 'message': f"Internal Server Error: {str(e)}"}, status=400)
             else:
                 messages.error(request, f"Internal Server Error: {str(e)}")
-                return render(request,'project_document/add_project_document.html',{'projects':projects, 'document_types':document_types})  
+                return render(request,'project_document/add_project_document.html',{'projects':projects, 'document_types':document_types, 'company_documents':company_documents})  
     else:  
         
-        return render(request,'project_document/add_project_document.html',{'projects':projects, 'document_types':document_types})  
+        return render(request,'project_document/add_project_document.html',{'projects':projects, 'document_types':document_types, 'company_documents':company_documents})  
      # Added a fallback return to ensure an HttpResponse is always returned
     # return JsonResponse({'status': 'error', 'message': 'Unhandled request method'}, status=400)
 
@@ -2627,49 +2708,78 @@ def e_project_document(request, id):
 
 @login_required  
 def u_project_document(request, id):  
-    project_document = Project_document.objects.get(id=id)  
-    old_path = project_document.doc_path 
-    if request.method == "POST": 
-        form = Project_documentForm(request.POST, request.FILES, instance = project_document)
-        try: 
-            if form.is_valid():
-                file_instance = form.save(commit=False)
-                if 'doc_path' in request.FILES:
-                    # Generate folder path dynamically
+    project_document = get_object_or_404(Project_document, pk=id)
+    old_path = project_document.doc_path  # Store old file path
+
+    if request.method == "POST":
+        form = Project_documentForm(request.POST, request.FILES, instance=project_document)
+
+        if form.is_valid():
+            file_instance = form.save(commit=False)
+            new_doc_file = request.FILES.get('doc_path', None)
+            selected_company_doc = request.POST.get('company_document', '').strip()
+
+            has_doc_path = bool(new_doc_file)
+            has_company_document = bool(selected_company_doc)
+
+            # Validation: one or the other must be provided, not both or neither
+            if (has_doc_path and has_company_document) or (not has_doc_path and not has_company_document and not old_path):
+            # or (has_company_document and old_path):
+                messages.error(request, "Provide either a document upload OR select a company document — not both or none.")
+                return redirect(f'../project_details/{file_instance.project.id}')
+
+            try:
+                if has_doc_path:
+                    # Save new file to custom path
                     folder_name = str(file_instance.project.id)
-                    folder_path = os.path.join(settings.MEDIA_ROOT,'project',folder_name)
-                    
-                    if not os.path.exists(folder_path):
-                        print(f"An error occurred this path does not exist: {folder_path}")
-                    # Generate the new file name
+                    folder_path = os.path.join(settings.MEDIA_ROOT, 'project', folder_name)
+                    os.makedirs(folder_path, exist_ok=True)
+
                     doc_type_title = Document_type.objects.get(id=file_instance.document_type.id)
                     timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
-                    new_file_name = f"{file_instance.project.id}_{doc_type_title.title}_{timestamp}{os.path.splitext(request.FILES['doc_path'].name)[1]}"
+                    ext = os.path.splitext(new_doc_file.name)[1]
+                    new_file_name = f"{file_instance.project.id}_{doc_type_title.title}_{timestamp}{ext}"
                     new_file_path = os.path.join(folder_path, new_file_name)
-                    
-                    
-                    if old_path and os.path.exists(os.path.join(settings.MEDIA_ROOT, old_path)):
-                            os.remove(os.path.join(settings.MEDIA_ROOT, old_path))
+
+                    # Remove old file if exists
+                    if old_path:
+                        old_full_path = os.path.join(settings.MEDIA_ROOT, old_path)
+                        if os.path.exists(old_full_path):
+                            os.remove(old_full_path)
+
                     # Save file to the generated path
                     with open(new_file_path, 'wb') as f:
-                        for chunk in request.FILES['doc_path'].chunks():
+                        for chunk in new_doc_file.chunks():
                             f.write(chunk)
-                    # Update the file field with the relative path to the file
+
+                    # Save relative path
                     file_instance.doc_path = os.path.relpath(new_file_path, settings.MEDIA_ROOT)
+                    file_instance.company_document = None  # clear this
+
+                elif has_company_document:
+                    file_instance.company_document = Company_document.objects.get(id=selected_company_doc)
+                    file_instance.doc_path = None  # clear file path
+
                 else:
-                    # Ensure the old file path is retained if no new file is uploaded
+                    # Keep old path and company_document if nothing changes
                     file_instance.doc_path = old_path
 
-                file_instance.save() 
-                messages.success(request, "Data Updated successfully!")  
-                return redirect('../project_details/'+str(file_instance.project.id))  
-            else:
-                error_messages = form.errors.as_json()
-                messages.error(request, f"Project Document Form validation failed: {error_messages}")
-                return redirect(f'../project_details/{project_document.project.id}')
-        except Exception as e:  
-            messages.error(request, f"Internal Server Error: {str(e)}")
+                file_instance.save()
+                messages.success(request, "Document updated successfully.")
+                return redirect(f'../project_details/{file_instance.project.id}')
+
+            except Exception as e:
+                messages.error(request, f"Error: {str(e)}")
+                return redirect(f'../project_details/{file_instance.project.id}')
+
+        else:
+            messages.error(request, f"Form validation failed: {form.errors}")
             return redirect(f'../project_details/{project_document.project.id}')
+
+    return render(request, 'your_update_template.html', {
+        'form': Project_documentForm(instance=project_document),
+        'project_document': project_document
+    })
 
 @login_required  
 @permission_required('employee.delete_project_document', raise_exception=True)
@@ -3327,4 +3437,195 @@ def project_summary(request):
         return JsonResponse({'status': 'success', 'project': final}, status=200)
     else:  
         projects = Project.objects.filter(status=1).values('id','title')
-    return render(request,'employee_target/summary.html',{'projects':projects})  
+    return render(request,'employee_target/summary.html',{'projects':projects}) 
+
+
+# Company_document
+@login_required 
+@permission_required('employee.add_company_document', raise_exception=True)
+def add_company_document(request): 
+    issuing_authorities = Issuing_authority.objects.filter(status=1).values('id','full_name')
+    if request.method == "POST": 
+        form = Company_documentForm(request.POST, request.FILES)
+        # Process and save the data 
+        try: 
+            if form.is_valid():
+                file_instance = form.save(commit=False)
+                if 'doc_path' in request.FILES:
+                    file = request.FILES.get('doc_path')
+                    try:
+                        validate_allowed_file_type(file)
+                    except ValidationError as e:
+                        messages.error(request, str(e))
+                        return redirect(request,'company_document/add_company_document.html',{'issuing_authorities':issuing_authorities})
+                    # Generate folder path dynamically
+                    folder_name = str(file_instance.issuing_authority.id)
+                    folder_path = os.path.join(settings.MEDIA_ROOT,'company_document',folder_name)
+                    
+                    if not os.path.exists(folder_path):
+                        os.makedirs(folder_path)
+                    # Generate the new file name
+                    timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+                    new_file_name = f"{file_instance.issuing_authority.id}_{file_instance.title}_{timestamp}{os.path.splitext(request.FILES['doc_path'].name)[1]}"
+                    new_file_path = os.path.join(folder_path, new_file_name)
+
+                    # Save file to the generated path
+                    with open(new_file_path, 'wb') as f:
+                        for chunk in request.FILES['doc_path'].chunks():
+                            f.write(chunk)
+
+                    # Update the file field with the relative path to the file
+                    file_instance.doc_path = os.path.relpath(new_file_path, settings.MEDIA_ROOT)
+                file_instance.save()
+                messages.success(request, "Data added successfully!")
+                return redirect('show_company_document')  
+        except Exception as e:  
+            messages.error(request, f"Internal Server Error: {str(e)}")
+            return render(request,'company_document/add_company_document.html',{'issuing_authorities':issuing_authorities})  
+    else:  
+        
+        return render(request,'company_document/add_company_document.html',{'issuing_authorities':issuing_authorities})  
+     # Added a fallback return to ensure an HttpResponse is always returned
+    # return JsonResponse({'status': 'error', 'message': 'Unhandled request method'}, status=400)
+
+
+@login_required   
+@permission_required('employee.view_company_document', raise_exception=True) 
+def show_company_document(request):  
+    company_documents = Company_document.objects.filter(status=1)  
+    return render(request,"company_document/show_company_document.html",{'company_documents':company_documents})  
+
+@login_required  
+@permission_required('employee.change_company_document', raise_exception=True)
+def e_company_document(request, id):  
+    company_document = Company_document.objects.get(id=id)
+    issuing_authorities = Issuing_authority.objects.filter(status=1).values('id','full_name')
+    return render(request,'company_document/e_company_document.html', {'company_document':company_document, 'issuing_authorities':issuing_authorities})  
+
+@login_required  
+def u_company_document(request, id):  
+    company_document = Company_document.objects.get(id=id)  
+    old_path = company_document.doc_path 
+    if request.method == "POST": 
+        form = Company_documentForm(request.POST, request.FILES, instance = company_document)
+        try: 
+            if form.is_valid():
+                file_instance = form.save(commit=False)
+                if 'doc_path' in request.FILES:
+                    file = request.FILES.get('doc_path')
+                    try:
+                        validate_allowed_file_type(file)
+                    except ValidationError as e:
+                        messages.error(request, str(e))
+                        return redirect(request,'company_document/e_company_document.html', {'company_document': company_document})
+                    # Generate folder path dynamically
+                    folder_name = str(file_instance.issuing_authority.id)
+                    folder_path = os.path.join(settings.MEDIA_ROOT,'company_document',folder_name)
+                    
+                    if not os.path.exists(folder_path):
+                        print(f"An error occurred this path does not exist: {folder_path}")
+                    # Generate the new file name
+                    timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+                    new_file_name = f"{file_instance.issuing_authority.id}_{file_instance.title}_{timestamp}{os.path.splitext(request.FILES['doc_path'].name)[1]}"
+                    new_file_path = os.path.join(folder_path, new_file_name)
+                    
+                    
+                    if old_path and os.path.exists(os.path.join(settings.MEDIA_ROOT, old_path)):
+                            os.remove(os.path.join(settings.MEDIA_ROOT, old_path))
+                    # Save file to the generated path
+                    with open(new_file_path, 'wb') as f:
+                        for chunk in request.FILES['doc_path'].chunks():
+                            f.write(chunk)
+                    # Update the file field with the relative path to the file
+                    file_instance.doc_path = os.path.relpath(new_file_path, settings.MEDIA_ROOT)
+                else:
+                    # Ensure the old file path is retained if no new file is uploaded
+                    file_instance.doc_path = old_path
+
+                file_instance.save() 
+                messages.success(request, "Data Updated successfully!")  
+                return redirect("show_company_document") 
+            else:
+                error_messages = form.errors.as_json()
+                messages.error(request, f"Project Document Form validation failed: {error_messages}")
+                return render(request, 'company_document/e_company_document.html', {'company_document': company_document}) 
+        except Exception as e:  
+            messages.error(request, f"Internal Server Error: {str(e)}")
+            return render(request, 'company_document/e_company_document.html', {'company_document': company_document}) 
+
+@login_required  
+@permission_required('employee.delete_company_document', raise_exception=True)
+def d_company_document(request, id):  
+    company_document = Company_document.objects.get(id=id)  
+    company_document.status=0 
+    company_document.save() 
+    messages.success(request, "Data Deleted successfully!")
+    return redirect("show_company_document")
+
+# Issuing_authority 
+@login_required 
+@permission_required('employee.add_issuing_authority', raise_exception=True)
+def add_issuing_authority(request):  
+    if request.method == "POST":  
+        form = Issuing_authorityForm(request.POST) 
+        full_name = request.POST.get('full_name').strip().lower()
+        issuing_authority = Issuing_authority.objects.filter(full_name__iexact=full_name, status=1)
+        if form.is_valid():
+            if issuing_authority.exists():
+                messages.error(request, "This Issuing authority already exist.")
+                return render(request,'issuing_authority/add_issuing_authority.html',{'form':form})  
+            else:
+                try:  
+                    form.save() 
+                    messages.success(request, "Data added successfully!") 
+                    return redirect('show_issuing_authority')  
+                except Exception as e:  
+                    messages.error(request, f"Internal Server Error: {str(e)}")
+                    return render(request,'issuing_authority/add_issuing_authority.html',{'form':form})  
+        else:
+            error_messages = form.errors.as_json()
+            messages.error(request, f"Form validation failed: {error_messages}")
+            return render(request,'issuing_authority/add_issuing_authority.html',{'form':form})  
+    else:  
+        form = Issuing_authorityForm()  
+        return render(request,'issuing_authority/add_issuing_authority.html',{'form':form})  
+
+@login_required  
+@permission_required('employee.view_issuing_authority', raise_exception=True)  
+def show_issuing_authority(request):  
+    issuing_authorities = Issuing_authority.objects.filter(status=1)  
+    return render(request,"issuing_authority/show_issuing_authority.html",{'issuing_authorities':issuing_authorities})  
+
+@login_required  
+@permission_required('employee.change_issuing_authority', raise_exception=True)
+def e_issuing_authority(request, id):  
+    issuing_authority = Issuing_authority.objects.get(id=id)  
+    return render(request,'issuing_authority/e_issuing_authority.html', {'issuing_authority':issuing_authority})  
+
+@login_required  
+def u_issuing_authority(request, id):  
+    issuing_authority = Issuing_authority.objects.get(id=id)  
+    form = Issuing_authorityForm(request.POST, instance = issuing_authority)
+    full_name = request.POST.get('full_name').strip().lower()
+    issuing_authority = Issuing_authority.objects.filter(full_name__iexact=full_name, status=1)  
+    if form.is_valid():  
+        if issuing_authority.exists():
+            messages.error(request, "This Issuing authority already exist.")
+            return redirect("show_issuing_authority")
+        else:
+            form.save()  
+            messages.success(request, "Data Updated successfully!")  
+            return redirect("show_issuing_authority") 
+    error_messages = form.errors.as_json()
+    messages.error(request, f"Form validation failed: {error_messages}")  
+    return render(request, 'issuing_authority/e_issuing_authority.html', {'issuing_authority': issuing_authority})  
+
+@login_required  
+@permission_required('employee.delete_issuing_authority', raise_exception=True)
+def d_issuing_authority(request, id):  
+    issuing_authority = Issuing_authority.objects.get(id=id)  
+    issuing_authority.status=0  
+    issuing_authority.save()
+    messages.success(request, "Data Deleted successfully!")
+    return redirect("show_issuing_authority")
+

@@ -1,0 +1,260 @@
+{% extends 'payroll/base.html' %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+{% load payroll_extras %}
+{% load static %}
+
+{% block title %}
+    {% if form.instance.pk %}Edit{% else %}New{% endif %} Salary Structure
+{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'payroll:structure_list' %}">Salary Structures</a></li>
+{% if form.instance.pk %}
+<li class="breadcrumb-item active">Edit Structure</li>
+{% else %}
+<li class="breadcrumb-item active">New Structure</li>
+{% endif %}
+{% endblock %}
+
+{% block payroll_content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        {% if form.instance.pk %}
+                            Edit Salary Structure for {{ form.instance.employee.ename }}
+                        {% else %}
+                            New Salary Structure
+                        {% endif %}
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                {{ form.employee|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.basic_salary|as_crispy_field }}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                {{ form.effective_from|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.effective_to|as_crispy_field }}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-12">
+                                {{ form.is_active|as_crispy_field }}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-12">
+                                <h4 class="mb-3">Salary Components</h4>
+                                <div id="componentContainer">
+                                    {% for component in components %}
+                                    <div class="card mb-3 component-item">
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-md-5">
+                                                    <label class="form-label">Component</label>
+                                                    <select name="components[]" class="form-select component-select" required>
+                                                        <option value="">Select Component</option>
+                                                        {% for comp in available_components %}
+                                                            <option value="{{ comp.id }}" 
+                                                                    data-type="{{ comp.component_type }}"
+                                                                    data-taxable="{{ comp.is_taxable }}"
+                                                                    {% if comp.id == component.id %}selected{% endif %}>
+                                                                {{ comp.name }}
+                                                            </option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <label class="form-label">Amount</label>
+                                                    <input type="number" name="amounts[]" class="form-control component-amount" 
+                                                           value="{{ component.amount }}" step="0.01" required>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <label class="form-label">Type</label>
+                                                    <select name="is_percentage[]" class="form-select">
+                                                        <option value="0" {% if not component.is_percentage %}selected{% endif %}>Fixed Amount</option>
+                                                        <option value="1" {% if component.is_percentage %}selected{% endif %}>Percentage</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-1 d-flex align-items-end">
+                                                    <button type="button" class="btn btn-danger btn-sm remove-component">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                <button type="button" class="btn btn-secondary" id="addComponent">
+                                    <i class="fas fa-plus"></i> Add Component
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <a href="{% url 'payroll:structure_list' %}" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left"></i> Back to List
+                                </a>
+                                <button type="submit" class="btn btn-primary float-right">
+                                    <i class="fas fa-save"></i> Save Structure
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Help</h3>
+                </div>
+                <div class="card-body">
+                    <h5>About Salary Structures</h5>
+                    <p>Salary structures define the basic compensation package for employees. They include:</p>
+                    <ul>
+                        <li>Basic salary amount</li>
+                        <li>Effective dates for the structure</li>
+                        <li>Active status for current structures</li>
+                    </ul>
+
+                    <h5 class="mt-4">Tips</h5>
+                    <ul>
+                        <li>Set appropriate effective dates to manage salary changes</li>
+                        <li>Only one active structure per employee is allowed</li>
+                        <li>Basic salary forms the foundation for other calculations</li>
+                        <li>Consider tax implications when setting basic salary</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        // Initialize select2 for employee dropdown
+        $('#id_employee').select2({
+            theme: 'bootstrap4',
+            placeholder: 'Select an employee'
+        });
+
+        // Initialize datepickers
+        $('#id_effective_from, #id_effective_to').datepicker({
+            format: 'yyyy-mm-dd',
+            autoclose: true,
+            todayHighlight: true
+        });
+
+        // Validate effective dates
+        $('#id_effective_to').on('change', function() {
+            const fromDate = $('#id_effective_from').val();
+            const toDate = $(this).val();
+            
+            if (fromDate && toDate && fromDate > toDate) {
+                alert('Effective To date cannot be earlier than Effective From date');
+                $(this).val('');
+            }
+        });
+
+        $('#id_effective_from').on('change', function() {
+            const fromDate = $(this).val();
+            const toDate = $('#id_effective_to').val();
+            
+            if (fromDate && toDate && fromDate > toDate) {
+                alert('Effective From date cannot be later than Effective To date');
+                $(this).val('');
+            }
+        });
+
+        // Component template
+        const componentTemplate = `
+            <div class="card mb-3 component-item">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-5">
+                            <label class="form-label">Component</label>
+                            <select name="components[]" class="form-select component-select" required>
+                                <option value="">Select Component</option>
+                                {% for comp in available_components %}
+                                    <option value="{{ comp.id }}" 
+                                            data-type="{{ comp.component_type }}"
+                                            data-taxable="{{ comp.is_taxable }}">
+                                        {{ comp.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Amount</label>
+                            <input type="number" name="amounts[]" class="form-control component-amount" 
+                                   step="0.01" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Type</label>
+                            <select name="is_percentage[]" class="form-select">
+                                <option value="0">Fixed Amount</option>
+                                <option value="1">Percentage</option>
+                            </select>
+                        </div>
+                        <div class="col-md-1 d-flex align-items-end">
+                            <button type="button" class="btn btn-danger btn-sm remove-component">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Add new component
+        $('#addComponent').click(function() {
+            $('#componentContainer').append(componentTemplate);
+            initializeNewComponent($('#componentContainer .component-item').last());
+        });
+
+        // Remove component
+        $(document).on('click', '.remove-component', function() {
+            $(this).closest('.component-item').remove();
+        });
+
+        // Initialize new component
+        function initializeNewComponent(element) {
+            element.find('.component-select').select2({
+                theme: 'bootstrap4',
+                placeholder: 'Select a component'
+            });
+        }
+
+        // Initialize existing components
+        $('.component-select').each(function() {
+            $(this).select2({
+                theme: 'bootstrap4',
+                placeholder: 'Select a component'
+            });
+        });
+    });
+</script>
+{% endblock %} 

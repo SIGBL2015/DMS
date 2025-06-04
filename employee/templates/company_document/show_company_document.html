@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+  {% load static %} 
+  {% include 'layout/style.html' %}
+
+<body>
+  <div id="app">
+    <div class="main-wrapper">
+      {% include 'layout/header.html' %}
+      {% include 'layout/sidebar.html' %}
+      <div class="main-content">
+        <section class="section">
+          <h1 class="section-header">
+            <div>Company Documents</div>
+            <div style="float: right;"><a href="/employee/save_company_document" class="btn btn-sm btn-danger">Add</a></div>
+          </h1>
+          {% include 'layout/status.html' %}
+          <div class="section-body">
+            <div class="row mt-5">
+              <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                      <h3 class="card-title">Company Document Details</h3>
+                    </div>
+                    <!-- /.card-header -->
+                    <div class="card-body">
+                      <table id="example1" class="table table-bordered table-striped">
+                        <thead>
+                          <tr>
+                            <th>S.No</th>
+                            <th>Issuing authority</th>
+                            <th>Title</th>
+                            <th>Reg No</th>
+                            <th>Document</th>
+                            <th>Issuance</th>
+                            <th>Expiry</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                            {% for company_document in company_documents %}  
+                            <tr>  
+                                <td>{{ forloop.counter }}</td>  
+                                <td>{{ company_document.issuing_authority.full_name}}</td>
+                                <td>{{ company_document.title }}</td>  
+                                <td>{{ company_document.reg_no }}</td> 
+                                <td><a href="{{ MEDIA_URL }}{{ company_document.doc_path }}" target="_blank">Document</a></td>
+                                <td>{{ company_document.issuance_date }}</td> 
+                                <td>{{ company_document.expire_date }}</td>
+                                {% if company_document.status == 1 %}
+                                  <td>Active</td>  
+                                {% else %}
+                                  <td>Deactive</td>
+                                {% endif %}
+                                <td>  
+                                    <a href="/employee/e_company_document/{{ company_document.id }}"><span class="ion-ios-compose" ></span></a>  
+                                    <a href="/employee/d_company_document/{{ company_document.id }}" onclick="return confirm('Are you sure you want to delete this?')"><span class="ion-ios-trash" ></span></a>  
+                                </td>  
+                            </tr>  
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                          <tr>
+                              <th>S.No</th>
+                              <th>Issuing authority</th>
+                              <th>Title</th>
+                              <th>Reg No</th>
+                              <th>Document</th>
+                              <th>Issuance</th>
+                              <th>Expiry</th>
+                              <th>Status</th>
+                              <th>Action</th>
+                          </tr>
+                        </tfoot>
+                      </table>
+                    </div>
+                    <!-- /.card-body -->
+                  </div>
+                  <!-- /.card -->
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+      {% include 'layout/footer.html' %}
+    </div>
+  </div>
+
+  {% include 'layout/script.html' %}
+</body>
+</html>

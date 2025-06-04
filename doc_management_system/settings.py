@@ -44,6 +44,9 @@ INSTALLED_APPS = [
     'finance',
     'project_initiation',
     'rest_framework',
+    'payroll',
+    'crispy_forms',
+    'crispy_bootstrap5',
 ]
 
 MIDDLEWARE = [
@@ -71,7 +74,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'django.template.context_processors.media',
+                'employee.context_processors.media_url',
             ],
         },
     },
@@ -85,7 +88,7 @@ WSGI_APPLICATION = 'doc_management_system.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',  
-        'NAME': 'dms_db',  
+        'NAME': 'dms2',  
         'USER':'root',  
         'PASSWORD':'',  
         'HOST':'localhost',  
@@ -188,3 +191,7 @@ CRONJOBS = [
 # EMAIL_HOST_USER = ''
 # EMAIL_HOST_PASSWORD = ''
 # DEFAULT_FROM_EMAIL = ''
+
+# Crispy Forms Configuration
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_TEMPLATE_PACK = "bootstrap5"

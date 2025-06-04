@@ -1,0 +1,180 @@
+{% extends 'payroll/base.html' %}
+
+{% block title %}Attendance Report{% endblock %}
+
+{% block header_buttons %}
+  <a href="{% url 'payroll:attendance_list' %}" class="btn btn-secondary">
+    <i class="ion ion-arrow-left"></i> Back to List
+  </a>
+  <button type="button" class="btn btn-primary" onclick="window.print()">
+    <i class="ion ion-printer"></i> Print Report
+  </button>
+{% endblock %}
+
+{% block card_title %}Attendance Report{% endblock %}
+
+{% block card_content %}
+  <!-- Filter Form -->
+  <form method="get" class="mb-4">
+    <div class="row">
+      <div class="col-md-4">
+        <div class="form-group">
+          <label for="employee">Employee</label>
+          <select name="employee" id="employee" class="form-control select2">
+            <option value="">All Employees</option>
+            {% for employee in employees %}
+              <option value="{{ employee.id }}" {% if current_filters.employee == employee.id|stringformat:"s" %}selected{% endif %}>
+                {{ employee.ename }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="form-group">
+          <label for="start_date">Start Date</label>
+          <input type="date" name="start_date" id="start_date" class="form-control" 
+                 value="{{ current_filters.start_date }}">
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="form-group">
+          <label for="end_date">End Date</label>
+          <input type="date" name="end_date" id="end_date" class="form-control" 
+                 value="{{ current_filters.end_date }}">
+        </div>
+      </div>
+      <div class="col-md-2">
+        <div class="form-group">
+          <label>&nbsp;</label>
+          <button type="submit" class="btn btn-primary btn-block">Generate Report</button>
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <!-- Summary Cards -->
+  <div class="row">
+    <div class="col-lg-3 col-6">
+      <div class="small-box bg-info">
+        <div class="inner">
+          <h3>{{ summary.total_days }}</h3>
+          <p>Total Days</p>
+        </div>
+        <div class="icon">
+          <i class="ion ion-calendar"></i>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-3 col-6">
+      <div class="small-box bg-success">
+        <div class="inner">
+          <h3>{{ summary.present_days }}</h3>
+          <p>Present Days</p>
+        </div>
+        <div class="icon">
+          <i class="ion ion-person"></i>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-3 col-6">
+      <div class="small-box bg-warning">
+        <div class="inner">
+          <h3>{{ summary.late_days }}</h3>
+          <p>Late Days</p>
+        </div>
+        <div class="icon">
+          <i class="ion ion-clock"></i>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-3 col-6">
+      <div class="small-box bg-danger">
+        <div class="inner">
+          <h3>{{ summary.absent_days }}</h3>
+          <p>Absent Days</p>
+        </div>
+        <div class="icon">
+          <i class="ion ion-person-add"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Attendance Percentage -->
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Overall Attendance Rate</h3>
+        </div>
+        <div class="card-body">
+          <div class="progress-group">
+            Attendance Rate
+            <span class="float-right"><b>{{ summary.attendance_percentage|floatformat:1 }}%</b></span>
+            <div class="progress">
+              <div class="progress-bar bg-primary" style="width: {{ summary.attendance_percentage }}%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Employee Attendance Details -->
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">Employee Attendance Details</h3>
+    </div>
+    <div class="card-body table-responsive p-0">
+      <table class="table table-hover text-nowrap">
+        <thead>
+          <tr>
+            <th>Employee</th>
+            <th>Present</th>
+            <th>Absent</th>
+            <th>Late</th>
+            <th>On Leave</th>
+            <th>Attendance %</th>
+            <th>Late Minutes</th>
+            <th>Overtime Hours</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for employee_data in attendance_by_employee %}
+            <tr>
+              <td>{{ employee_data.employee.first_name }} {{ employee_data.employee.last_name }}</td>
+              <td>{{ employee_data.present }}</td>
+              <td>{{ employee_data.absent }}</td>
+              <td>{{ employee_data.late }}</td>
+              <td>{{ employee_data.leave }}</td>
+              <td>
+                <div class="progress progress-sm">
+                  <div class="progress-bar bg-primary" style="width: {{ employee_data.attendance_percentage }}%"></div>
+                </div>
+                <small>{{ employee_data.attendance_percentage|floatformat:1 }}%</small>
+              </td>
+              <td>{{ employee_data.late_minutes }}</td>
+              <td>{{ employee_data.overtime_hours }}</td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="8" class="text-center">No attendance data found for the selected criteria.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  $(document).ready(function() {
+    // Initialize Select2
+    $('.select2').select2({
+      theme: 'bootstrap4'
+    });
+  });
+</script>
+{% endblock %} 

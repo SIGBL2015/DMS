@@ -1,0 +1,222 @@
+{% extends "payroll/base.html" %}
+{% load static %}
+
+{% block title %}Workflow Analysis{% endblock %}
+
+{% block extra_css %}
+<style>
+    .metric-card {
+        transition: transform 0.2s;
+    }
+    .metric-card:hover {
+        transform: translateY(-5px);
+    }
+    .bottleneck-card {
+        border-left: 4px solid;
+    }
+    .bottleneck-card.high-overdue {
+        border-left-color: #dc3545;
+    }
+    .bottleneck-card.high-reassignment {
+        border-left-color: #ffc107;
+    }
+    .bottleneck-card.long-completion {
+        border-left-color: #17a2b8;
+    }
+    .recommendation-card {
+        border-left: 4px solid;
+    }
+    .recommendation-card.high {
+        border-left-color: #dc3545;
+    }
+    .recommendation-card.medium {
+        border-left-color: #ffc107;
+    }
+    .recommendation-card.low {
+        border-left-color: #28a745;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Analysis Period Selector -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row align-items-end">
+                <div class="col-md-4">
+                    <label for="workflow">Workflow</label>
+                    <select name="workflow" id="workflow" class="form-control">
+                        <option value="">All Workflows</option>
+                        {% for workflow in workflows %}
+                        <option value="{{ workflow.id }}" {% if selected_workflow == workflow.id %}selected{% endif %}>
+                            {{ workflow.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="days">Analysis Period (Days)</label>
+                    <select name="days" id="days" class="form-control">
+                        <option value="7" {% if days == 7 %}selected{% endif %}>Last 7 days</option>
+                        <option value="30" {% if days == 30 %}selected{% endif %}>Last 30 days</option>
+                        <option value="90" {% if days == 90 %}selected{% endif %}>Last 90 days</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-primary">Analyze</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Performance Metrics -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card metric-card">
+                <div class="card-body">
+                    <h5 class="card-title">Completion Rate</h5>
+                    <h2 class="mb-0">{{ completion_times.completion_rate|floatformat:1 }}%</h2>
+                    <small class="text-muted">{{ completion_times.completed_count }} of {{ completion_times.total_instances }} workflows completed</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card metric-card">
+                <div class="card-body">
+                    <h5 class="card-title">Average Completion Time</h5>
+                    <h2 class="mb-0">{{ completion_times.avg_completion_time|default:"N/A" }}</h2>
+                    <small class="text-muted">Time to complete a workflow</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card metric-card">
+                <div class="card-body">
+                    <h5 class="card-title">Average Time per Step</h5>
+                    <h2 class="mb-0">{{ completion_times.avg_time_per_step|default:"N/A" }}</h2>
+                    <small class="text-muted">Time spent on each step</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card metric-card">
+                <div class="card-body">
+                    <h5 class="card-title">Bottlenecks Identified</h5>
+                    <h2 class="mb-0">{{ bottlenecks|length }}</h2>
+                    <small class="text-muted">Areas needing improvement</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step Performance Table -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Step Performance</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Step Name</th>
+                            <th>Total Tasks</th>
+                            <th>Completion Rate</th>
+                            <th>Overdue Rate</th>
+                            <th>Reassignment Rate</th>
+                            <th>Avg. Completion Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for step in step_performance %}
+                        <tr>
+                            <td>{{ step.step__name }}</td>
+                            <td>{{ step.total_tasks }}</td>
+                            <td>{{ step.completion_rate|floatformat:1 }}%</td>
+                            <td>{{ step.overdue_rate|floatformat:1 }}%</td>
+                            <td>{{ step.reassignment_rate|floatformat:1 }}%</td>
+                            <td>{{ step.avg_completion_time|default:"N/A" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottlenecks -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Identified Bottlenecks</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                {% for bottleneck in bottlenecks %}
+                <div class="col-md-6 mb-3">
+                    <div class="card bottleneck-card {% if bottleneck.type == 'HIGH_OVERDUE_RATE' %}high-overdue{% elif bottleneck.type == 'HIGH_REASSIGNMENT_RATE' %}high-reassignment{% else %}long-completion{% endif %}">
+                        <div class="card-body">
+                            <h6 class="card-title">{{ bottleneck.step_name }}</h6>
+                            <p class="card-text">{{ bottleneck.description }}</p>
+                            <small class="text-muted">Current: {{ bottleneck.metric|floatformat:1 }}% (Threshold: {{ bottleneck.threshold }}%)</small>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12">
+                    <p class="text-muted">No bottlenecks identified in the selected period.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Recommendations -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Recommendations</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                {% for recommendation in recommendations %}
+                <div class="col-md-6 mb-3">
+                    <div class="card recommendation-card {% if recommendation.priority == 'HIGH' %}high{% elif recommendation.priority == 'MEDIUM' %}medium{% else %}low{% endif %}">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <h6 class="card-title">{{ recommendation.type }}</h6>
+                                <span class="badge {% if recommendation.priority == 'HIGH' %}badge-danger{% elif recommendation.priority == 'MEDIUM' %}badge-warning{% else %}badge-success{% endif %}">
+                                    {{ recommendation.priority }}
+                                </span>
+                            </div>
+                            <p class="card-text">{{ recommendation.description }}</p>
+                            <small class="text-muted">Impact: {{ recommendation.impact }}</small>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12">
+                    <p class="text-muted">No recommendations generated for the selected period.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        // Initialize select2 for dropdowns
+        $('#workflow').select2({
+            theme: 'bootstrap4',
+            placeholder: 'Select a workflow'
+        });
+        
+        $('#days').select2({
+            theme: 'bootstrap4',
+            minimumResultsForSearch: -1
+        });
+    });
+</script>
+{% endblock %} 
