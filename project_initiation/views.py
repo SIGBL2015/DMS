@@ -1,9 +1,11 @@
 import json
+from django.forms import ValidationError
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from datetime import datetime
 import os
 from django.conf import settings
+from employee.validator import validate_allowed_file_type
 from employee.models import Client, Department
 from finance.models import Currency
 from project_initiation.forms import TaxForm, TendorForm, UnitForm, CategoryForm, ItemForm, HeadingForm, Sub_headingForm, Boq_itemsForm, Iso_masterForm, Iso_detailForm
@@ -33,8 +35,13 @@ def add_tendor(request):
                     return render(request,'tendor/add_tendor.html',{'form':form, 'departments':departments,'clients':clients})  
                 else:
                     file_instance = form.save(commit=False)
-                    file_instance.save()
                     if 'ad_image' in request.FILES:
+                        file = request.FILES.get('ad_image')
+                        try:
+                            validate_allowed_file_type(file)
+                        except ValidationError as e:
+                            messages.error(request, str(e))
+                            return render(request,'tendor/add_tendor.html',{'form':form, 'departments':departments,'clients':clients})  
                         # Generate folder path dynamically
                         folder_name = str(file_instance.id)
                         folder_path = os.path.join(settings.MEDIA_ROOT,'tendor',folder_name)
@@ -81,7 +88,9 @@ def e_tendor(request, id):
 
 @login_required  
 def u_tendor(request, id):  
-    tendor = Tendor.objects.get(id=id)  
+    tendor = Tendor.objects.get(id=id)
+    departments = Department.objects.filter(status=1).values('id','depart_name')
+    clients = Client.objects.filter(status=1).values('id','client_name')  
     original_title = tendor.title  # Preserve the original title
     original_tendor_no = tendor.tendor_no
     tendor_no = request.POST.get('tendor_no')
@@ -100,9 +109,15 @@ def u_tendor(request, id):
                 if old_tendor_no:
                     form.instance.tendor_no = original_tendor_no  # Revert to original short_code
                     messages.error(request, "The Tendor number already exists and was not updated.")
-
+            file = request.FILES.get('ad_image')
+            if file:
+                try:
+                    validate_allowed_file_type(file)
+                except ValidationError as e:
+                    messages.error(request, str(e))
+                    return render(request, 'tendor/e_tendor.html', {'tendor': tendor, 'departments':departments,'clients':clients})
             file_instance = form.save(commit=False)
-            if 'ad_image' in request.FILES:
+            if file:
                 # Generate folder path dynamically
                 folder_name = str(file_instance.id)
                 folder_path = os.path.join(settings.MEDIA_ROOT,'tendor',folder_name)
@@ -128,10 +143,10 @@ def u_tendor(request, id):
         else:
             error_messages = form.errors.as_json()
             messages.error(request, f"Project Form validation failed: {error_messages}")
-            return render(request, 'tendor/e_tendor.html', {'tendor': tendor}) 
+            return render(request, 'tendor/e_tendor.html', {'tendor': tendor, 'departments':departments,'clients':clients}) 
     except Exception as e: 
         messages.error(request, f"Internal Server Error: {str(e)}") 
-        return render(request, 'tendor/e_tendor.html', {'tendor': tendor}) 
+        return render(request, 'tendor/e_tendor.html', {'tendor': tendor, 'departments':departments,'clients':clients}) 
   
 
 @login_required  

@@ -1,7 +1,9 @@
 from datetime import datetime
 import os
 from django.conf import settings
+from django.forms import ValidationError
 from django.http import JsonResponse
+from employee.validator import validate_allowed_file_type
 from finance.forms import Chart_of_accountsForm, Journal_entryForm, Payment_modeForm
 from finance.models import Chart_of_accounts, Journal_entry, Payment_mode, Account_type, Detail_type, Currency
 from employee.models import Project, Bank, Branch
@@ -119,6 +121,12 @@ def add_journal_entry(request):
             try: 
                 file_instance = form.save(commit=False)
                 if 'doc_path' in request.FILES:
+                    file = request.FILES.get('doc_path')
+                    try:
+                        validate_allowed_file_type(file)
+                    except ValidationError as e:
+                        messages.error(request, str(e))
+                        return render(request,'journal_entry/add_journal_entry.html',{'form':form, 'coas':coas, 'projects':projects, 'banks':banks, 'modes':modes,'branches':branches,'currency':currency})
                     # Generate folder path dynamically
                     folder_name = str(file_instance.project.id)
                     folder_path = os.path.join(settings.MEDIA_ROOT,'project',folder_name,'expense_document')
@@ -168,6 +176,12 @@ def add_revenue_entry(request):
             try: 
                 file_instance = form.save(commit=False)
                 if 'doc_path' in request.FILES:
+                    file = request.FILES.get('doc_path')
+                    try:
+                        validate_allowed_file_type(file)
+                    except ValidationError as e:
+                        messages.error(request, str(e))
+                        return render(request,'journal_entry/add_revenue_entry.html',{'form':form, 'coas':coas, 'projects':projects, 'banks':banks, 'modes':modes,'branches':branches,'currency':currency})
                     # Generate folder path dynamically
                     folder_name = str(file_instance.project.id)
                     folder_path = os.path.join(settings.MEDIA_ROOT,'project',folder_name,'expense_document')

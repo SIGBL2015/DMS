@@ -39,8 +39,13 @@ def emp(request):
         try:
             if form.is_valid():
                 file_instance = form.save(commit=False)
-                file_instance.save()
                 if 'cv_doc' in request.FILES:
+                    file = request.FILES.get('cv_doc')
+                    try:
+                        validate_allowed_file_type(file)
+                    except ValidationError as e:
+                        messages.error(request, str(e))
+                        return render(request,'employee/index.html',{'departs':departs,'designs':designs,'branches':branches})  
                     # Generate folder path dynamically
                     folder_name = str(file_instance.pk)
                     folder_path = os.path.join(settings.MEDIA_ROOT,'employee',folder_name,'cv')
@@ -89,14 +94,22 @@ def edit(request, id):
 
 @login_required  
 def update(request, id):  
-    employee = Employee.objects.get(id=id)  
+    employee = Employee.objects.get(id=id) 
+    new_employee = Employee.objects.get(id=id)  
     old_path = employee.cv_doc 
     if request.method == "POST": 
         form = EmployeeForm(request.POST, request.FILES, instance = employee)
         try: 
             if form.is_valid():
+                file = request.FILES.get('cv_doc')
+                if file:
+                    try:
+                        validate_allowed_file_type(file)
+                    except ValidationError as e:
+                        messages.error(request, str(e))
+                        return render(request, 'employee/edit.html', {'employee': new_employee}) 
                 file_instance = form.save(commit=False)
-                if 'cv_doc' in request.FILES:
+                if file:
                     # Generate folder path dynamically
                     folder_name = str(file_instance.pk)
                     folder_path = os.path.join(settings.MEDIA_ROOT,'employee',folder_name,'cv')
@@ -127,10 +140,10 @@ def update(request, id):
             else:
                 error_messages = form.errors.as_json()
                 messages.error(request, f"Form validation failed: {error_messages}")
-                return render(request, 'employee/edit.html', {'employee': employee})  
+                return render(request, 'employee/edit.html', {'employee': new_employee})  
         except Exception as e:  
             messages.error(request, f"Internal Server Error: {str(e)}")
-            return render(request, 'employee/edit.html', {'employee': employee})  
+            return render(request, 'employee/edit.html', {'employee': new_employee})  
 
 @login_required  
 @permission_required('employee.delete_employee', raise_exception=True)  
@@ -360,6 +373,12 @@ def add_education(request):
             try:
                 file_instance = form.save(commit=False)
                 if 'degree_doc' in request.FILES:
+                    file = request.FILES.get('degree_doc')
+                    try:
+                        validate_allowed_file_type(file)
+                    except ValidationError as e:
+                        messages.error(request, str(e))
+                        return render(request,'education/add_education.html',{'form':form,'employees':employees})
                     # Generate folder path dynamically
                     folder_name = str(file_instance.employee.id)
                     folder_path = os.path.join(settings.MEDIA_ROOT,'employee',folder_name,'education')
@@ -382,7 +401,6 @@ def add_education(request):
             except Exception as e:    
                 messages.error(request, f"Internal Server Error: {str(e)}") 
                 return render(request,'education/add_education.html',{'form':form,'employees':employees})   
-                pass
         else:
             error_messages = form.errors.as_json()
             messages.error(request, f"Form validation failed: {error_messages}")
@@ -407,14 +425,23 @@ def e_education(request, id):
 
 @login_required  
 def u_education(request, id):  
-    education = Education.objects.get(id=id)  
+    education = Education.objects.get(id=id)
+    employees = Employee.objects.filter(status=1).values('id','ename')
+    new_education = Education.objects.get(id=id)  
     old_path = education.degree_doc 
     if request.method == "POST": 
         form = EducationForm(request.POST, request.FILES, instance = education)
         try: 
             if form.is_valid():
+                file = request.FILES.get('degree_doc')
+                if file:
+                    try:
+                        validate_allowed_file_type(file)
+                    except ValidationError as e:
+                        messages.error(request, str(e))
+                        return render(request, 'education/e_education.html', {'education': new_education,'employees':employees})
                 file_instance = form.save(commit=False)
-                if 'degree_doc' in request.FILES:
+                if file:
                     # Generate folder path dynamically
                     folder_name = str(file_instance.employee.id)
                     folder_path = os.path.join(settings.MEDIA_ROOT,'employee',folder_name,'education')
@@ -445,10 +472,10 @@ def u_education(request, id):
             else: 
                 error_messages = form.errors.as_json()
                 messages.error(request, f"Form validation failed: {error_messages}")
-                return render(request, 'education/e_education.html', {'education': education})  
+                return render(request, 'education/e_education.html', {'education': new_education,'employees':employees})  
         except Exception as e:  
             messages.error(request, f"Internal Server Error: {str(e)}")
-            return render(request, 'education/e_education.html', {'education': education})  
+            return render(request, 'education/e_education.html', {'education': new_education,'employees':employees})  
 
 @login_required  
 @permission_required('employee.delete_education', raise_exception=True)
@@ -531,6 +558,12 @@ def add_certification(request):
             if form.is_valid():
                 file_instance = form.save(commit=False)
                 if 'certification_doc' in request.FILES:
+                    file = request.FILES.get('certification_doc')
+                    try:
+                        validate_allowed_file_type(file)
+                    except ValidationError as e:
+                        messages.error(request, str(e))
+                        return render(request,'certification/add_certification.html',{'form':form,'employees':employees})
                     # Generate folder path dynamically
                     folder_name = str(file_instance.employee.id)
                     folder_path = os.path.join(settings.MEDIA_ROOT,'employee',folder_name,'certification')
@@ -579,13 +612,22 @@ def e_certification(request, id):
 @login_required  
 def u_certification(request, id):  
     certification = Certifications.objects.get(id=id)  
+    employees = Employee.objects.filter(status=1).values('id','ename')
+    new_certification = Certifications.objects.get(id=id)
     old_path = certification.certification_doc 
     if request.method == "POST": 
         form = CertificationsForm(request.POST, request.FILES, instance = certification)
         try: 
             if form.is_valid():
+                file = request.FILES.get('certification_doc')
+                if file:
+                    try:
+                        validate_allowed_file_type(file)
+                    except ValidationError as e:
+                        messages.error(request, str(e))
+                        return render(request, 'certification/e_certification.html', {'certification': new_certification,'employees':employees}) 
                 file_instance = form.save(commit=False)
-                if 'certification_doc' in request.FILES:
+                if file:
                     # Generate folder path dynamically
                     folder_name = str(file_instance.employee.id)
                     folder_path = os.path.join(settings.MEDIA_ROOT,'employee',folder_name,'certification')
@@ -616,10 +658,10 @@ def u_certification(request, id):
             else: 
                 error_messages = form.errors.as_json()
                 messages.error(request, f"Form validation failed: {error_messages}")  
-                return render(request, 'certification/e_certification.html', {'certification': certification}) 
+                return render(request, 'certification/e_certification.html', {'certification': new_certification,'employees':employees})  
         except Exception as e:  
             messages.error(request, f"Internal Server Error: {str(e)}")
-            return render(request, 'certification/e_certification.html', {'certification': certification}) 
+            return render(request, 'certification/e_certification.html', {'certification': new_certification,'employees':employees}) 
 
 @login_required 
 @permission_required('employee.delete_certifications', raise_exception=True) 
@@ -770,264 +812,6 @@ def d_company(request, id):
     company.save()  
     messages.success(request, "Data Deleted successfully!")
     return redirect("show_company") 
-
-
-# Module
-@login_required 
-def add_module(request):  
-    if request.method == "POST":  
-        form = ModuleForm(request.POST) 
-        if form.is_valid():
-            try:  
-                form.save()  
-                return redirect('show_module')  
-            except Exception as e:  
-  
-                pass  
-    else:  
-        form = ModuleForm()  
-    return render(request,'module/add_module.html',{'form':form})  
-
-@login_required    
-def show_module(request):  
-    modules = Module.objects.filter(status=1)
-    return render(request,"module/show_module.html",{'modules':modules})  
-
-@login_required  
-def e_module(request, id):  
-    module = Module.objects.get(id=id)  
-    return render(request,'module/e_module.html', {'module':module})  
-
-@login_required  
-def u_module(request, id):  
-    module = Module.objects.get(id=id)  
-    form = ModuleForm(request.POST, instance = module)  
-    if form.is_valid():  
-        form.save()  
-        return redirect("show_module")  
-    return render(request, 'module/e_module.html', {'module': module})  
-
-@login_required  
-def d_module(request, id):  
-    module = Module.objects.get(id=id)  
-    module.status=0 
-    module.save()
-    return redirect("show_module") 
-
-
-# Mainmenu
-@login_required 
-def add_mainmenu(request):  
-    if request.method == "POST":  
-        form = MainmenuForm(request.POST) 
-        if form.is_valid():
-            try:  
-                form.save()  
-                return redirect('show_mainmenu')  
-            except Exception as e:  
-  
-                pass  
-    else:  
-        form = MainmenuForm()  
-    return render(request,'mainmenu/add_mainmenu.html',{'form':form})  
-
-@login_required    
-def show_mainmenu(request):  
-    mainmenus = Mainmenu.objects.all()  
-    return render(request,"mainmenu/show_mainmenu.html",{'mainmenus':mainmenus})  
-
-@login_required  
-def e_mainmenu(request, id):  
-    mainmenu = Mainmenu.objects.get(id=id)  
-    return render(request,'mainmenu/e_mainmenu.html', {'mainmenu':mainmenu})  
-
-@login_required  
-def u_mainmenu(request, id):  
-    mainmenu = Mainmenu.objects.get(id=id)  
-    form = MainmenuForm(request.POST, instance = mainmenu)  
-    if form.is_valid():  
-        form.save()  
-        return redirect("show_mainmenu")  
-    return render(request, 'mainmenu/e_mainmenu.html', {'mainmenu': mainmenu})  
-
-@login_required  
-def d_mainmenu(request, id):  
-    mainmenu = Mainmenu.objects.get(id=id)  
-    mainmenu.status=0  
-    mainmenu.save()
-    return redirect("show_mainmenu") 
-
-
-# Submenu
-@login_required 
-def add_submenu(request):  
-    if request.method == "POST":  
-        form = SubmenuForm(request.POST) 
-        if form.is_valid():
-            try:  
-                form.save()  
-                return redirect('show_submenu')  
-            except Exception as e:  
-  
-                pass  
-    else:  
-        form = SubmenuForm()  
-    return render(request,'submenu/add_submenu.html',{'form':form})  
-
-@login_required    
-def show_submenu(request):  
-    submenus = Submenu.objects.all()  
-    return render(request,"submenu/show_submenu.html",{'submenus':submenus})  
-
-@login_required  
-def e_submenu(request, id):  
-    submenu = Submenu.objects.get(id=id)  
-    return render(request,'submenu/e_submenu.html', {'submenu':submenu})  
-
-@login_required  
-def u_submenu(request, id):  
-    submenu = Submenu.objects.get(id=id)  
-    form = SubmenuForm(request.POST, instance = submenu)  
-    if form.is_valid():  
-        form.save()  
-        return redirect("show_submenu")  
-    return render(request, 'submenu/e_submenu.html', {'submenu': submenu})  
-
-@login_required  
-def d_submenu(request, id):  
-    submenu = Submenu.objects.get(id=id)  
-    submenu.status=0  
-    submenu.save()
-    return redirect("show_submenu") 
-
-
-# Role
-@login_required 
-def add_role(request):  
-    if request.method == "POST":  
-        form = RoleForm(request.POST) 
-        if form.is_valid():
-            try:  
-                form.save()  
-                return redirect('show_role')  
-            except Exception as e:  
-  
-                pass  
-    else:  
-        form = RoleForm()  
-    return render(request,'role/add_role.html',{'form':form})  
-
-@login_required    
-def show_role(request):  
-    roles = Role.objects.all()  
-    return render(request,"role/show_role.html",{'roles':roles})  
-
-@login_required  
-def e_role(request, id):  
-    role = Role.objects.get(id=id)  
-    return render(request,'role/e_role.html', {'role':role})  
-
-@login_required  
-def u_role(request, id):  
-    role = Role.objects.get(id=id)  
-    form = RoleForm(request.POST, instance = role)  
-    if form.is_valid():  
-        form.save()  
-        return redirect("show_role")  
-    return render(request, 'role/e_role.html', {'role': role})  
-
-@login_required  
-def d_role(request, id):  
-    role = Role.objects.get(id=id)  
-    role.status=0  
-    role.save()
-    return redirect("show_role") 
-
-
-# Company_module
-@login_required 
-def add_company_module(request):  
-    if request.method == "POST":  
-        form = Company_moduleForm(request.POST) 
-        if form.is_valid():
-            try:  
-                form.save()  
-                return redirect('show_company_module')  
-            except Exception as e:  
-  
-                pass  
-    else:  
-        form = Company_moduleForm()  
-    return render(request,'company_module/add_company_module.html',{'form':form})  
-
-@login_required    
-def show_company_module(request):  
-    company_modules = Company_module.objects.filter(status=1) 
-    return render(request,"company_module/show_company_module.html",{'company_modules':company_modules})  
-
-@login_required  
-def e_company_module(request, id):  
-    company_module = Company_module.objects.get(id=id)  
-    return render(request,'company_module/e_company_module.html', {'company_module':company_module})  
-
-@login_required  
-def u_company_module(request, id):  
-    company_module = Company_module.objects.get(id=id)  
-    form = Company_moduleForm(request.POST, instance = company_module)  
-    if form.is_valid():  
-        form.save()  
-        return redirect("show_company_module")  
-    return render(request, 'company_module/e_company_module.html', {'company_module': company_module})  
-
-@login_required  
-def d_company_module(request, id):  
-    company_module = Company_module.objects.get(id=id)  
-    company_module.status=0  
-    company_module.save()
-    return redirect("show_company_module") 
-
-
-# Role_permission
-@login_required 
-def add_role_permission(request):  
-    if request.method == "POST":  
-        form = Role_permissionForm(request.POST) 
-        if form.is_valid():
-            try:  
-                form.save()  
-                return redirect('show_role_permission')  
-            except Exception as e:  
-  
-                pass  
-    else:  
-        form = Role_permissionForm()  
-    return render(request,'role_permission/add_role_permission.html',{'form':form})  
-
-@login_required    
-def show_role_permission(request):  
-    role_permissions = Role_permission.objects.all()  
-    return render(request,"role_permission/show_role_permission.html",{'role_permissions':role_permissions})  
-
-@login_required  
-def e_role_permission(request, id):  
-    role_permission = Role_permission.objects.get(id=id)  
-    return render(request,'role_permission/e_role_permission.html', {'role_permission':role_permission})  
-
-@login_required  
-def u_role_permission(request, id):  
-    role_permission = Role_permission.objects.get(id=id)  
-    form = Role_permissionForm(request.POST, instance = role_permission)  
-    if form.is_valid():  
-        form.save()  
-        return redirect("show_role_permission")  
-    return render(request, 'role_permission/e_role_permission.html', {'role_permission': role_permission})  
-
-@login_required  
-def d_role_permission(request, id):  
-    role_permission = Role_permission.objects.get(id=id)  
-    role_permission.status=0 
-    role_permission.save() 
-    return redirect("show_role_permission") 
 
 
 # CV_template
@@ -1409,11 +1193,20 @@ def add_project(request):
                     return render(request,'project/add_project.html',{'form':form, 'branches':branches, 'project_types':project_types, 'clients':clients, 'countries':countries, 'leads':leads})  
                 else:
                     file_instance = form.save(commit=False)
-                    file_instance.save()
-
+                    responses = []
                     # Loop through each file field in the form
                     for field_name, uploaded_file in request.FILES.items():
                         if uploaded_file:
+                            file = uploaded_file
+                            try:
+                                validate_allowed_file_type(file)
+                            except ValidationError as e:
+                                responses.append({
+                                'field_name': field_name,
+                                'status': 'error',
+                                'message': f'Validation Error {e}'
+                                })
+                                continue
                             # Generate folder path dynamically
                             folder_name = str(file_instance.pk)
                             folder_path = os.path.join(settings.MEDIA_ROOT,'project', folder_name)
@@ -1433,8 +1226,18 @@ def add_project(request):
 
                             # Update the file field with the relative path to the file
                             setattr(file_instance, field_name, os.path.relpath(file_path, settings.MEDIA_ROOT))
+                    if responses:
+                        responses.append({
+                        'status': 'partial_error',
+                        'message': 'Some rows have error.'
+                    })
+                    else:
+                        responses.append({
+                        'status': 'success',
+                        'message': 'All rows saved successfully'
+                    })
                     file_instance.save()
-                    messages.success(request, "Data added successfully!") 
+                    messages.success(request,responses, "Data added successfully!") 
                     return redirect('show_project')
             else:
                 logger.error('Form is not valid: %s', form.errors)
@@ -1485,10 +1288,21 @@ def u_project(request, id):
         try:
             if form.is_valid():
                 file_instance = form.save(commit=False)
+                responses = []
                 # Loop through each file field in the form
                 for field_name in request.FILES:
                     uploaded_file = request.FILES[field_name]
                     if uploaded_file:
+                        file = uploaded_file
+                        try:
+                            validate_allowed_file_type(file)
+                        except ValidationError as e:
+                            responses.append({
+                            'field_name': field_name,
+                            'status': 'error',
+                            'message': f'Validation Error {e}'
+                            })
+                            continue
                         folder_name = str(file_instance.pk)
                         folder_path = os.path.join(settings.MEDIA_ROOT, 'project', folder_name)
 
@@ -1513,9 +1327,18 @@ def u_project(request, id):
                     # else:
                     #     # Ensure the old file path is retained if no new file is uploaded
                     #     setattr(file_instance, field_name, old_file_paths[field_name])
-                        
+                if responses:
+                    responses.append({
+                    'status': 'partial_error',
+                    'message': 'Some rows have error.'
+                })
+                else:
+                    responses.append({
+                    'status': 'success',
+                    'message': 'All rows saved successfully'
+                })        
                 file_instance.save()
-                messages.success(request, "Data Updated successfully!")  
+                messages.success(request,responses, "Data Updated successfully!")  
                 return redirect('../project_details/'+str(file_instance.pk))
             else:
                 error_messages = form.errors.as_json()
@@ -1735,6 +1558,15 @@ def add_bank_guaranty(request):
             if form.is_valid():
                 file_instance = form.save(commit=False)
                 if 'bg_doc' in request.FILES:
+                    file = request.FILES.get('bg_doc')
+                    try:
+                        validate_allowed_file_type(file)
+                    except ValidationError as e:
+                        if modalfield_value == '1':
+                            return JsonResponse({'status': 'error', 'message': f"ValidatioN Error: {str(e)}"}, status=400)
+                        else:
+                            messages.error(request, str(e))
+                            return render(request,'bank_guaranty/add_bank_guaranty.html',{'form':form,'projects':projects,'banks':banks})
                     # Generate folder path dynamically
                     folder_name = str(file_instance.project.id)
                     folder_path = os.path.join(settings.MEDIA_ROOT,'project',folder_name,'bank_guarantee')
@@ -1773,8 +1605,7 @@ def add_bank_guaranty(request):
                 return JsonResponse({'status': 'error', 'message': f"Internal Server Error: {str(e)}"}, status=400)
             else:
                 messages.error(request, f"Internal Server Error: {str(e)}")
-                return render(request,'bank_guaranty/add_bank_guaranty.html',{'form':form,'projects':projects,'banks':banks})  
-            pass  
+                return render(request,'bank_guaranty/add_bank_guaranty.html',{'form':form,'projects':projects,'banks':banks})   
     else:  
         form = Bank_guarantyForm()  
         projects = Project.objects.filter(status=1).values('id','title')
@@ -1800,13 +1631,22 @@ def e_bank_guaranty(request, id):
 @login_required  
 def u_bank_guaranty(request, id):  
     bank_guaranty = Bank_guaranty.objects.get(id=id)
+    new_bank_guaranty = Bank_guaranty.objects.get(id=id)
     old_path = bank_guaranty.bg_doc 
     if request.method == "POST": 
         form = Bank_guarantyForm(request.POST, request.FILES, instance = bank_guaranty)
         try: 
             if form.is_valid():
+                 # Validate file first
+                file = request.FILES.get('bg_doc')
+                if file:
+                    try:
+                        validate_allowed_file_type(file)
+                    except ValidationError as e:
+                        messages.error(request, str(e))
+                        return redirect(f'../project_details/{bank_guaranty.project.id}')
                 file_instance = form.save(commit=False)
-                if 'bg_doc' in request.FILES:
+                if file:
                     # Generate folder path dynamically
                     folder_name = str(file_instance.project.id)
                     folder_path = os.path.join(settings.MEDIA_ROOT,'project',folder_name,'bank_guarantee')
@@ -1863,6 +1703,15 @@ def add_liquidity_damages(request):
             if form.is_valid():
                 file_instance = form.save(commit=False)
                 if 'ld_doc' in request.FILES:
+                    file = request.FILES.get('ld_doc')
+                    try:
+                        validate_allowed_file_type(file)
+                    except ValidationError as e:
+                        if modalfield_value == '1':
+                            return JsonResponse({'status': 'error', 'message': f"ValidatioN Error: {str(e)}"}, status=400)
+                        else:
+                            messages.error(request, str(e))
+                            return render(request,'liquidity_damages/add_liquidity_damages.html',{'form':form,'projects':projects})
                     # Generate folder path dynamically
                     folder_name = str(file_instance.project.id)
                     folder_path = os.path.join(settings.MEDIA_ROOT,'project',folder_name,'liquidity_damages')
@@ -1929,8 +1778,16 @@ def u_liquidity_damages(request, id):
         form = Liquidity_damagesForm(request.POST, request.FILES, instance=liquidity_damages)
         try: 
             if form.is_valid():
+                # Validate file first
+                file = request.FILES.get('ld_doc')
+                if file:
+                    try:
+                        validate_allowed_file_type(file)
+                    except ValidationError as e:
+                        messages.error(request, str(e))
+                        return redirect(f'../project_details/{liquidity_damages.project.id}')
                 file_instance = form.save(commit=False)  # Save without committing to handle the file logic
-                if 'ld_doc' in request.FILES:
+                if file:
                     # Generate folder path dynamically
                     folder_name = str(file_instance.project.id)
                     folder_path = os.path.join(settings.MEDIA_ROOT, 'project', folder_name, 'liquidity_damages')
@@ -2547,8 +2404,6 @@ def add_project_document(request):
         company_documents = request.POST.getlist('company_document')
         document_directions = request.POST.getlist('document_direction')
         modalfield_value = request.POST.get('modalfield')
-        print(company_documents)
-        print(doc_paths)
         # Check if the common project field is provided
         if not project:
             if modalfield_value == '1':
@@ -2556,14 +2411,6 @@ def add_project_document(request):
             else:
                 messages.error(request, "Project is required")
                 return render(request, 'project_document/add_project_document.html')
-
-        # # Ensure that all dynamic fields have values
-        # if len(document_types) != len(doc_paths) or len(doc_paths) != len(remarks) or len(ref_nos) != len(issuance_dates):
-        #     if modalfield_value == '1':
-        #         return JsonResponse({'status': 'error', 'message': "Mismatched form fields"}, status=400)
-        #     else:
-        #         messages.error(request, "Mismatched form fields")
-        #         return render(request, 'project_document/add_project_document.html')
 
         # Process and save the data 
         try: 
@@ -2624,6 +2471,16 @@ def add_project_document(request):
                 # Handle file upload
                 relative_file_path = None
                 if has_doc_path:
+                    file = doc_path
+                    try:
+                        validate_allowed_file_type(file)
+                    except ValidationError as e:
+                        responses.append({
+                        'row': i + 1,
+                        'status': 'error',
+                        'message': f'Validation Error {e}'
+                        })
+                        continue
                     timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
                     file_ext = os.path.splitext(doc_path_name)[1]
                     new_file_name = f"{project}_{doc_type_title.title}_{timestamp}{file_ext}"
@@ -2730,6 +2587,13 @@ def u_project_document(request, id):
 
             try:
                 if has_doc_path:
+                    file = new_doc_file
+                    if file:
+                        try:
+                            validate_allowed_file_type(file)
+                        except ValidationError as e:
+                            messages.error(request, str(e))
+                            return redirect(f'../project_details/{file_instance.project.id}')
                     # Save new file to custom path
                     folder_name = str(file_instance.project.id)
                     folder_path = os.path.join(settings.MEDIA_ROOT, 'project', folder_name)
@@ -2993,52 +2857,7 @@ def generate_report(request):
         years = ''
         sale_year = ''
 
-        # if employee_ids and 'all' not in employee_ids:
-        #     where += f' and e.id in ({",".join(employee_ids)})'
-
-        # if branch_ids and 'all' not in branch_ids:
-        #     where += f' and e.branch_id in ({",".join(branch_ids)})'
-
-        # if department_ids and 'all' not in department_ids:
-        #     where += f' and e.department_id in ({",".join(department_ids)})'
-
-        # if fin_years and 'all' not in fin_years:
-        #     years = f'WHERE q.year in ({",".join(fin_years)})'
-
         cursor1 = connection.cursor()
-        # cursor1.execute('''SELECT 
-        #             q.year,
-        #             CONCAT('[', GROUP_CONCAT(
-        #                 CONCAT('{{"quarters":"', q.title, '", "sales":', (
-        #                     SELECT CONCAT(
-        #                         '[', GROUP_CONCAT(
-        #                             CONCAT(
-        #                                 '{{"sales_person_id":', e.id,
-        #                                 ', "sales_person_name":"', e.ename,
-        #                                 '", "joining_date":"', e.date_of_joining,
-        #                                 '", "sales_target":', et.sales_target,
-        #                                 ', "sales_amount":', IFNULL(s.amount, 0),
-        #                                 ', "remaining":', (et.sales_target - IFNULL(s.amount, 0)),
-        #                                 ', "percentage":', ROUND((s.amount * 100 / et.sales_target)),
-        #                                 ', "status":"', IF(IFNULL(s.amount, 0) < et.sales_target, 'Not Achieved', (IF(IFNULL(s.amount, 0) = et.sales_target, 'Achieved','Above Target'))), '"}}'
-        #                             )
-        #                             SEPARATOR ','
-        #                         ), ']'
-        #                     )
-        #                     FROM employee_target et
-        #                     JOIN employee e ON et.employee_id = e.id
-        #                     LEFT JOIN sales s ON et.employee_id = s.sale_person_id AND et.quarter_id = s.quarter_id
-        #                     WHERE et.quarter_id = q.id {where1}
-        #                 ), '}}')
-        #             SEPARATOR ','
-        #             ), ']') AS quarter_sales
-        #         FROM quarters q
-        #         {where2}
-        #         GROUP BY q.year
-        #         ORDER BY q.year DESC'''.format(
-        #                         where1=where,
-        #                         where2=years
-        #                     ))
 
         if employee_ids and 'all' not in employee_ids:
             where += f' and e.id in ({",".join(employee_ids)})'
@@ -3128,17 +2947,6 @@ def generate_report(request):
         # Continue with parsing after confirming the JSON structure
         parsed_data = []
 
-        # for row in rows2:
-        #     year = row[0]  # The year value
-        #     quarter_sales_json = row[1]  # The JSON string
-
-        #     # Parse the JSON string into a Python object
-        #     try:
-        #         quarter_sales = json.loads(quarter_sales_json)
-        #         parsed_data.append((year, quarter_sales))
-        #     except json.JSONDecodeError as e:
-        #         print(f"Error decoding JSON for year {year}: {e}")
-        #         print(f"Faulty JSON: {quarter_sales_json}")
         for row in rows2:
             year = row[0]  # The year value
 
@@ -3505,19 +3313,24 @@ def e_company_document(request, id):
 @login_required  
 def u_company_document(request, id):  
     company_document = Company_document.objects.get(id=id)  
+    new_company_document = Company_document.objects.get(id=id)
+    issuing_authorities = Issuing_authority.objects.filter(status=1).values('id','full_name')
     old_path = company_document.doc_path 
     if request.method == "POST": 
         form = Company_documentForm(request.POST, request.FILES, instance = company_document)
         try: 
             if form.is_valid():
-                file_instance = form.save(commit=False)
-                if 'doc_path' in request.FILES:
-                    file = request.FILES.get('doc_path')
+                # Validate file first
+                file = request.FILES.get('doc_path')
+                if file:
                     try:
                         validate_allowed_file_type(file)
                     except ValidationError as e:
                         messages.error(request, str(e))
-                        return redirect(request,'company_document/e_company_document.html', {'company_document': company_document})
+                        return render(request,'company_document/e_company_document.html', {'company_document':new_company_document, 'issuing_authorities':issuing_authorities})
+
+                file_instance = form.save(commit=False)
+                if file:
                     # Generate folder path dynamically
                     folder_name = str(file_instance.issuing_authority.id)
                     folder_path = os.path.join(settings.MEDIA_ROOT,'company_document',folder_name)
@@ -3548,10 +3361,10 @@ def u_company_document(request, id):
             else:
                 error_messages = form.errors.as_json()
                 messages.error(request, f"Project Document Form validation failed: {error_messages}")
-                return render(request, 'company_document/e_company_document.html', {'company_document': company_document}) 
+                return render(request,'company_document/e_company_document.html', {'company_document':new_company_document, 'issuing_authorities':issuing_authorities}) 
         except Exception as e:  
             messages.error(request, f"Internal Server Error: {str(e)}")
-            return render(request, 'company_document/e_company_document.html', {'company_document': company_document}) 
+            return render(request,'company_document/e_company_document.html', {'company_document':new_company_document, 'issuing_authorities':issuing_authorities}) 
 
 @login_required  
 @permission_required('employee.delete_company_document', raise_exception=True)

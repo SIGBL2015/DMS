@@ -180,13 +180,6 @@ urlpatterns = [
     path('u_insurance_detail/<int:id>', views.u_insurance_detail, name="u_insurance_detail"),  
     path('d_insurance_detail/<int:id>', views.d_insurance_detail, name="d_insurance_detail"),
 
-    #Module
-    path('save_module', views.add_module, name="save_module"),  
-    path('show_module', views.show_module, name="show_module"),  
-    path('e_module/<int:id>', views.e_module, name="e_module"),  
-    path('u_module/<int:id>', views.u_module, name="u_module"),  
-    path('d_module/<int:id>', views.d_module, name="d_module"),
-
     
     #Employee_target
     path('save_employee_target', views.add_employee_target, name="save_employee_target"),  
