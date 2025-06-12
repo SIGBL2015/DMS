@@ -2419,7 +2419,7 @@ def add_project_document(request):
             folder_path = os.path.join(settings.MEDIA_ROOT,'project',folder_name)
             
             if not os.path.exists(folder_path):
-                print(f"An error occurred this path does not exist: {folder_path}")
+                os.makedirs(folder_path)
 
             responses = []
             total_rows = len(document_types)
