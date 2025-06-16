@@ -67,7 +67,7 @@ class Designation(models.Model):
         db_table = "designation"  
 
 class Employee(models.Model):  
-    eid = models.CharField(max_length=20,null=True)  
+    eid = models.CharField(max_length=20,null=True, unique=True)  
     ename = models.CharField(max_length=100,null=True)  
     eemail = models.EmailField(null=True)  
     econtact = models.CharField(max_length=15,null=True)  
@@ -75,6 +75,8 @@ class Employee(models.Model):
     designation =  models.ForeignKey(Designation, on_delete=models.CASCADE,null=True)
     branch =  models.ForeignKey(Branch, on_delete=models.CASCADE,null=True)
     cnic = models.CharField(max_length=15,null=True)
+    cnic_front = models.ImageField(upload_to='', blank=True, null=True)
+    cnic_back = models.ImageField(upload_to='', blank=True, null=True)
     date_of_joining = models.DateField(null=True) 
     dob = models.DateField(null=True) 
     qualification_id = models.CharField(max_length=100,null=True)

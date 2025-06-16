@@ -23,26 +23,23 @@
                 <div class="row">
                   <div class="form-group col-6">
                     <label for="frist_name">Employee ID</label>
-                    <input id="eid" type="text" class="form-control" name="eid" autofocus>
+                    <input id="eid" type="text" class="form-control" name="eid" value={{new_emp_id}} disabled>
                   </div>
                 </div>
                 <div class="row">
-                  <div class="form-group col-6">
+                  <div class="form-group col-3">
                     <label for="frist_name">Employee Name</label>
                     <input id="ename" type="text" class="form-control" name="ename" >
                   </div>
-                  <div class="form-group col-6">
+                  <div class="form-group col-3">
                     <label for="email">Email</label>
                     <input id="eemail" type="email" class="form-control" name="eemail">
                   </div>
-                </div>
-
-                <div class="row">
-                  <div class="form-group col-6">
+                  <div class="form-group col-3">
                     <label for="frist_name">Contact</label>
                     <input id="econtact" type="text" class="form-control" name="econtact">
                   </div>
-                  <div class="form-group col-6">
+                  <div class="form-group col-3">
                     <label>Department</label>
                     <select class="form-control" id="department" name="department">
                       <option value="">-- Select Department --</option>
@@ -54,7 +51,7 @@
                 </div>
 
                 <div class="row">
-                  <div class="form-group col-6">
+                  <div class="form-group col-3">
                     <label>Designation</label>
                     <select class="form-control" id="designation" name="designation">
                       <option value="">-- Select Designation --</option>
@@ -63,7 +60,7 @@
                       {% endfor %}
                     </select>
                   </div>
-                  <div class="form-group col-6">
+                  <div class="form-group col-3">
                     <label>Branch</label>
                     <select class="form-control" id="branch" name="branch">
                       <option value="">-- Select Branch --</option>
@@ -72,25 +69,33 @@
                       {% endfor %}
                     </select>
                   </div>
-                </div>
-                <div class="row">
-                  <div class="form-group col-6">
-                    <label>CNIC</label>
-                    <input id="cnic" type="text" class="form-control" name="cnic">
+                  <div class="form-group col-3">
+                    <label>Date Of Birth</label>
+                    <input id="dob" type="date" class="form-control" name="dob">
                   </div>
-                  <div class="form-group col-6">
+                  <div class="form-group col-3">
                     <label>Joining Date</label>
                     <input id="date_of_joining" type="date" class="form-control" name="date_of_joining">
                   </div>
                 </div>
-
                 <div class="row">
-                  <div class="form-group col-4">
-                    <label>Date Of Birth</label>
-                    <input id="dob" type="date" class="form-control" name="dob">
+                  <div class="form-group col-3">
+                    <label>CNIC</label>
+                    <input id="cnic" type="text" class="form-control" name="cnic">
                   </div>
-
-                  <div class="form-group col-4">
+                  <div class="form-group col-2">
+                    <label>CNIC(Front)</label>
+                    <input id="cnic_front" type="file" class="form-control" name="cnic_front">
+                  </div>
+                  <div class="form-group col-2">
+                    <label>CNIC(Back)</label>
+                    <input id="cnic_back" type="file" class="form-control" name="cnic_back">
+                  </div>
+                  <div class="form-group col-2"> 
+                    <label for="email">CV Document</label>
+                    <input id="cv_doc" type="file" class="form-control" name="cv_doc">
+                  </div>
+                  <div class="form-group col-3">
                     <label>Qualification</label>
                     <select class="form-control" id="qualification_id" name="qualification_id">
                       <option>Master</option>
@@ -100,10 +105,10 @@
                       <option>Matriculation</option>
                     </select>
                   </div>
-                  <div class="form-group col-4"> 
-                    <label for="email">CV Document</label>
-                    <input id="cv_doc" type="file" class="form-control" name="cv_doc">
-                  </div>
+                </div>
+                <div class="row">
+              
+                  
                 </div>
 
                 <div class="row">

@@ -35,6 +35,9 @@
                           <th>Branch</th>
                           <th>Depart</th>
                           <th>Design</th>
+                          <th>CNIC</th>
+                          <th>CNIC(FRONT)</th>
+                          <th>CNIC(BACK)</th>
                           <th>CV</th>
                           <th>Status</th>
                           <th>Action</th>
@@ -51,6 +54,9 @@
                                     <td>{{ employee.branch.branch_name}}</td>
                                     <td>{{ employee.department.depart_name}}</td>  
                                     <td>{{ employee.designation.design_name }}</td> 
+                                    <td>{{ employee.cnic }}</td>   
+                                    <td><a href="{{ MEDIA_URL }}{{ employee.cnic_front }}" target="_blank">CNIC(FRONT)</a></td>   
+                                    <td><a href="{{ MEDIA_URL }}{{ employee.cnic_back }}" target="_blank">CNIC(BACK)</a></td>   
                                     <td><a href="{{ MEDIA_URL }}{{ employee.cv_doc }}" target="_blank">CV Document</a></td>   
                                     {% if employee.status == 1 %}
                                       <td>Active</td>  
@@ -74,6 +80,9 @@
                           <th>Branch</th>
                           <th>Depart</th>
                           <th>Design</th>
+                          <th>CNIC</th>
+                          <th>CNIC(FRONT)</th>
+                          <th>CNIC(BACK)</th>
                           <th>CV</th>
                           <th>Status</th>
                           <th>Action</th>

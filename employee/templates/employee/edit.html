@@ -23,26 +23,23 @@
                 <div class="row">
                   <div class="form-group col-6">
                     <label for="frist_name">Employee ID</label>
-                    <input id="eid" type="text" class="form-control" name="eid"  value="{{ employee.eid }}"  autofocus>
+                    <h3>{{ employee.eid }}</h3>
                   </div>
                 </div>
                 <div class="row">
-                  <div class="form-group col-6">
+                  <div class="form-group col-3">
                     <label for="frist_name">Employee Name</label>
                     <input id="ename" type="text" class="form-control" name="ename" value="{{ employee.ename }}">
                   </div>
-                  <div class="form-group col-6">
+                  <div class="form-group col-3">
                     <label for="email">Email</label>
                     <input id="eemail" type="email" class="form-control" name="eemail" value="{{ employee.eemail }}">
                   </div>
-                </div>
-
-                <div class="row">
-                  <div class="form-group col-6">
+                  <div class="form-group col-3">
                     <label for="frist_name">Contact</label>
                     <input id="econtact" type="text" class="form-control" name="econtact" value="{{ employee.econtact }}">
                   </div>
-                  <div class="form-group col-6">
+                  <div class="form-group col-3">
                     <label>Department</label>
                     <select class="form-control" id="department" name="department">
                       <option value=""> Select Department </option>
@@ -58,7 +55,7 @@
                 </div>
 
                 <div class="row">
-                  <div class="form-group col-6">
+                  <div class="form-group col-3">
                     <label>Designation</label>
                     <select class="form-control" id="designation" name="designation">
                       <option value=""> Select Designation </option>
@@ -71,7 +68,7 @@
                       {% endfor %}
                     </select>
                   </div>
-                  <div class="form-group col-6">
+                  <div class="form-group col-3">
                     <label>Branch</label>
                     <select class="form-control" id="branch" name="branch">
                       <option value=""> Select Branch </option>
@@ -84,35 +81,43 @@
                       {% endfor %}
                     </select>
                   </div>
-                </div>
-                <div class="row">
-                  <div class="form-group col-6">
-                    <label>CNIC</label>
-                    <input id="cnic" type="text" class="form-control" name="cnic" value="{{ employee.cnic }}">
-                  </div>
-                  <div class="form-group col-6">
+                  <div class="form-group col-3">
                     <label>Joining Date</label>
                     <input id="date_of_joining" type="date" class="form-control" name="date_of_joining" value="{{employee.date_of_joining|date:'Y-m-d'}}">
                   </div>
-                </div>
-
-                <div class="row">
-                  <div class="form-group col-4">
+                  <div class="form-group col-3">
                     <label>Date Of Birth</label>
                     <input id="dob" type="date" class="form-control" name="dob" value="{{employee.dob|date:'Y-m-d'}}">
                   </div>
-
-                  <div class="form-group col-4">
-                    <label>Qualification</label>
-                    <select class="form-control" id="qualification_id" name="qualification_id">
-                      <option value="{{ employee.qualification_id }}">{{ employee.qualification_id }}</option>
-                      <option>Master</option>
-                      <option>Bachelor</option>
-                      <option>Intermediate</option>
-                      <option>Matriculation</option>
-                    </select>
+                </div>
+                <div class="row">
+                  <div class="form-group col-3">
+                    <label>CNIC</label>
+                    <input id="cnic" type="text" class="form-control" name="cnic" value="{{ employee.cnic }}">
                   </div>
-                  <div class="form-group col-4"> 
+                  <div class="form-group col-2">
+                    <label>CNIC(Front)</label>
+                    <div class="row">
+                      <div class="form-group col-10">
+                        <input id="cnic_front" type="file" class="form-control" name="cnic_front" value="{{ employee.cnic_front }}">
+                      </div>
+                      <div class="form-group col-1">
+                        <a href="{{ MEDIA_URL }}{{ employee.cnic_front }}" target="_blank"><span class="ion-ios-eye" ></span></a>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-group col-2">
+                    <label>CNIC(Back)</label>
+                    <div class="row">
+                      <div class="form-group col-10">
+                        <input id="cnic_back" type="file" class="form-control" name="cnic_back" value="{{ employee.cnic_back }}">
+                      </div>
+                      <div class="form-group col-1">
+                        <a href="{{ MEDIA_URL }}{{ employee.cnic_back }}" target="_blank"><span class="ion-ios-eye" ></span></a>
+                      </div>
+                    </div>
+                  </div>
+                   <div class="form-group col-2"> 
                     <label for="email">CV Document</label>
                     <div class="row">
                       <div class="form-group col-10">
@@ -123,8 +128,17 @@
                       </div>
                     </div>
                   </div>
+                  <div class="form-group col-3">
+                    <label>Qualification</label>
+                    <select class="form-control" id="qualification_id" name="qualification_id">
+                      <option value="{{ employee.qualification_id }}">{{ employee.qualification_id }}</option>
+                      <option>Master</option>
+                      <option>Bachelor</option>
+                      <option>Intermediate</option>
+                      <option>Matriculation</option>
+                    </select>
+                  </div>
                 </div>
-
                 <div class="row">
                   <div class="form-group col-6">
                     <label>Address</label>

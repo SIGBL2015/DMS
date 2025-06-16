@@ -4,7 +4,7 @@ from employee.models import Company_document, Employee, Department, Designation,
 class EmployeeForm(forms.ModelForm):  
     class Meta:  
         model = Employee  
-        fields = ('id','eid','ename','eemail','econtact','department','designation','branch','cnic','date_of_joining','dob','qualification_id','e_address','deliverable_task','cv_doc') 
+        fields = ('id','ename','eemail','econtact','department','designation','branch','cnic','date_of_joining','dob','qualification_id','e_address','deliverable_task','cv_doc','cnic_front','cnic_back') 
 
 class DepartmentForm(forms.ModelForm):  
     class Meta:  

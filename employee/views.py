@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404, render, redirect
 from employee.forms import Company_documentForm, Employee_projectForm, EmployeeForm, DepartmentForm, DesignationForm, Issuing_authorityForm, RegionForm, EducationForm, Employment_RecordForm, CertificationsForm, SkillsForm, CompanyForm, Project_typeForm, ProjectForm, ModuleForm, MainmenuForm, SubmenuForm, RoleForm, Company_moduleForm, Role_permissionForm, CV_templateForm, Template_columnForm, BankForm, Bank_guarantyForm, Liquidity_damagesForm, Insurance_typeForm, Insurance_detailForm, CountryForm, ZoneForm, AreaForm, BranchForm, ClientForm, Document_typeForm, Project_documentForm, Employee_targetForm, SalesForm, QuartersForm, LeadsForm, VendorForm
 from employee.models import Company_document, Employee, Department, Designation, Employee_project, Issuing_authority, Region, Education, Employment_Record, Certifications, Skills, Company, Module, Mainmenu, Submenu, Role, Company_module, Role_permission, CV_template, Template_column, Project_type, Project, Bank, Bank_guaranty, Liquidity_damages, Insurance_type, Insurance_detail, Country, Zone, Area, Branch, Client, Document_type, Project_document, Employee_target, Sales, Quarters, Leads, Vendor
 from django.contrib.auth.decorators import login_required, permission_required
-from django.db import connection
+from django.db import IntegrityError, connection
 import json
 import re
 import os
@@ -21,6 +21,8 @@ import logging
 from django.db.models import Sum, Subquery, Count, Q
 from employee.validator import validate_allowed_file_type
 from finance.models import Journal_entry
+from django.db.models.functions import Substr, Cast
+from django.db.models import IntegerField
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -31,51 +33,205 @@ logger = logging.getLogger(__name__)
 @login_required
 @permission_required('employee.add_employee', raise_exception=True)  
 def emp(request):
-    departs = Department.objects.filter(status=1).values('id','depart_name')
-    designs = Designation.objects.filter(status=1).values('id','design_name')
-    branches = Branch.objects.filter(status=1).values('id','branch_name')
-    if request.method == "POST":  
-        form = EmployeeForm(request.POST, request.FILES)  
-        try:
-            if form.is_valid():
-                file_instance = form.save(commit=False)
+    departs = Department.objects.filter(status=1).values('id', 'depart_name')
+    designs = Designation.objects.filter(status=1).values('id', 'design_name')
+    branches = Branch.objects.filter(status=1).values('id', 'branch_name')
+
+     # GET request — prefill next emp_id
+    employees = Employee.objects.annotate(
+        num_part=Cast(Substr('eid', 5), IntegerField())
+    ).order_by('-num_part')
+
+    latest_emp = employees.first()
+    if latest_emp and '-' in latest_emp.eid:
+        prefix, num = latest_emp.eid.split('-')
+        new_num = int(num) + 1
+        new_emp_id = f"{prefix.upper()}-{new_num:03d}"
+    else:
+        new_emp_id = "emp-001"  # Default starting ID
+
+
+    if request.method == "POST":
+        form = EmployeeForm(request.POST, request.FILES)
+
+        if not form.is_valid():
+            error_messages = form.errors.as_json()
+            messages.error(request, f"Form validation failed: {error_messages}")
+            return render(request, 'employee/index.html', {
+                'departs': departs, 'designs': designs, 'branches': branches,
+                'new_emp_id': new_emp_id
+            })
+        else:
+            try:
                 if 'cv_doc' in request.FILES:
-                    file = request.FILES.get('cv_doc')
-                    try:
-                        validate_allowed_file_type(file)
-                    except ValidationError as e:
-                        messages.error(request, str(e))
-                        return render(request,'employee/index.html',{'departs':departs,'designs':designs,'branches':branches})  
-                    # Generate folder path dynamically
-                    folder_name = str(file_instance.pk)
-                    folder_path = os.path.join(settings.MEDIA_ROOT,'employee',folder_name,'cv')
-                    
-                    if not os.path.exists(folder_path):
-                        os.makedirs(folder_path)
-                    # Generate file path dynamically
-                    timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
-                    new_file_name = f"{file_instance.pk}_cv_{timestamp}{os.path.splitext(request.FILES['cv_doc'].name)[1]}"
-                    new_file_path = os.path.join(folder_path, new_file_name)
-                    # Save file to the generated path
-                    with open(new_file_path, 'wb') as f:
-                        for chunk in request.FILES['cv_doc'].chunks():
-                            f.write(chunk)
-                    # Update the file field with the relative path to the file
-                    file_instance.cv_doc = os.path.relpath(new_file_path, settings.MEDIA_ROOT)
-                file_instance.save() 
-                messages.success(request, "Data added successfully!") 
-                return redirect('view_employee') 
+                    validate_allowed_file_type(request.FILES['cv_doc'])
+                if 'cnic_front' in request.FILES:
+                    validate_allowed_file_type(request.FILES['cnic_front'])
+                if 'cnic_back' in request.FILES:
+                    validate_allowed_file_type(request.FILES['cnic_back'])
+            except ValidationError as e:
+                messages.error(request, str(e))
+                return render(request, 'employee/index.html', {
+                    'departs': departs,
+                    'designs': designs,
+                    'branches': branches,
+                    'new_emp_id': new_emp_id
+                })
+
+        MAX_ATTEMPTS = 5
+        for _ in range(MAX_ATTEMPTS):
+            # Generate unique emp_id
+            employees = Employee.objects.annotate(
+                num_part=Cast(Substr('eid', 5), IntegerField())
+            ).order_by('-num_part')
+
+            latest_emp = employees.first()
+            if latest_emp and '-' in latest_emp.eid:
+                prefix, num = latest_emp.eid.split('-')
+                new_num = int(num) + 1
+                new_emp_id = f"{prefix}-{new_num:03d}"
             else:
-                error_messages = form.errors.as_json()
-                messages.error(request, f"Form validation failed: {error_messages}")
-                return render(request,'employee/index.html',{'departs':departs,'designs':designs,'branches':branches})  
-        except Exception as e: 
-            messages.error(request, f"Internal Server Error: {str(e)}")     
-            return render(request,'employee/index.html',{'departs':departs,'designs':designs,'branches':branches})  
-            pass  
-    else:  
-        # form = EmployeeForm()
-        return render(request,'employee/index.html',{'departs':departs,'designs':designs,'branches':branches})  
+                new_emp_id = "emp-001"
+
+            try:
+                file_instance = form.save(commit=False)
+                file_instance.eid = new_emp_id
+                file_instance.save()  # Save first to get PK
+
+                # Create base folders
+                base_folder = os.path.join(settings.MEDIA_ROOT, 'employee', str(file_instance.pk))
+                cv_folder = os.path.join(base_folder, 'cv')
+                cnic_folder = os.path.join(base_folder, 'cnic')
+                os.makedirs(cv_folder, exist_ok=True)
+                os.makedirs(cnic_folder, exist_ok=True)
+
+                # Save CV File
+                if 'cv_doc' in request.FILES:
+                    file = request.FILES['cv_doc']
+
+
+                    timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+                    ext = os.path.splitext(file.name)[1]
+                    new_cv_name = f"{file_instance.pk}_cv_{timestamp}{ext}"
+                    cv_path = os.path.join(cv_folder, new_cv_name)
+
+                    with open(cv_path, 'wb') as f:
+                        for chunk in file.chunks():
+                            f.write(chunk)
+
+                    file_instance.cv_doc = os.path.relpath(cv_path, settings.MEDIA_ROOT)
+
+                # Save CNIC Front
+                if 'cnic_front' in request.FILES:
+                    front = request.FILES['cnic_front']
+                    ext = os.path.splitext(front.name)[1]
+                    front_name = f"{file_instance.pk}_cnic_front_{timestamp}{ext}"
+                    front_path = os.path.join(cnic_folder, front_name)
+
+                    with open(front_path, 'wb') as f:
+                        for chunk in front.chunks():
+                            f.write(chunk)
+
+                    file_instance.cnic_front = os.path.relpath(front_path, settings.MEDIA_ROOT)
+
+                # Save CNIC Back
+                if 'cnic_back' in request.FILES:
+                    back = request.FILES['cnic_back']
+                    ext = os.path.splitext(back.name)[1]
+                    back_name = f"{file_instance.pk}_cnic_back_{timestamp}{ext}"
+                    back_path = os.path.join(cnic_folder, back_name)
+
+                    with open(back_path, 'wb') as f:
+                        for chunk in back.chunks():
+                            f.write(chunk)
+
+                    file_instance.cnic_back = os.path.relpath(back_path, settings.MEDIA_ROOT)
+
+                file_instance.save()  # Final save with file paths
+
+                messages.success(request, "Employee data saved successfully!")
+                return redirect('view_employee')
+
+            except IntegrityError:
+                continue  # Retry if duplicate emp_id
+
+        # If all attempts failed
+        messages.error(request, "Could not generate a unique Employee ID.")
+        return render(request, 'employee/index.html', {
+            'departs': departs, 'designs': designs, 'branches': branches,
+            'new_emp_id': new_emp_id
+        })
+
+    else:
+
+        return render(request, 'employee/index.html', {
+            'departs': departs,
+            'designs': designs,
+            'branches': branches,
+            'new_emp_id': new_emp_id
+        })
+
+
+# def emp(request):
+#     departs = Department.objects.filter(status=1).values('id','depart_name')
+#     designs = Designation.objects.filter(status=1).values('id','design_name')
+#     branches = Branch.objects.filter(status=1).values('id','branch_name')
+#    # Assuming format is EMP-001, EMP-002, etc.
+#     employees = Employee.objects.annotate(
+#         num_part=Cast(Substr('eid', 5), IntegerField())  # Extract from 5th character (after "EMP-")
+#     ).order_by('-num_part')
+
+#     latest_emp = employees.first()
+
+#     if latest_emp and '-' in latest_emp.eid:
+#         prefix, num = latest_emp.eid.split('-')
+#         new_num = int(num) + 1
+#         new_emp_id = f"{prefix}-{new_num:03d}"
+#     else:
+#         new_emp_id = "emp-001"
+
+#     if request.method == "POST":  
+#         form = EmployeeForm(request.POST, request.FILES)  
+#         try:
+#             if form.is_valid():
+#                 file_instance = form.save(commit=False)
+#                 if 'cv_doc' in request.FILES:
+#                     file = request.FILES.get('cv_doc')
+#                     try:
+#                         validate_allowed_file_type(file)
+#                     except ValidationError as e:
+#                         messages.error(request, str(e))
+#                         return render(request,'employee/index.html',{'departs':departs,'designs':designs,'branches':branches})  
+#                     # Generate folder path dynamically
+#                     folder_name = str(file_instance.pk)
+#                     folder_path = os.path.join(settings.MEDIA_ROOT,'employee',folder_name,'cv')
+                    
+#                     if not os.path.exists(folder_path):
+#                         os.makedirs(folder_path)
+#                     # Generate file path dynamically
+#                     timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+#                     new_file_name = f"{file_instance.pk}_cv_{timestamp}{os.path.splitext(request.FILES['cv_doc'].name)[1]}"
+#                     new_file_path = os.path.join(folder_path, new_file_name)
+#                     # Save file to the generated path
+#                     with open(new_file_path, 'wb') as f:
+#                         for chunk in request.FILES['cv_doc'].chunks():
+#                             f.write(chunk)
+#                     # Update the file field with the relative path to the file
+#                     file_instance.cv_doc = os.path.relpath(new_file_path, settings.MEDIA_ROOT)
+#                 file_instance.save() 
+#                 messages.success(request, "Data added successfully!") 
+#                 return redirect('view_employee') 
+#             else:
+#                 error_messages = form.errors.as_json()
+#                 messages.error(request, f"Form validation failed: {error_messages}")
+#                 return render(request,'employee/index.html',{'departs':departs,'designs':designs,'branches':branches})  
+#         except Exception as e: 
+#             messages.error(request, f"Internal Server Error: {str(e)}")     
+#             return render(request,'employee/index.html',{'departs':departs,'designs':designs,'branches':branches})  
+#             pass  
+#     else:  
+#         # form = EmployeeForm()
+#         return render(request,'employee/index.html',{'departs':departs,'designs':designs,'branches':branches,'new_emp_id':new_emp_id})  
 
 @login_required  
 @permission_required('employee.view_employee', raise_exception=True)  
@@ -94,56 +250,155 @@ def edit(request, id):
 
 @login_required  
 def update(request, id):  
-    employee = Employee.objects.get(id=id) 
-    new_employee = Employee.objects.get(id=id)  
-    old_path = employee.cv_doc 
+    employee = Employee.objects.get(id=id)
+    new_employee = Employee.objects.get(id=id)
+    departs = Department.objects.filter(status=1).values('id','depart_name')
+    designs = Designation.objects.filter(status=1).values('id','design_name')
+    branches = Branch.objects.filter(status=1).values('id','branch_name')
+    old_cv_path = employee.cv_doc
+    old_cnic_front = employee.cnic_front
+    old_cnic_back = employee.cnic_back
+
     if request.method == "POST": 
-        form = EmployeeForm(request.POST, request.FILES, instance = employee)
-        try: 
+        form = EmployeeForm(request.POST, request.FILES, instance=employee)
+        try:
             if form.is_valid():
-                file = request.FILES.get('cv_doc')
-                if file:
-                    try:
-                        validate_allowed_file_type(file)
-                    except ValidationError as e:
-                        messages.error(request, str(e))
-                        return render(request, 'employee/edit.html', {'employee': new_employee}) 
+                try:
+                    if 'cv_doc' in request.FILES:
+                        validate_allowed_file_type(request.FILES['cv_doc'])
+                    if 'cnic_front' in request.FILES:
+                        validate_allowed_file_type(request.FILES['cnic_front'])
+                    if 'cnic_back' in request.FILES:
+                        validate_allowed_file_type(request.FILES['cnic_back'])
+                except ValidationError as e:
+                    messages.error(request, str(e))
+                    return render(request, 'employee/edit.html', {'employee': new_employee,'departs':departs,'designs':designs,'branches':branches})
                 file_instance = form.save(commit=False)
-                if file:
-                    # Generate folder path dynamically
-                    folder_name = str(file_instance.pk)
-                    folder_path = os.path.join(settings.MEDIA_ROOT,'employee',folder_name,'cv')
-                    
-                    if not os.path.exists(folder_path):
-                        os.makedirs(folder_path)
 
-                    # Generate file path dynamically
-                    timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
-                    new_file_name = f"{file_instance.pk}_cv_{timestamp}{os.path.splitext(request.FILES['cv_doc'].name)[1]}"
-                    new_file_path = os.path.join(folder_path, new_file_name)
-                    
-                    if old_path and os.path.exists(os.path.join(settings.MEDIA_ROOT, old_path)):
-                            os.remove(os.path.join(settings.MEDIA_ROOT, old_path))
-                    # Save file to the generated path
-                    with open(new_file_path, 'wb') as f:
-                        for chunk in request.FILES['cv_doc'].chunks():
+                base_folder = os.path.join(settings.MEDIA_ROOT, 'employee', str(file_instance.pk))
+                cv_folder = os.path.join(base_folder, 'cv')
+                cnic_folder = os.path.join(base_folder, 'cnic')
+                os.makedirs(cv_folder, exist_ok=True)
+                os.makedirs(cnic_folder, exist_ok=True)
+
+                timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+
+                # === Handle CV File ===
+                cv_file = request.FILES.get('cv_doc')
+                if cv_file:
+
+                    ext = os.path.splitext(cv_file.name)[1]
+                    new_cv_name = f"{file_instance.pk}_cv_{timestamp}{ext}"
+                    new_cv_path = os.path.join(cv_folder, new_cv_name)
+
+                    if old_cv_path and os.path.exists(os.path.join(settings.MEDIA_ROOT, old_cv_path)):
+                        os.remove(os.path.join(settings.MEDIA_ROOT, old_cv_path))
+
+                    with open(new_cv_path, 'wb') as f:
+                        for chunk in cv_file.chunks():
                             f.write(chunk)
-                    # Update the file field with the relative path to the file
-                    file_instance.cv_doc = os.path.relpath(new_file_path, settings.MEDIA_ROOT)
+                    file_instance.cv_doc = os.path.relpath(new_cv_path, settings.MEDIA_ROOT)
                 else:
-                    # Ensure the old file path is retained if no new file is uploaded
-                    file_instance.cv_doc = old_path
+                    file_instance.cv_doc = old_cv_path
 
-                file_instance.save() 
-                messages.success(request, "Data Updated successfully!")  
+                # === Handle CNIC Front ===
+                cnic_front_file = request.FILES.get('cnic_front')
+                if cnic_front_file:
+                    ext = os.path.splitext(cnic_front_file.name)[1]
+                    front_name = f"{file_instance.pk}_cnic_front_{timestamp}{ext}"
+                    front_path = os.path.join(cnic_folder, front_name)
+
+                    if old_cnic_front and os.path.exists(os.path.join(settings.MEDIA_ROOT, old_cnic_front)):
+                        os.remove(os.path.join(settings.MEDIA_ROOT, old_cnic_front))
+
+                    with open(front_path, 'wb') as f:
+                        for chunk in cnic_front_file.chunks():
+                            f.write(chunk)
+                    file_instance.cnic_front = os.path.relpath(front_path, settings.MEDIA_ROOT)
+                else:
+                    file_instance.cnic_front = old_cnic_front
+
+                # === Handle CNIC Back ===
+                cnic_back_file = request.FILES.get('cnic_back')
+                if cnic_back_file:
+                    ext = os.path.splitext(cnic_back_file.name)[1]
+                    back_name = f"{file_instance.pk}_cnic_back_{timestamp}{ext}"
+                    back_path = os.path.join(cnic_folder, back_name)
+
+                    if old_cnic_back and os.path.exists(os.path.join(settings.MEDIA_ROOT, old_cnic_back)):
+                        os.remove(os.path.join(settings.MEDIA_ROOT, old_cnic_back))
+
+                    with open(back_path, 'wb') as f:
+                        for chunk in cnic_back_file.chunks():
+                            f.write(chunk)
+                    file_instance.cnic_back = os.path.relpath(back_path, settings.MEDIA_ROOT)
+                else:
+                    file_instance.cnic_back = old_cnic_back
+
+                # === Final Save ===
+                file_instance.save()
+                messages.success(request, "Employee updated successfully!")  
                 return redirect("view_employee")
+
             else:
                 error_messages = form.errors.as_json()
                 messages.error(request, f"Form validation failed: {error_messages}")
-                return render(request, 'employee/edit.html', {'employee': new_employee})  
+                return render(request, 'employee/edit.html', {'employee': new_employee,'departs':departs,'designs':designs,'branches':branches})  
+
         except Exception as e:  
             messages.error(request, f"Internal Server Error: {str(e)}")
-            return render(request, 'employee/edit.html', {'employee': new_employee})  
+            return render(request, 'employee/edit.html', {'employee': new_employee,'departs':departs,'designs':designs,'branches':branches}) 
+# def update(request, id):  
+#     employee = Employee.objects.get(id=id) 
+#     new_employee = Employee.objects.get(id=id)  
+#     old_path = employee.cv_doc 
+#     if request.method == "POST": 
+#         form = EmployeeForm(request.POST, request.FILES, instance = employee)
+#         try: 
+#             if form.is_valid():
+#                 file = request.FILES.get('cv_doc')
+#                 if file:
+#                     try:
+#                         validate_allowed_file_type(file)
+#                     except ValidationError as e:
+#                         messages.error(request, str(e))
+#                         return render(request, 'employee/edit.html', {'employee': new_employee}) 
+#                 file_instance = form.save(commit=False)
+#                 if file:
+#                     # Generate folder path dynamically
+#                     folder_name = str(file_instance.pk)
+#                     folder_path = os.path.join(settings.MEDIA_ROOT,'employee',folder_name,'cv')
+                    
+#                     if not os.path.exists(folder_path):
+#                         os.makedirs(folder_path)
+
+#                     # Generate file path dynamically
+#                     timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+#                     new_file_name = f"{file_instance.pk}_cv_{timestamp}{os.path.splitext(request.FILES['cv_doc'].name)[1]}"
+#                     new_file_path = os.path.join(folder_path, new_file_name)
+                    
+#                     if old_path and os.path.exists(os.path.join(settings.MEDIA_ROOT, old_path)):
+#                             os.remove(os.path.join(settings.MEDIA_ROOT, old_path))
+#                     # Save file to the generated path
+#                     with open(new_file_path, 'wb') as f:
+#                         for chunk in request.FILES['cv_doc'].chunks():
+#                             f.write(chunk)
+#                     # Update the file field with the relative path to the file
+#                     file_instance.cv_doc = os.path.relpath(new_file_path, settings.MEDIA_ROOT)
+#                 else:
+#                     # Ensure the old file path is retained if no new file is uploaded
+#                     file_instance.cv_doc = old_path
+
+#                 file_instance.save() 
+#                 messages.success(request, "Data Updated successfully!")  
+#                 return redirect("view_employee")
+#             else:
+#                 error_messages = form.errors.as_json()
+#                 messages.error(request, f"Form validation failed: {error_messages}")
+#                 return render(request, 'employee/edit.html', {'employee': new_employee})  
+#         except Exception as e:  
+#             messages.error(request, f"Internal Server Error: {str(e)}")
+#             return render(request, 'employee/edit.html', {'employee': new_employee})  
 
 @login_required  
 @permission_required('employee.delete_employee', raise_exception=True)  
