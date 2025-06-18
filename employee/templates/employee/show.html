@@ -55,9 +55,27 @@
                                     <td>{{ employee.department.depart_name}}</td>  
                                     <td>{{ employee.designation.design_name }}</td> 
                                     <td>{{ employee.cnic }}</td>   
-                                    <td><a href="{{ MEDIA_URL }}{{ employee.cnic_front }}" target="_blank">CNIC(FRONT)</a></td>   
-                                    <td><a href="{{ MEDIA_URL }}{{ employee.cnic_back }}" target="_blank">CNIC(BACK)</a></td>   
-                                    <td><a href="{{ MEDIA_URL }}{{ employee.cv_doc }}" target="_blank">CV Document</a></td>   
+                                    <td>
+                                      {% if employee.cnic_front %}
+                                        <a href="{{ MEDIA_URL }}{{ employee.cnic_front }}" target="_blank">CNIC(FRONT)</a>
+                                      {% else %}
+                                        <span class="text-muted">No Document</span>
+                                      {% endif %}
+                                    </td>   
+                                    <td>
+                                      {% if employee.cnic_back %}
+                                        <a href="{{ MEDIA_URL }}{{ employee.cnic_back }}" target="_blank">CNIC(BACK)</a>
+                                      {% else %}
+                                        <span class="text-muted">No Document</span>
+                                      {% endif %}
+                                    </td>   
+                                    <td>
+                                      {% if employee.cv_doc %}
+                                        <a href="{{ MEDIA_URL }}{{ employee.cv_doc }}" target="_blank">CV Document</a>
+                                      {% else %}
+                                        <span class="text-muted">No Document</span>
+                                      {% endif %}
+                                    </td>   
                                     {% if employee.status == 1 %}
                                       <td>Active</td>  
                                     {% else %}

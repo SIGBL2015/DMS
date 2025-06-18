@@ -71,7 +71,13 @@
                                     {% endif %}
                                     <td>{{ journal_entry.status_change_date }}</td>
                                     <td>{{ journal_entry.description }}</td>
-                                    <td><a href="{{ MEDIA_URL }}{{ journal_entry.doc_path }}" target="_blank">{{journal_entry.coaid.title}}</a></td>
+                                    <td>
+                                      {% if journal_entry.doc_path %}
+                                        <a href="{{ MEDIA_URL }}{{ journal_entry.doc_path }}" target="_blank">{{journal_entry.coaid.title}}</a>
+                                      {% else %}
+                                        <span class="text-muted">No Document</span>
+                                      {% endif %}
+                                    </td>
                                     {% if journal_entry.status == 1 %}
                                       <td>Active</td>  
                                     {% else %}

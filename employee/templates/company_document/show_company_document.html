@@ -45,7 +45,13 @@
                                 <td>{{ company_document.issuing_authority.full_name}}</td>
                                 <td>{{ company_document.title }}</td>  
                                 <td>{{ company_document.reg_no }}</td> 
-                                <td><a href="{{ MEDIA_URL }}{{ company_document.doc_path }}" target="_blank">Document</a></td>
+                                <td>
+                                  {% if company_document.doc_path %}
+                                    <a href="{{ MEDIA_URL }}{{ company_document.doc_path }}" target="_blank">Document</a>
+                                  {% else %}
+                                    <span class="text-muted">No Document</span>
+                                  {% endif %}
+                                </td>
                                 <td>{{ company_document.issuance_date }}</td> 
                                 <td>{{ company_document.expire_date }}</td>
                                 {% if company_document.status == 1 %}

@@ -45,7 +45,13 @@
                                     <td>{{ liquidity_damage.unit }}</td> 
                                     <td>{{ liquidity_damage.percentage }}</td> 
                                     <td>{{ liquidity_damage.max_percentage }}</td>     
-                                    <td><a href="{{ MEDIA_URL }}{{ liquidity_damage.ld_doc }}" target="_blank">LD Document</a></td>
+                                    <td>
+                                      {% if liquidity_damage.ld_doc %}
+                                        <a href="{{ MEDIA_URL }}{{ liquidity_damage.ld_doc }}" target="_blank">LD Document</a>
+                                      {% else %}
+                                        <span class="text-muted">No Document</span>
+                                      {% endif %}
+                                    </td>
                                     {% if liquidity_damage.status == 1 %}
                                       <td>Active</td>  
                                     {% else %}

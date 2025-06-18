@@ -62,7 +62,13 @@
                                     <td>{{ tendor.lastdate_of_submission }}</td>
                                     <td>{{ tendor.date_of_collection }}</td>  
                                     <td>{{ tendor.date_of_submission }}</td>
-                                    <td><a href="{{ MEDIA_URL }}{{ tendor.ad_image }}" target="_blank">{{tendor.title}}</a></td>  
+                                    <td>
+                                      {% if tendor.ad_image %}
+                                        <a href="{{ MEDIA_URL }}{{ tendor.ad_image }}" target="_blank">{{tendor.title}}</a>
+                                      {% else %}
+                                        <span class="text-muted">No Document</span>
+                                      {% endif %}
+                                    </td>  
                                     <td>{{ tendor.ad_description }}</td>
                                     {% if tendor.status == 1 %}
                                       <td>Active</td>  

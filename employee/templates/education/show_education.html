@@ -51,7 +51,13 @@
                                     <td>{{ education.from_date }}</td> 
                                     <td>{{ education.to_date }}</td> 
                                     <td>{{ education.grade }}</td> 
-                                    <td><a href="{{ MEDIA_URL }}{{ education.degree_doc }}" target="_blank">Degree Doc</a></td>
+                                    <td>
+                                      {% if education.degree_doc %}
+                                        <a href="{{ MEDIA_URL }}{{ education.degree_doc }}" target="_blank">Degree Doc</a>
+                                      {% else %}
+                                        <span class="text-muted">No Document</span>
+                                      {% endif %}
+                                    </td>
                                     {% if education.status == 1 %}
                                       <td>Active</td>  
                                     {% else %}

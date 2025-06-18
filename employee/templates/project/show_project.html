@@ -63,7 +63,7 @@
                                 <td>{{ project.branch.branch_name}}</td>
                                 <td>{{ project.project_type.type_name}}</td>
                                 <td>{{ project.title }}</td>
-                                <td>{{ project.client_name}}</td>
+                                <td>{{ project.client.client_name}}</td>
                                 <td>{{ project.start_date }}</td>
                                 <td>{{ project.end_date}}</td>
                                 <td>{{ project.duration }}</td>
@@ -73,7 +73,13 @@
                                 <td>{{ project.advance_tax }}</td>
                                 <td>{{ project.advance_amount}}</td>
                                 <td>{{ project.earnest_money }}</td>
-                                <td><a href="{{ MEDIA_URL }}{{ project.em_doc }}" target="_blank">EM Document</a></td>
+                              <td>
+                                {% if project.em_doc %}
+                                  <a href="{{ MEDIA_URL }}{{ project.em_doc }}" target="_blank">EM Document</a>
+                                {% else %}
+                                  <span class="text-muted">No Document</span>
+                                {% endif %}
+                              </td>
                                 <td>{{ project.em_instrument_no}}</td>
                                 <td>{{ project.pg_start_date }}</td>
                                 <td>{{ project.pg_end_date}}</td>
@@ -81,8 +87,20 @@
                                 <td>{{ project.pg_percentage}}</td>
                                 <td>{{ project.pg_amount }}</td>
                                 <td>{{ project.pg_instrument_no}}</td>
-                                <td><a href="{{ MEDIA_URL }}{{ project.pg_doc }}" target="_blank">PG Document</a></td>
-                                <td><a href="{{ MEDIA_URL }}{{ project.project_doc }}" target="_blank">Project Document</a></td>    
+                                <td>
+                                  {% if project.pg_doc %}
+                                    <a href="{{ MEDIA_URL }}{{ project.pg_doc }}" target="_blank">PG Document</a>
+                                  {% else %}
+                                    <span class="text-muted">No Document</span>
+                                  {% endif %}
+                                </td>
+                                <td>
+                                  {% if project.project_doc %}
+                                    <a href="{{ MEDIA_URL }}{{ project.project_doc }}" target="_blank">Project Document</a>
+                                  {% else %}
+                                    <span class="text-muted">No Document</span>
+                                  {% endif %}
+                                </td>    
                                 <td>{{ project.initiated_by }}</td>
                                 {% if project.status == 1 %}
                                   <td>Active</td>  

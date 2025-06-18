@@ -47,7 +47,13 @@
                                     <td>{{ forloop.counter }}</td>  
                                     <td>{{ project_document.project.title }}</td>
                                     <td>{{ project_document.document_type.title }}</td> 
-                                    <td><a href="{{ MEDIA_URL }}{{ project_document.doc_path }}" target="_blank">{{project_document.document_type.title}}</a></td>   
+                                    <td>
+                                      {% if project_document.doc_path %}
+                                        <a href="{{ MEDIA_URL }}{{ project_document.doc_path }}" target="_blank">{{project_document.document_type.title}}</a>
+                                      {% else %}
+                                        <span class="text-muted">No Document</span>
+                                      {% endif %}
+                                    </td>   
                                     <td>{{ project_document.ref_no }}</td>
                                     <td>{{ project_document.issuance_date }}</td>
                                     <td>{{ project_document.received_date }}</td>

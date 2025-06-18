@@ -20,8 +20,10 @@
             <div class="card-body">
               <form method="POST" action="save_project" enctype="multipart/form-data">
                 {% csrf_token %}
+                <h4>Project Details</h4>
+                <hr class="my-4">
                 <div class="row">
-                  <div class="form-group col-6">
+                  <div class="form-group col-3">
                     <label for="frist_name">Lead</label>
                     <select class="form-control" id="lead" name="lead" onchange="updateTextInput()">
                         <option value="" disabled selected>-- Select Lead --</option>
@@ -30,7 +32,7 @@
                         {% endfor %}
                       </select>
                   </div>
-                  <div class="form-group col-6">
+                  <div class="form-group col-3">
                     <label for="frist_name">Branch</label>
                     <select class="form-control" id="branch" name="branch">
                         <option value="">-- Select Branch --</option>
@@ -39,10 +41,7 @@
                         {% endfor %}
                       </select>
                   </div>
-                </div>
-
-                <div class="row">
-                  <div class="form-group col-6">
+                  <div class="form-group col-3">
                     <label for="frist_name">Project Type</label>
                     <select class="form-control" id="project_type" name="project_type">
                         <option value="">-- Select Project Type --</option>
@@ -51,14 +50,14 @@
                         {% endfor %}
                     </select>
                   </div>
-                  <div class="form-group col-6"> 
+                  <div class="form-group col-3"> 
                     <label for="email">Project Name</label>
                     <input id="title" type="text" class="form-control" name="title" readonly>
                   </div>
                 </div>
 
                 <div class="row">
-                  <div class="form-group col-6"> 
+                  <div class="form-group col-3"> 
                     <label for="email">Client</label>
                     <select class="form-control" id="client" name="client">
                       <option value="">-- Select Client --</option>
@@ -67,7 +66,7 @@
                       {% endfor %}
                     </select>
                   </div>
-                  <div class="form-group col-6"> 
+                  <div class="form-group col-3"> 
                     <label for="email">Country</label>
                     <select class="form-control" id="country" name="country">
                       <option value="">-- Select Country --</option>
@@ -76,138 +75,26 @@
                       {% endfor %}
                     </select>
                   </div>
-                </div>
-
-                <div class="row">
-                  <div class="form-group col-6"> 
+                  <div class="form-group col-3"> 
                     <label for="email">Start Date</label>
                     <input id="start_date" type="date" class="form-control" name="start_date">
                   </div>
-                  <div class="form-group col-6"> 
+                  <div class="form-group col-3"> 
                     <label for="email">End Date</label>
                     <input id="end_date" type="date" class="form-control" name="end_date">
                   </div>
                 </div>
 
                 <div class="row">
-                  <div class="form-group col-6"> 
+                  <div class="form-group col-3"> 
                     <label for="email">Duration(Month)</label>
-                    <input id="duration" type="number" class="form-control" name="duration">
+                    <input id="duration" type="number" class="form-control" name="duration" readonly>
                   </div>
-                  <div class="form-group col-6"> 
-                    <label for="email">Amount</label>
-                    <input id="amount" type="number" class="form-control" name="amount" step="0.01">
-                  </div>
-                </div>
-
-                <div class="row">
-                  <div class="form-group col-6"> 
-                    <label for="email">Tax(%)</label>
-                    <input id="tax" type="number" class="form-control" name="tax" step="0.01">
-                  </div>
-                  <div class="form-group col-6"> 
-                    <label for="email">Advance Tax(%)</label>
-                    <input id="advance_tax" type="number" class="form-control" name="advance_tax" step="0.01">
-                  </div>
-                </div>
-
-                <div class="row">
-                  <div class="form-group col-6"> 
-                    <label for="email">Advance Amount</label>
-                    <input id="advance_amount" type="number" class="form-control" name="advance_amount" step="0.01">
-                  </div>           
-                  <div class="form-group col-6"> 
-                    <label for="email">Earnest Money</label>
-                    <input id="earnest_money" type="number" class="form-control" name="earnest_money" step="0.01">
-                  </div>
-                </div>
-
-                <div class="row">
-                  <div class="form-group col-6"> 
-                    <label for="email">EM Instrument No</label>
-                    <input id="em_instrument_no" type="text" class="form-control" name="em_instrument_no">
-                  </div>
-                  <div class="form-group col-6"> 
-                    <label for="email">PG Instrument No</label>
-                    <input id="pg_instrument_no" type="text" class="form-control" name="pg_instrument_no">
-                  </div>
-                </div>
-
-                <div class="row">
-                  <div class="form-group col-6"> 
-                    <label for="email">EM Expire Date</label>
-                    <input id="em_expire_date" type="date" class="form-control" name="em_expire_date">
-                  </div>
-                  <div class="form-group col-6"> 
-                    <label for="email">EM Document</label>
-                    <input id="em_doc" type="file" class="form-control" name="em_doc">
-                  </div>
-                </div>
-
-                <div class="row">
-                  <div class="form-group col-6"> 
-                    <label for="email">Perf.G Start Date</label>
-                    <input id="pg_start_date" type="date" class="form-control" name="pg_start_date">
-                  </div>
-                  <div class="form-group col-6"> 
-                    <label for="email">Perf.G End Date</label>
-                    <input id="pg_end_date" type="date" class="form-control" name="pg_end_date">
-                  </div>
-                </div>
-
-                <div class="row">
-                  <div class="form-group col-6"> 
-                    <label for="email">Perf.G Validity</label>
-                    <input id="pg_validity" type="date" class="form-control" name="pg_validity">
-                  </div>
-                  <div class="form-group col-6"> 
-                    <label for="email">Perf.G Percentage(%)</label>
-                    <input id="pg_percentage" type="number" class="form-control" name="pg_percentage" step="0.01">
-                  </div>
-                </div>
-
-                <div class="row">
-                  <div class="form-group col-6"> 
-                    <label for="email">Perf.G Amount</label>
-                    <input id="pg_amount" type="number" class="form-control" name="pg_amount" step="0.01">
-                  </div>
-                  <div class="form-group col-6"> 
-                    <label for="email">Perf.G Document</label>
-                    <input id="pg_doc" type="file" class="form-control" name="pg_doc">
-                  </div>
-                </div>
-
-                <div class="row">
-                  <div class="form-group col-6"> 
+                   <div class="form-group col-3"> 
                     <label for="email">Project Document</label>
                     <input id="project_doc" type="file" class="form-control" name="project_doc">
                   </div>
-                  <div class="form-group col-6"> 
-                    <label for="email">Scope</label>
-                    <select class="form-control" id="scope" name="scope">
-                      <option value="">Select</option>                        
-                      <option value="International">International</option>
-                      <option value="Local">Local</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div class="row">
-                  <div class="form-group col-6"> 
-                    <label for="email">Sector</label>
-                    <select class="form-control" id="sector" name="sector">
-                      <option value="">Select</option>                        
-                      <option value="Government">Government</option>
-                      <option value="Private">Private</option>
-                    </select>
-                  </div>
-                  <div class="form-group col-6"> 
-                    <label for="email">PO Document</label>
-                    <input id="po_scan_doc" type="file" class="form-control" name="po_scan_doc">
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="form-group col-6"> 
+                  <div class="form-group col-3"> 
                     <label for="email">Project Status</label>
                     <select class="form-control" id="project_status" name="project_status">
                       <option value="">Select</option>                        
@@ -215,7 +102,108 @@
                       <option value="Completed">Completed</option>
                     </select>
                   </div>
-                  <div class="form-group col-6"> 
+                </div>
+                <h4>Finance</h4>
+                <hr class="my-4">
+                <div class="row">
+                  <div class="form-group col-3"> 
+                    <label for="email">Amount</label>
+                    <input id="amount" type="number" class="form-control" name="amount" step="0.01">
+                  </div>
+                  <div class="form-group col-3"> 
+                    <label for="email">Tax(%)</label>
+                    <input id="tax" type="number" class="form-control" name="tax" step="0.01">
+                  </div>
+                  <div class="form-group col-3"> 
+                    <label for="email">Advance Tax(%)</label>
+                    <input id="advance_tax" type="number" class="form-control" name="advance_tax" step="0.01">
+                  </div>
+                  <div class="form-group col-3"> 
+                    <label for="email">Advance(%)</label>
+                    <input id="advance_perc" type="number" class="form-control" name="advance_perc" step="0.01">
+                  </div>
+                  <div class="form-group col-3"> 
+                    <label for="email">Advance Amount</label>
+                    <input id="advance_amount" type="number" class="form-control" name="advance_amount" step="0.01" readonly>
+                  </div>
+                </div>
+                <h4>Earnest Money</h4>
+                <hr class="my-4">
+                <div class="row">
+                  <div class="form-group col-3"> 
+                    <label for="email">Earnest Money</label>
+                    <input id="earnest_money" type="number" class="form-control" name="earnest_money" step="0.01">
+                  </div>
+                  <div class="form-group col-3"> 
+                    <label for="email">EM Instrument No</label>
+                    <input id="em_instrument_no" type="text" class="form-control" name="em_instrument_no">
+                  </div>
+                  <div class="form-group col-3"> 
+                    <label for="email">EM Expire Date</label>
+                    <input id="em_expire_date" type="date" class="form-control" name="em_expire_date">
+                  </div>
+                  <div class="form-group col-3"> 
+                    <label for="email">EM Document</label>
+                    <input id="em_doc" type="file" class="form-control" name="em_doc">
+                  </div>
+                </div>
+                <h4>Performance Guarantee</h4>
+                <hr class="my-4">
+                <div class="row">
+                  <div class="form-group col-3"> 
+                    <label for="email">PG Instrument No</label>
+                    <input id="pg_instrument_no" type="text" class="form-control" name="pg_instrument_no">
+                  </div>
+                  <div class="form-group col-3"> 
+                    <label for="email">Perf.G Start Date</label>
+                    <input id="pg_start_date" type="date" class="form-control" name="pg_start_date">
+                  </div>
+                  <div class="form-group col-3"> 
+                    <label for="email">Perf.G End Date</label>
+                    <input id="pg_end_date" type="date" class="form-control" name="pg_end_date">
+                  </div>
+                  <div class="form-group col-3"> 
+                    <label for="email">Perf.G Validity</label>
+                    <input id="pg_validity" type="date" class="form-control" name="pg_validity">
+                  </div>
+                  <div class="form-group col-3"> 
+                    <label for="email">Perf.G Percentage(%)</label>
+                    <input id="pg_percentage" type="number" class="form-control" name="pg_percentage" step="0.01">
+                  </div>
+                  <div class="form-group col-3"> 
+                    <label for="email">Perf.G Amount</label>
+                    <input id="pg_amount" type="number" class="form-control" name="pg_amount" step="0.01">
+                  </div>
+                  <div class="form-group col-3"> 
+                    <label for="email">Perf.G Document</label>
+                    <input id="pg_doc" type="file" class="form-control" name="pg_doc">
+                  </div>
+                </div>
+                <h4>Others</h4>
+                <hr class="my-4">
+                <div class="row">
+                  <div class="form-group col-3"> 
+                    <label for="email">Scope</label>
+                    <select class="form-control" id="scope" name="scope">
+                      <option value="">Select</option>                        
+                      <option value="International">International</option>
+                      <option value="Local">Local</option>
+                    </select>
+                  </div>
+                  <div class="form-group col-3"> 
+                    <label for="email">Sector</label>
+                    <select class="form-control" id="sector" name="sector">
+                      <option value="">Select</option>                        
+                      <option value="Government">Government</option>
+                      <option value="Private">Private</option>
+                    </select>
+                  </div>
+                  <div class="form-group col-3"> 
+                    <label for="email">PO Document</label>
+                    <input id="po_scan_doc" type="file" class="form-control" name="po_scan_doc">
+                  </div>
+                  
+                  <div class="form-group col-3"> 
                     <label for="email">Initiated By</label>
                     <select class="form-control" id="initiated_by" name="initiated_by">
                       <option value="">Select</option>                        
@@ -265,6 +253,44 @@
       //document.getElementById('myTextInputID').value = selectedOption.value; // ID
       document.getElementById('title').value = selectedOption.text; // Name
     }
+
+    function getMonthDifference(startDate, endDate) {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+
+        let months = (end.getFullYear() - start.getFullYear()) * 12;
+        months += end.getMonth() - start.getMonth();
+
+        return months;
+    }
+
+    function calculateDuration() {
+      const startDate = document.getElementById("start_date").value;
+      const endDate = document.getElementById("end_date").value;
+
+      if (startDate && endDate) {
+        const months = getMonthDifference(startDate, endDate);
+        document.getElementById("duration").value = months >= 0 ? months : 0;
+      }
+    }
+
+    function calculateAdvance() {
+      const amount = parseFloat(document.getElementById("amount").value);
+      const advance_perc = parseFloat(document.getElementById("advance_perc").value);
+
+      if (!isNaN(amount) && !isNaN(advance_perc)) {
+        const adv_amt = (amount * advance_perc) / 100;
+        document.getElementById("advance_amount").value = adv_amt.toFixed(2); // Optional: limit to 2 decimal places
+      } else {
+        document.getElementById("advance_amount").value = 0;
+      }
+    }
+
+    // Attach change listeners
+    document.getElementById("start_date").addEventListener("change", calculateDuration);
+    document.getElementById("end_date").addEventListener("change", calculateDuration);
+    document.getElementById("amount").addEventListener("input", calculateAdvance);
+    document.getElementById("advance_perc").addEventListener("input", calculateAdvance);
   </script>
 </body>
 </html>

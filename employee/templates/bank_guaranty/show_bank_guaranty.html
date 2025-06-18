@@ -55,7 +55,13 @@
                                     <td>{{ bank_guaranty.bg_validity }}</td> 
                                     <td>{{ bank_guaranty.bg_percentage }}</td>
                                     <td>{{ bank_guaranty.bg_amount }}</td> 
-                                    <td><a href="{{ MEDIA_URL }}{{ bank_guaranty.bg_doc }}" target="_blank">BG Document</a></td>    
+                                    <td>
+                                      {% if bank_guaranty.bg_doc %}
+                                        <a href="{{ MEDIA_URL }}{{ bank_guaranty.bg_doc }}" target="_blank">BG Document</a>
+                                      {% else %}
+                                        <span class="text-muted">No Document</span>
+                                      {% endif %}
+                                    </td>    
                                     {% if bank_guaranty.status == 1 %}
                                       <td>Active</td>  
                                     {% else %}

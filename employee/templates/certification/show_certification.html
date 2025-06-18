@@ -42,7 +42,13 @@
                                 <td>{{ forloop.counter }}</td>  
                                 <td>{{ certification.employee.ename}}</td>
                                 <td>{{ certification.certification_name }}</td>  
-                                <td><a href="{{ MEDIA_URL }}{{ certification.certification_doc }}" target="_blank">Document</a></td>
+                                <td>
+                                  {% if certification.certification_doc %}
+                                    <a href="{{ MEDIA_URL }}{{ certification.certification_doc }}" target="_blank">Document</a>
+                                  {% else %}
+                                    <span class="text-muted">No Document</span>
+                                  {% endif %}
+                                </td>
                                 <td>{{ certification.expiry_date }}</td> 
                                 {% if certification.status == 1 %}
                                   <td>Active</td>  
