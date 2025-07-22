@@ -1,20 +1,24 @@
 import json
-from django.forms import ValidationError
+from django.forms import  ValidationError
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from datetime import datetime
+from django.utils import timezone
 import os
 from django.conf import settings
 from employee.validator import validate_allowed_file_type
-from employee.models import Client, Department
+from employee.models import Client, Department, Employee
 from finance.models import Currency
 from project_initiation.forms import TaxForm, TendorForm, UnitForm, CategoryForm, ItemForm, HeadingForm, Sub_headingForm, Boq_itemsForm, Iso_masterForm, Iso_detailForm
-from project_initiation.models import Tax, Tendor, Unit, Category, Item, Heading, Sub_heading, Boq_items, Iso_master, Iso_detail
+from project_initiation.models import Setting, Tax, Tendor, Unit, Category, Item, Heading, Sub_heading, Boq_items, Iso_master, Iso_detail
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db.models import Q
 from django.contrib import messages
 from django.forms.models import model_to_dict
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.models import User
+from django.db.models.functions import Substr, Cast
+from django.db.models import IntegerField
 
 # Create your views here.
 # tendor
@@ -679,7 +683,7 @@ def add_iso(request):
     if request.method == "POST":  
         # Parse incoming JSON data
         data = json.loads(request.body)
-
+        print(data['formFields'])
         # Retrieve Tendor instance based on the provided ID
         tendor_id = data['formFields'].get('tendor')
         try:
@@ -693,22 +697,33 @@ def add_iso(request):
             client_instance = Client.objects.get(id=client_id)
         except Client.DoesNotExist:
             return JsonResponse({'error': 'Client with given ID does not exist'}, status=400)
+        
+         # Retrieve Client instance based on the provided ID
+        sales_person_id = data['formFields'].get('sales_person')
+        try:
+            sales_person_instance = Employee.objects.get(id=sales_person_id)
+        except Client.DoesNotExist:
+            return JsonResponse({'error': 'Sales person with given ID does not exist'}, status=400)
 
         # Remove 'tendor' and 'client' from formFields to avoid passing them twice
         data['formFields'].pop('tendor', None)
         data['formFields'].pop('client', None)
+        data['formFields'].pop('sales_person', None)
+        data['formFields'].pop('csrfmiddlewaretoken', None)
+        data['formFields'].pop('isoTable_length', None)
 
         # Save ISO Master with the Tendor and Client instances
         master = Iso_master.objects.create(
             tendor=tendor_instance,
             client=client_instance,
+            sales_person=sales_person_instance,
             **data['formFields']
         )
 
          # Save ISO Details
         for item in data['tableRows']:
              # Remove frontend calculation fields before saving to Iso_detail
-            frontend_fields = ['category', 'isimported', 'import_amt', 't_with_taxes', 'est_gp_perc', 'est_unit_gp_amt', 'est_gp_amt', 'tax_adjusment_amt']
+            frontend_fields = ['category', 'isimported', 'import_amt', 'est_gp_perc', 'est_unit_gp_amt', 'est_gp_amt']
             for field in frontend_fields:
                 if field in item:
                     del item[field]  # Remove these fields from the data
@@ -777,7 +792,30 @@ def add_iso(request):
         clients = Client.objects.filter(status=1).values('id','client_name')
         items = Item.objects.filter(status=1).values('id','name')
         taxes = Tax.objects.filter(status=1).values('id','name')
-    return render(request,'iso/add_iso.html',{'form':form, 'tendors':tendors, 'clients':clients, 'items':items, 'taxes':taxes})  
+        users = User.objects.filter(is_active=1).values('id','username')
+        fc_amt = Setting.objects.get(status=1)
+
+        # Step 1: Get current year and today's date
+        today = timezone.now()
+        year_str = today.strftime('%Y')
+        today_str = today.strftime('%Y%m%d')
+
+        # Step 2: Filter iso_no entries from current year only
+        iso_no_qs = Iso_master.objects.annotate(
+            year_part=Substr('iso_no', 5, 4),
+            num_part=Cast(Substr('iso_no', 14), output_field=IntegerField())
+        ).filter(year_part=year_str).order_by('-num_part')
+
+        # Step 3: Get latest number and increment
+        if iso_no_qs.exists():
+            latest_num = iso_no_qs.first().num_part
+            new_num = latest_num + 1
+        else:
+            new_num = 1
+
+        # Step 4: Final formatted ISO number
+        new_iso_no = f"ISO-{today_str}-{new_num:03d}"
+    return render(request,'iso/add_iso.html',{'form':form, 'tendors':tendors, 'clients':clients, 'items':items, 'taxes':taxes, 'users':users, 'fc_amt':fc_amt, 'new_iso_no':new_iso_no})  
 
 @login_required 
 @permission_required('project_initiation.add_iso', raise_exception=True)

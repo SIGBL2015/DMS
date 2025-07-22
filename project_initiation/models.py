@@ -1,5 +1,5 @@
 from django.db import models
-from employee.models import Client, Department
+from employee.models import Client, Department, Employee
 from finance.models import Currency
 
 # Create your models here.
@@ -55,9 +55,24 @@ class Category(models.Model):
     class Meta:  
         db_table = "category"
 
+class Item_specification(models.Model): 
+    name = models.CharField(max_length=255, null=True)
+    short_name = models.CharField(max_length=50, null=True)
+    description = models.CharField(max_length=1000, null=True)
+    unit = models.ForeignKey(Unit, on_delete=models.CASCADE,null=True)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE,null=True, blank=True)
+    created_at = models.DateField(auto_now_add=True, null=True)
+    updated_at = models.DateField(auto_now=True, null=True)
+    deleted_at = models.DateField(null=True, blank=True)
+    status = models.IntegerField(default=1) 
+    class Meta:  
+        db_table = "item_specification"
+
 class Item(models.Model): 
     name = models.CharField(max_length=255, null=True)
     short_name = models.CharField(max_length=50, null=True)
+    maker = models.CharField(max_length=50, null=True)
+    model = models.CharField(max_length=50, null=True)
     description = models.CharField(max_length=1000, null=True)
     unit = models.ForeignKey(Unit, on_delete=models.CASCADE,null=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE,null=True, blank=True)
@@ -130,7 +145,7 @@ class Iso_master(models.Model):
     tendor = models.ForeignKey(Tendor, on_delete=models.CASCADE)
     version = models.FloatField(null=True, blank=True)  
     date = models.DateField(null=True, blank=True)
-    delivery_date_commeted = models.DateField(null=True, blank=True)
+    delivery_date_committed = models.DateField(null=True, blank=True)
     delivery_date_required = models.DateField(null=True, blank=True)
     payment_term = models.CharField(max_length=50,null=True, blank=True)
     em_percentage = models.FloatField(null=True, blank=True)
@@ -143,7 +158,7 @@ class Iso_master(models.Model):
     total_cost_iso = models.FloatField(null=True, blank=True)
     initial_gp_planned = models.FloatField(null=True, blank=True)
     gp_after_tax = models.FloatField(null=True, blank=True)
-    total_sales_promo = models.FloatField(null=True, blank=True)
+    sales_promo = models.FloatField(null=True, blank=True)
     final_gp_after_promo = models.FloatField(null=True, blank=True)
     total_financial_charges = models.FloatField(null=True, blank=True)
     initial_gp_percentage = models.FloatField(null=True, blank=True)
@@ -155,13 +170,29 @@ class Iso_master(models.Model):
     customer_po_no = models.CharField(max_length=100,null=True, blank=True)
     po_doc = models.CharField(max_length=100,null=True, blank=True)
     mode_of_shipment = models.CharField(max_length=100,null=True, blank=True)
-    sales_person = models.IntegerField(null=True, blank=True) 
-    approved_by = models.IntegerField(null=True, blank=True) 
+    sales_person = models.ForeignKey(Employee, on_delete=models.CASCADE,null=True, blank=True, related_name='sales_employee')
+    approved_by = models.ForeignKey(Employee, on_delete=models.CASCADE,null=True, blank=True, related_name='approval_employee')
     exchange_rate = models.FloatField(null=True, blank=True)
     delivery_type = models.CharField(max_length=50,null=True)
+    iso_no = models.CharField(max_length=50,unique=True,null=True, blank=True)
+    em_duration = models.FloatField(null=True, blank=True)
+    bg_duration = models.FloatField(null=True, blank=True)
+    pg_duration = models.FloatField(null=True, blank=True)
+    em_fc_amount = models.FloatField(null=True, blank=True)
+    bg_fc_amount = models.FloatField(null=True, blank=True)
+    pg_fc_amount = models.FloatField(null=True, blank=True)
+    fc_markup = models.FloatField(null=True, blank=True)
+    fc_amount = models.FloatField(null=True, blank=True)
+    advance_percentage = models.FloatField(null=True, blank=True)
+    advance_amount = models.FloatField(null=True, blank=True)
+    sale_promo_percentage = models.FloatField(null=True, blank=True)
+    total_delivery_charges = models.FloatField(null=True, blank=True)
+    beneficiary_payorder = models.CharField(max_length=50,null=True, blank=True)
     created_at = models.DateField(auto_now_add=True, null=True)
     updated_at = models.DateField(auto_now=True, null=True)
     deleted_at = models.DateField(null=True, blank=True)
+    is_approved = models.IntegerField(default=0) 
+    remarks = models.CharField(max_length=1000,null=True, blank=True)
     status = models.IntegerField(default=1) 
     class Meta:  
         db_table = "iso_master"
@@ -173,17 +204,23 @@ class Iso_detail(models.Model):
     sales_tax_category = models.ForeignKey(Tax, on_delete=models.CASCADE)
     gst_percentage = models.FloatField(null=True, blank=True)
     import_factor = models.FloatField(null=True, blank=True)
+    currency = models.CharField(max_length=10,null=True, blank=True)
+    currency_rate = models.FloatField(null=True, blank=True)
     unit = models.IntegerField(null=True, blank=True)
+    unit_weight = models.FloatField(null=True, blank=True)
+    per_kg_rate = models.FloatField(null=True, blank=True)
     unit_cost = models.FloatField(null=True, blank=True)
-    unit_cost_pkr = models.FloatField(null=True, blank=True)
-    total_pkr = models.FloatField(null=True, blank=True)
+    unit_cost_exchange_rate = models.FloatField(null=True, blank=True)
+    total_without_import = models.FloatField(null=True, blank=True)
+    total_with_import = models.FloatField(null=True, blank=True)
     gp_calculation = models.FloatField(null=True, blank=True)
     unit_selling_pkr = models.FloatField(null=True, blank=True)
     delivery_charges = models.FloatField(null=True, blank=True)
     total_selling_price = models.FloatField(null=True, blank=True)
     gst_amount = models.FloatField(null=True, blank=True)
     total_with_gst = models.FloatField(null=True, blank=True)
-    income_tax_adjustment = models.FloatField(null=True, blank=True)
+    tax_adjusment_amt = models.FloatField(null=True, blank=True)
+    final_amt = models.FloatField(null=True, blank=True)
     gp_percentage = models.FloatField(null=True, blank=True)
     gp_amount = models.FloatField(null=True, blank=True)
     tax_adjusment = models.FloatField(null=True, blank=True)
@@ -193,3 +230,15 @@ class Iso_detail(models.Model):
     status = models.IntegerField(default=1) 
     class Meta:  
         db_table = "iso_detail"
+
+class Setting(models.Model): 
+    fc_markup_percentage = models.FloatField(null=True, blank=True)
+    em_fc_ratio = models.FloatField(null=True, blank=True) 
+    bg_fc_ratio = models.FloatField(null=True, blank=True) 
+    per_kg_rate = models.FloatField(null=True, blank=True) 
+    created_at = models.DateField(auto_now_add=True, null=True)
+    updated_at = models.DateField(auto_now=True, null=True)
+    deleted_at = models.DateField(null=True, blank=True)
+    status = models.IntegerField(default=1) 
+    class Meta:  
+        db_table = "setting"    

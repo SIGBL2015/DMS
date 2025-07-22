@@ -22,6 +22,10 @@
                 <div class="card-body">
                   <div class="row">
                     <div class="form-group col-md-3">
+                      <label for="frist_name">ISO No</label>
+                      <input id="iso_no" type="text" class="form-control" name="iso_no" value="{{new_iso_no}}" readonly>
+                    </div>
+                    <div class="form-group col-md-3">
                       <label for="frist_name">Tender</label>
                       <select class="form-control" id="tendor" name="tendor">
                         <option value="">-- Select --</option>
@@ -29,6 +33,24 @@
                             <option value="{{ tendor.id }}">{{ tendor.title }}</option>
                         {% endfor %}
                       </select>
+                    </div>
+                    <div class="form-group col-md-3">
+                      <label for="frist_name">ISO Version</label>
+                      <input id="version" type="text" class="form-control" name="version">
+                    </div>
+                    <div class="form-group col-md-3">
+                      <label for="frist_name">ISO Date</label>
+                      <input id="date" type="text" class="form-control" name="date" value="{% now 'Y-m-d' %}" readonly>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="form-group col-md-3">
+                      <label for="frist_name">Del.Date Required</label>
+                      <input id="delivery_date_required" type="date" class="form-control" name="delivery_date_required">
+                    </div>
+                    <div class="form-group col-md-3">
+                      <label for="frist_name">Del.Date Committed</label>
+                      <input id="delivery_date_committed" type="date" class="form-control" name="delivery_date_committed">
                     </div>
                     <div class="form-group col-md-3">
                       <label for="frist_name">Client</label>
@@ -40,49 +62,36 @@
                       </select>
                     </div>
                     <div class="form-group col-md-3">
-                      <label for="frist_name">EM %</label>
-                      <input id="em_percentage" type="number" class="form-control" name="em_percentage" step="0.01">
-                    </div>
-                    <div class="form-group col-md-3">
-                      <label for="frist_name">EM Amount</label>
-                      <input id="em_amount" type="number" class="form-control" name="em_amount" step="0.01">
+                      <label for="frist_name">Shipping Address</label>
+                      <textarea id="shipping_address" class="form-control" name="shipping_address"></textarea>
                     </div>
                   </div>
                   <div class="row">
                     <div class="form-group col-md-3">
-                      <label for="frist_name">BG %</label>
-                      <input id="bg_percentage" type="number" class="form-control" name="bg_percentage" step="0.01">
-                    </div>
-                    <div class="form-group col-md-3">
-                      <label for="frist_name">BG Amount</label>
-                      <input id="bg_amount" type="number" class="form-control" name="bg_amount" step="0.01">
-                    </div>
-                    <div class="form-group col-md-3">
-                      <label for="frist_name">PG %</label>
-                      <input id="pg_percentage" type="number" class="form-control" name="pg_percentage" step="0.01">
-                    </div>
-                    <div class="form-group col-md-3">
-                      <label for="frist_name">PG Amount</label>
-                      <input id="pg_amount" type="number" class="form-control" name="pg_amount" step="0.01">
-                    </div>
-                  </div>
-                  <div class="row">
-                    <div class="form-group col-md-3">
-                      <label for="frist_name">Delivery Type</label>
+                      <label for="frist_name">Delivery Mode</label>
                       <select class="form-control" id="delivery_type" name="delivery_type">
                         <option value="">-- Select --</option>
-                        <option value="By Sea">By Sea</option>
-                        <option value="By Air">By Air</option>
-                        <option value="By Road">By Road</option>
+                        <option value="Single Location">Single Location</option>
+                        <option value="Multiple Location">Multiple Location</option>
                       </select>
                     </div>
                     <div class="form-group col-md-3">
-                      <label for="frist_name">Exchange Rate</label>
-                      <input id="exchange_rate" type="number" class="form-control" name="exchange_rate" step="0.01">
+                      <label for="frist_name">Sales Person</label>
+                      <select class="form-control" id="sales_person" name="sales_person">
+                        <option value="">-- Select --</option>
+                        {% for user in users %}
+                            <option value="{{ user.id }}">{{ user.username }}</option>
+                        {% endfor %}
+                      </select>
                     </div>
-                  </div>
-                  <div class="form-group">
-                    <input type="button" value="save" class="btn btn-primary" id="saveIsoMasterBtn"/>
+                    <div class="form-group col-md-3">
+                      <label for="frist_name">Beneficiary of Pay Order</label>
+                      <input id="beneficiary_payorder" type="text" class="form-control" name="beneficiary_payorder">
+                    </div>
+                    <div class="form-group col-md-3">
+                      <label for="frist_name">Remarks</label>
+                      <textarea id="remarks" class="form-control" name="remarks"></textarea>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -97,11 +106,190 @@
                   {% csrf_token %}
                   <table id="isoTable" class="table table-bordered table-striped">
                     <thead>
-                      <tr id="isoHeader">
-
+                      <tr>
+<!-- id="isoHeader" -->
                       </tr>
                     </thead>
+                    <tfoot>
+                        <tr></tr> <!-- Totals will be placed here -->
+                    </tfoot>
+                    <tbody></tbody>
                   </table>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-12">
+              <div class="card card-primary">
+                <div class="card-body">
+                  <div class="row">
+                    <div class="form-group col-md-3">
+                      <label for="frist_name">Total Value of ISO</label>
+                      <input id="total_value_iso" type="number" class="form-control" name="total_value_iso" readonly>
+                    </div>
+                    <div class="form-group col-md-3">
+                      <label for="frist_name">Total Cost of ISO</label>
+                      <input id="total_cost_iso" type="number" class="form-control" name="total_cost_iso" readonly>
+                    </div>
+                    <div class="form-group col-md-3">
+                      <label for="frist_name">Advance %</label>
+                      <input id="advance_percentage" type="number" class="form-control" name="advance_percentage" step="0.01" value="0">
+                    </div>
+                     <div class="form-group col-md-3">
+                      <label for="frist_name">Advance Amount</label>
+                      <input id="advance_amount" type="number" class="form-control" name="advance_amount" step="0.01" readonly>
+                    </div>
+                  </div>
+                  <hr class="my-4">
+                  <div class="row">
+                    <div class="form-group col-md-3">
+                      <label for="frist_name">Initial GP</label>
+                      <input id="initial_gp_planned" type="number" class="form-control" name="initial_gp_planned" readonly>
+                    </div>
+                    <div class="form-group col-md-3">
+                      <label for="frist_name">GP After Tax</label>
+                      <input id="gp_after_tax" type="number" class="form-control" name="gp_after_tax" readonly>
+                    </div>
+                    <div class="form-group col-md-3">
+                      <label for="frist_name">Total Sale Promo</label>
+                      <input id="sales_promo" type="number" class="form-control" name="sales_promo" step="0.01" value="0">
+                    </div>
+                    <div class="form-group col-md-3">
+                      <label for="frist_name">Final GP</label>
+                      <input id="final_gp_after_promo" type="number" class="form-control" name="final_gp_after_promo" step="0.01" readonly>
+                    </div>
+                  </div>
+                  <hr class="my-4">
+                  <div class="row">
+                    <div class="form-group col-md-3">
+                      <label for="frist_name">EM %</label>
+                      <input id="em_percentage" type="number" class="form-control" name="em_percentage" step="0.01" value="0">
+                    </div>
+                    <div class="form-group col-md-3">
+                      <label for="frist_name">EM Amount</label>
+                      <input id="em_amount" type="number" class="form-control" name="em_amount" step="0.01" readonly>
+                    </div>
+                    <div class="form-group col-md-3">
+                      <label for="frist_name">Duration(Month)</label>
+                      <input id="em_duration" type="number" class="form-control" name="em_duration" step="0.01" value="0">
+                    </div>
+                    <div class="form-group col-md-3">
+                      <label for="frist_name">FC Amount</label>
+                      <input id="em_fc_amount" type="number" class="form-control" name="em_fc_amount" step="0.01" readonly>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="form-group col-md-3">
+                      <label for="frist_name">BG %</label>
+                      <input id="bg_percentage" type="number" class="form-control" name="bg_percentage" step="0.01" value="0">
+                    </div>
+                    <div class="form-group col-md-3">
+                      <label for="frist_name">BG Amount</label>
+                      <input id="bg_amount" type="number" class="form-control" name="bg_amount" step="0.01" readonly>
+                    </div>
+                    <div class="form-group col-md-3">
+                      <label for="frist_name">Duration(Month)</label>
+                      <input id="bg_duration" type="number" class="form-control" name="bg_duration" step="0.01" value="0">
+                    </div>
+                    <div class="form-group col-md-3">
+                      <label for="frist_name">FC Amount</label>
+                      <input id="bg_fc_amount" type="number" class="form-control" name="bg_fc_amount" step="0.01" readonly>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="form-group col-md-3">
+                      <label for="frist_name">PG %</label>
+                      <input id="pg_percentage" type="number" class="form-control" name="pg_percentage" step="0.01" value="0">
+                    </div>
+                    <div class="form-group col-md-3">
+                      <label for="frist_name">PG Amount</label>
+                      <input id="pg_amount" type="number" class="form-control" name="pg_amount" step="0.01" readonly> 
+                    </div>
+                    <div class="form-group col-md-3">
+                      <label for="frist_name">Duration(Month)</label>
+                      <input id="pg_duration" type="number" class="form-control" name="pg_duration" step="0.01" value="0">
+                    </div>
+                    <div class="form-group col-md-3">
+                      <label for="frist_name">FC Amount</label>
+                      <input id="pg_fc_amount" type="number" class="form-control" name="pg_fc_amount" step="0.01" readonly>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="form-group col-md-3">
+                      
+                    </div>
+                    <div class="form-group col-md-3">
+                      <label for="frist_name">Payment term</label>
+                      <select class="form-control" id="payment_term" name="payment_term">
+                        <option value="">-- Select --</option>
+                        <option value="30">30 Days</option>
+                        <option value="60">60 Days</option>
+                        <option value="90">90 Days</option>
+                      </select>
+                    </div>
+                    <div class="form-group col-md-3">
+                      <label for="frist_name">Financial Charges %</label>
+                      <input id="fc_markup" type="number" class="form-control" name="fc_markup" step="0.01" readonly>
+                    </div>
+                    <div class="form-group col-md-3">
+                      <label for="frist_name">FC Amount</label>
+                      <input id="fc_amount" type="number" class="form-control" name="fc_amount" step="0.01" readonly>
+                    </div>
+                  </div>
+                 
+                  <div class="row">
+                    <div class="form-group col-md-3">
+                      <!-- <label for="frist_name">Approved By</label>
+                      <select class="form-control" id="approved_by" name="approved_by">
+                        <option value="">-- Select --</option>
+                        {% for user in users %}
+                            <option value="{{ user.id }}">{{ user.username }}</option>
+                        {% endfor %}
+                      </select> -->
+                    </div>
+                    <div class="form-group col-md-3">
+                      <!-- <label for="frist_name">Exchange Rate</label>
+                      <input id="exchange_rate" type="number" class="form-control" name="exchange_rate" step="0.01"> -->
+                    </div>
+                    <div class="form-group col-md-3">
+                      
+                    </div>
+                    <div class="form-group col-md-3">
+                      <label for="frist_name">DC Total</label>
+                      <input id="total_delivery_charges" type="number" class="form-control" name="total_delivery_charges" step="0.01" readonly>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="form-group col-md-3">
+                    </div>
+                    <div class="form-group col-md-3">
+                    </div>
+                    <div class="form-group col-md-3">
+                    </div>
+                    <div class="form-group col-md-3">
+                      <label for="frist_name">FC Total</label>
+                      <input id="total_financial_charges" type="number" class="form-control" name="total_financial_charges" step="0.01" readonly>
+                    </div>
+                  </div>
+                  <hr class="my-4">
+                  <div class="row">
+                    <div class="form-group col-md-3">
+                    </div>
+                    <div class="form-group col-md-3">
+                      <label for="frist_name">Initial GP(%)</label>
+                      <input id="initial_gp_percentage" type="number" class="form-control" name="initial_gp_percentage" step="0.01" readonly>
+                    </div>
+                    <div class="form-group col-md-3">
+                      <label for="frist_name">Final GP(%)</label>
+                      <input id="final_gp_percentage" type="number" class="form-control" name="final_gp_percentage" step="0.01" readonly>
+                    </div>
+                    <div class="form-group col-md-3">
+                      <label for="frist_name">Final GP AMT</label>
+                      <input id="final_gp_after_financial" type="number" class="form-control" name="final_gp_after_financial" step="0.01" readonly>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <input type="button" value="save" class="btn btn-primary" id="saveIsoMasterBtn"/>
+                  </div>
                 </div>
               </div>
             </div>
@@ -165,6 +353,20 @@
                     <div class="form-group col-3">
                       <label for="email"> </label>
                       <input type="number" name="import_factor" id="import_factor" placeholder="import_factor" class="form-control" readonly/>
+                    </div> 
+                  </div>
+                  <div class="row">
+                    <div class="form-group col-4">
+                      <label for="frist_name">Currency</label>
+                      <select name="currency" id="currency" class="form-control" disabled data-default="PKR">
+                          <option value="PKR">PKR</option>
+                          <option value="USD">USD</option>
+                          <option value="EURO">EURO</option>
+                      </select>
+                    </div>
+                     <div class="form-group col-4"> 
+                      <label for="email">Exchange Rate</label>
+                      <input type="number" name="currency_rate" id="currency_rate" placeholder="Enter currency rate" class="form-control" readonly data-default="1"/>
                     </div>
                   </div>
                   <h4>Cost</h4>
@@ -175,22 +377,26 @@
                       <input type="number" name="unit" id="unit" placeholder="Enter Unit" class="form-control" />
                     </div>
                     <div class="form-group col-4">
-                      <label for="frist_name">Unit Cost</label>
+                      <label for="frist_name">Unit Cost(Selected Currency)</label>
                       <input type="number" name="unit_cost" id="unit_cost" placeholder="Enter Unit Cost" class="form-control" />
                     </div>
                     <div class="form-group col-4"> 
-                      <label for="email">T.Unit Cost</label>
-                      <input type="number" name="total_pkr" id="total_pkr" placeholder="Enter Total Unit Cost"  class="form-control" readonly/>
+                      <label for="email">Unit Cost With Exchange Rate</label>
+                      <input type="number" name="unit_cost_exchange_rate" id="unit_cost_exchange_rate"  class="form-control" readonly/>
                     </div>
                   </div>
                   <div class="row">
+                    <div class="form-group col-4"> 
+                      <label for="email">T.Unit Cost With Exchange Rate</label>
+                      <input type="number" name="total_without_import" id="total_without_import" placeholder="Enter Total Unit Cost"  class="form-control" readonly/>
+                    </div>
                     <div class="form-group col-4"> 
                       <label for="email">Import Amt Per Unit</label><label id="importlabel"></label>
                       <input type="number" name="import_amt" id="import_amt" class="form-control" readonly/>
                     </div>
                     <div class="form-group col-4"> 
-                      <label for="email">T.With import Cost</label>
-                      <input type="number" name="t_with_taxes" id="t_with_taxes" class="form-control" readonly/>
+                      <label for="email">T.With import and Exchange Rate</label>
+                      <input type="number" name="total_with_import" id="total_with_import" class="form-control" readonly/>
                     </div>
                   </div>
                   <h4>Estimation</h4>
@@ -217,19 +423,24 @@
                       <input id="unit_selling_pkr" type="number" class="form-control" name="unit_selling_pkr" id="unit_selling_pkr" readonly>
                     </div>
                     <div class="form-group col-3"> 
+                      <label for="email">Unit Weight(KG) (Per Kg Rate = {{fc_amt.per_kg_rate}})</label>
+                      <input id="unit_weight" type="number" class="form-control" name="unit_weight">
+                      <input id="per_kg_rate"  type="hidden" class="form-control" name="per_kg_rate" value="{{ fc_amt.per_kg_rate }}">
+                    </div>
+                    <div class="form-group col-3"> 
                       <label for="email">Delivery Charges</label>
-                      <input id="delivery_charges" type="number" class="form-control" name="delivery_charges" id="delivery_charges">
+                      <input id="delivery_charges" type="number" class="form-control" name="delivery_charges" readonly>
                     </div>
                     <div class="form-group col-3"> 
                       <label for="email">T.Selling Price</label>
                       <input type="number" name="total_selling_price" id="total_selling_price" placeholder="Enter T.Selling Price" class="form-control" readonly/>
                     </div>
+                  </div>
+                   <div class="row">
                     <div class="form-group col-3"> 
                       <label for="email">Tax Amt </label><label id="taxlabel"></label>
                       <input type="number" name="gst_amount" id="gst_amount"  class="form-control" readonly/>
                     </div>
-                  </div>
-                  <div class="row">
                     <div class="form-group col-3"> 
                       <label for="email">Total With Tax</label>
                       <input type="number" name="total_with_gst" id="total_with_gst" placeholder="Enter Total With Tax" class="form-control" readonly/>
@@ -240,7 +451,11 @@
                     </div>
                     <div class="form-group col-3"> 
                       <label for="email">I.Tax / Adjustment(Amt)</label>
-                      <input type="number" name="tax_adjusment_amt" id="tax_adjusment_amt" placeholder="Enter" class="form-control" readonly/>
+                      <input type="number" name="tax_adjusment_amt" id="tax_adjusment_amt" class="form-control" readonly/>
+                    </div>
+                    <div class="form-group col-3"> 
+                      <label for="email">Final Amt</label>
+                      <input type="number" name="final_amt" id="final_amt" placeholder="Enter" class="form-control" readonly/>
                     </div>
                   </div>
                   <h4>Actual</h4>
@@ -286,13 +501,18 @@
             tableRows: []     // Holds table data (ISO details)
         };
 
-        $('#isoMasterForm :input, #isoMasterForm textarea, #isoMasterForm select').on('input change', function () {
-            let name = $(this).attr('name');
-            let value = $(this).val();
-            if (name) {
-                isoMasterData.formFields[name] = value;
-            }
-        });
+        // $('#isoMasterForm :input, #isoMasterForm textarea, #isoMasterForm select').on('input change', function () {
+        //     let name = $(this).attr('name');
+        //     let value = $(this).val();
+        //     if (name) {
+        //         isoMasterData.formFields[name] = value;
+        //     }
+        // });
+        function syncIsoMasterFormData() {
+            $('#isoMasterForm :input[name]').each(function () {
+                isoMasterData.formFields[$(this).attr('name')] = $(this).val();
+            });
+        }
 
         // Initialize DataTable with a default structure
         let table = $('#isoTable').DataTable({
@@ -307,50 +527,81 @@
         $('#saveItemBtn').click(function () {
           let rowData = {};
 
-          // Iterate over all inputs, selects, and textareas in the modal
+          // Collect data dynamically from the modal
           $('#itemModal').find('input, select, textarea').each(function () {
               let name = $(this).attr('name');
               let value = $(this).val();
-              
-              if (name) { // Ensure the field has a name
-                  rowData[name] = value;
-              }
+              if (name) rowData[name] = value;
           });
 
-            isoMasterData.tableRows.push(rowData);
+          isoMasterData.tableRows.push(rowData);
 
-           // If it's the first row, define columns dynamically
-            if (isoMasterData.tableRows.length === 1) {
-                let columns = Object.keys(rowData).map(key => ({
-                    data: key,
-                    title: key.replace(/_/g, ' ').toUpperCase()
-                }));
+          // First time only: setup dynamic columns
+          if (isoMasterData.tableRows.length === 1) {
+              const customOrder = [ 'item', 'category', 'delivery_type', 'sales_tax_category', 'unit', 'unit_cost', 'total_with_gst' ];
+              let columns = Object.keys(rowData).map(key => ({
+                  data: key,
+                  name: key,
+                  title: key.replace(/_/g, ' ').toUpperCase()
+              }));
 
-                // Add Delete Column to the end dynamically
-                columns.push({
-                    data: null,
-                    title: 'Actions',
-                    render: function (data, type, row, meta) {
-                        return `<button type="button" class="btn btn-danger delete-btn" data-row-index="${meta.row}">Delete</button>`;
-                    }
-                });
+              // Add Actions column
+              columns.push({
+                  data: null,
+                  title: 'Actions',
+                  orderable: false,
+                  render: function (data, type, row, meta) {
+                      return `<button type="button" class="btn btn-danger delete-btn" data-row-index="${meta.row}">Delete</button>`;
+                  }
+              });
 
+              // Clear and rebuild <thead> and <tfoot>
+              const $thead = $('#isoTable thead tr').empty();
+              const $tfoot = $('#isoTable tfoot tr').empty();
 
-                table.destroy();
-                $('#isoTable').empty(); // Clear table
-                table = $('#isoTable').DataTable({
-                    data: isoMasterData.tableRows,
-                    columns: columns,
-                    scrollX: true,
-                    autoWidth: false
-                });
-            } else {
-                table.row.add(rowData).draw();
-            }
+              columns.forEach(col => {
+                  $thead.append(`<th>${col.title}</th>`);
+                  $tfoot.append(`<th></th>`);
+              });
 
-            // Close modal & reset form
-            $('#additem').modal('hide');
-            $('#itemModal')[0].reset();
+              // Destroy old table and reinitialize
+              table.destroy();
+              $('#isoTable').empty(); // Clear table HTML completely
+              $('#isoTable').append('<thead><tr></tr></thead><tfoot><tr></tr></tfoot><tbody></tbody>');
+              $('#isoTable thead tr').html($thead.html());
+              $('#isoTable tfoot tr').html($tfoot.html());
+
+              table = $('#isoTable').DataTable({
+                  data: isoMasterData.tableRows,
+                  columns: columns,
+                  scrollX: true,
+                  autoWidth: false,
+                  footerCallback: function (row, data, start, end, display) {
+                      const api = this.api();
+                      const numericFields = ['unit_cost', 'unit_cost_exchange_rate', 'total_without_import', 'total_with_import', 'total_with_gst', 'gst_amount', 'delivery_charges', 'total_selling_price', 'final_amt', 'gp_amount', 'est_gp_amt', 'gp_amount'];
+                      
+                      numericFields.forEach(field => {
+                          const colIdx = api.column(`${field}:name`).index();
+                          if (colIdx >= 0) {
+                              const total = api
+                                  .column(colIdx, { page: 'current' })
+                                  .data()
+                                  .reduce((a, b) => parseFloat(a || 0) + parseFloat(b || 0), 0);
+                              $(api.column(colIdx).footer()).html(`<span id=${field}_total>${total.toFixed(2)}</span>`);
+                          }
+                      });
+                  }
+              });
+
+          } else {
+              // Add row to table
+              table.row.add(rowData).draw();
+          }
+
+          // Reset modal form and close it
+          $('#itemModal')[0].reset();
+          $('#additem').modal('hide');
+          final_gp()
         });
 
         // Handle delete functionality
@@ -364,12 +615,13 @@
 
                 // Remove from DataTable
                 table.row($(this).closest('tr')).remove().draw();
-
+                final_gp()
                 alert('Row deleted successfully');
             } 
         });
 
         $('#saveIsoMasterBtn').click(function () {
+            syncIsoMasterFormData();  // Ensure all form data is up to date
             var url = "{% url 'save_iso' %}";
             $.ajax({
                 url: url,
@@ -459,60 +711,170 @@
 
           function calculation() {
               var unit = parseFloat($('#unit').val()) || 0;
-              var rate = parseFloat($('#unit_cost').val()) || 0;
+              var unit_cost = parseFloat($('#unit_cost').val()) || 0;
+              var currency_rate = parseFloat($('#currency_rate').val()) || 1;
+              var unit_cost_exchange_rate = parseFloat($('#unit_cost_exchange_rate').val()) || 0;
               var tax = parseFloat($('#gst_percentage').val()) || 0;
               var import_factor = parseFloat($('#import_factor').val()) || 0;
               var est_gp = parseFloat($('#est_gp_perc').val()) || 0;
-              var delivery_charges = parseFloat($('#delivery_charges').val()) || 0;
+              // var delivery_charges = parseFloat($('#delivery_charges').val()) || 0;
               var tax_adjusment = parseFloat($('#tax_adjusment').val()) || 0;
+              var kg = parseFloat($('#unit_weight').val()) || 0;
               
+              var rate = currency_rate * unit_cost;
               var total = rate * unit;
               var tax_cal = rate * tax / 100;
               var impt_cal = rate * import_factor / 100;
               var tax_total = tax_cal * unit;
               var impt_total = impt_cal * unit;
               var total_with_tax= total + impt_total
-              var unit_with_tax= rate + impt_cal
-              var est_gp_amt = total_with_tax * est_gp / 100;
-              var est_gp_unit = unit_with_tax * est_gp / 100;
-              var selling = unit_with_tax + est_gp_unit
-              var total_selling=selling * unit + delivery_charges
-              var selling_with_tax= total_selling * tax / 100
-              var total_sell_tax = total_selling + selling_with_tax
-              var income_cal = total_selling * tax_adjusment / 100
-              var after_adjustment= total_selling - income_cal
-              var final_gp_amt= after_adjustment - total_with_tax
-              var final_gp_per= final_gp_amt/total_selling *100
+              var unit_with_tax= rate + impt_cal;
+              var gp_perc = 100 - est_gp;
+              var est_gp_amt = (total_with_tax / (gp_perc / 100))-total_with_tax;
+              var est_gp_unit = (unit_with_tax / (gp_perc / 100))-unit_with_tax;
+              var selling = unit_with_tax + est_gp_unit;
+              var per_kg = (kg * {{ fc_amt.per_kg_rate }}) * unit;
+              var total_selling=selling * unit;
+              var selling_with_tax= total_selling * tax / 100;
+              var total_sell_tax = total_selling + selling_with_tax;
+              var income_cal = total_selling * tax_adjusment / 100;
+              var final=total_sell_tax + income_cal;
+              var after_adjustment= total_selling - income_cal;
+              var final_gp_amt= after_adjustment - total_with_tax;
+              var final_gp_per= final_gp_amt/total_selling *100;
+              
 
-              $('#total_pkr').val(total.toFixed(2));
+              $('#unit_cost_exchange_rate').val(rate.toFixed(2));
+              $('#total_without_import').val(total.toFixed(2));
               $('#gst_amount').val(selling_with_tax.toFixed(2));
               $('#import_amt').val(impt_cal.toFixed(2));
-              $('#t_with_taxes').val(total_with_tax.toFixed(2));
+              $('#total_with_import').val(total_with_tax.toFixed(2));
               $('#est_gp_amt').val(est_gp_amt.toFixed(2));
               $('#est_unit_gp_amt').val(est_gp_unit.toFixed(2));
               $('#unit_selling_pkr').val(selling.toFixed(2));
               $('#total_selling_price').val(total_selling.toFixed(2));
               $('#total_with_gst').val(total_sell_tax.toFixed(2));
               $('#tax_adjusment_amt').val(income_cal.toFixed(2));
+              $('#final_amt').val(final.toFixed(2));
               $('#gp_amount').val(final_gp_amt.toFixed(2));
               $('#gp_percentage').val(final_gp_per.toFixed(2));
+              $('#delivery_charges').val(per_kg.toFixed(2));
+              
           }
 
-          // Enable/disable import factor based on checkbox
+          // Store constants (optional - or use HTML data-default attributes)
+          const DEFAULT_IMPORT_FACTOR = 0;
+          const DEFAULT_CURRENCY = $('#currency').data('default') || 'PKR';
+          const DEFAULT_CURRENCY_RATE = $('#currency_rate').data('default') || '1';
+          const DEFAULT_TAX_ADJUSTMENT = $('#tax_adjusment').data('default') || '0';
+
           $('#isimported').on('change', function () {
-              if ($(this).is(':checked')) {
-                  $('#import_factor').prop('readonly', false).val('');
-              } else {
-                  $('#import_factor').prop('readonly', true).val('');
-              }
-              calculation();
+            if ($(this).is(':checked')) {
+              // Enable all related fields
+              $('#import_factor').prop('readonly', false);
+              $('#currency').prop('disabled', false);
+              $('#currency_rate').prop('readonly', false);
+              $('#tax_adjusment').prop('readonly', true);
+
+              // Clear values to let user input
+              $('#import_factor').val(0);
+              $('#currency_rate').val(1);
+              $('#tax_adjusment').val(0);
+
+            } else {
+              // Reset to defaults and disable inputs
+              $('#import_factor').val(DEFAULT_IMPORT_FACTOR).prop('readonly', true);
+              $('#currency').val(DEFAULT_CURRENCY).prop('disabled', true);
+              $('#currency_rate').val(DEFAULT_CURRENCY_RATE).prop('readonly', true);
+              $('#tax_adjusment').val(DEFAULT_TAX_ADJUSTMENT).prop('readonly', false);
+              
+              $('#tax_adjusment').val(0);
+            }
+
+            // Call your calculation function if needed
+            calculation();
+          });
+          // Optional: set initial values on page load
+          $(document).ready(function () {
+            if (!$('#isimported').is(':checked')) {
+              $('#currency').val(DEFAULT_CURRENCY).prop('disabled', true);
+              $('#currency_rate').val(DEFAULT_CURRENCY_RATE).prop('readonly', true);
+              $('#import_factor').val(DEFAULT_IMPORT_FACTOR).prop('readonly', true);
+              $('#tax_adjusment').val(DEFAULT_TAX_ADJUSTMENT).prop('readonly', false);
+
+              $('#tax_adjusment').val(0);
+            }
           });
 
+
           // Attach the event listeners
-          $('#unit, #unit_cost, #gst_percentage, #import_factor, #sales_tax_category, #est_gp_perc, #delivery_charges, #tax_adjusment').on('keyup change', calculation);
+          $('#currency_rate, #unit, #unit_cost_exchange_rate, #unit_cost, #gst_percentage, #import_factor, #sales_tax_category, #est_gp_perc, #unit_weight, #tax_adjusment').on('keyup change', calculation);
 
           // Initial calculation if values are pre-filled
           calculation();
+
+          function final_gp() {
+              var em_perc = parseFloat($('#em_percentage').val()) || 0;
+              var bg_perc = parseFloat($('#bg_percentage').val()) || 0;
+              var pg_perc = parseFloat($('#pg_percentage').val()) || 0;
+              var em_dur = parseFloat($('#em_duration').val()) || 0;
+              var bg_dur = parseFloat($('#bg_duration').val()) || 0;
+              var pg_dur = parseFloat($('#pg_duration').val()) || 0;
+              var payment_term =  parseFloat($('#payment_term').val());
+              var adv_perc = parseFloat($('#advance_percentage').val()) || 0;
+              var final_amount = $("#final_amt_total").text() || 0
+              var t_unit_cost = parseFloat($("#total_with_import_total").text()) || 0
+              var t_selling_cost = parseFloat($("#total_selling_price_total").text()) || 0
+              var t_gp = parseFloat($("#gp_amount_total").text()) || 0
+              var t_dc = parseFloat($("#delivery_charges_total").text()) || 0 
+              var t_initial_gp = parseFloat($("#est_gp_amt_total").text()) || 0
+              var t_after_tax_gp = parseFloat($("#gp_amount_total").text()) || 0
+              var promo = parseFloat($('#sales_promo').val()) || 0;
+              
+
+              var em_amt = final_amount *(em_perc/100);
+              var bg_amt = final_amount *(bg_perc/100);
+              var pg_amt = final_amount *(pg_perc/100);
+              var em_fc= ((em_amt * 1.5) * em_dur)/100;
+              var bg_fc= ((bg_amt * 0.2 * 1.5) * bg_dur)/100;
+              var pg_fc= ((pg_amt * 0.2 * 1.5) * pg_dur)/100;
+              var fc_cal= Math.round(({{ fc_amt.fc_markup_percentage }}/365) * payment_term);
+              var adv_cal= (adv_perc * final_amount)/100
+              var fc_amount = ((t_unit_cost - adv_cal) * (fc_cal/100)) > 0 ? (t_unit_cost - adv_cal) * (fc_cal/100) : 0;
+              var fc_total = ((em_fc + bg_fc) + (pg_fc + fc_amount)) + t_dc;
+              var initial = (t_gp / t_selling_cost) * 100
+              var final = t_after_tax_gp - promo
+              var final_amt = final - fc_total
+              var final_perc = (final_amt /  t_selling_cost) * 100
+              
+             
+
+              $('#em_amount').val(em_amt.toFixed(2));
+              $('#bg_amount').val(bg_amt.toFixed(2));
+              $('#pg_amount').val(pg_amt.toFixed(2));
+              $('#em_fc_amount').val(em_fc.toFixed(2));
+              $('#bg_fc_amount').val(bg_fc.toFixed(2));
+              $('#pg_fc_amount').val(pg_fc.toFixed(2));
+              $('#fc_markup').val(fc_cal.toFixed(2));
+              $('#advance_amount').val(adv_cal.toFixed(2));
+              $('#fc_amount').val(fc_amount.toFixed(2));
+              $('#total_delivery_charges').val(t_dc.toFixed(2));
+              $('#total_financial_charges').val(fc_total.toFixed(2));
+              $('#initial_gp_planned').val(t_initial_gp.toFixed(2));
+              $('#gp_after_tax').val(t_after_tax_gp.toFixed(2));
+              $('#final_gp_after_promo').val(final.toFixed(2));
+              $('#initial_gp_percentage').val(initial.toFixed(2));
+              $('#final_gp_percentage').val(final_perc.toFixed(2));
+              $('#final_gp_after_financial').val(final_amt.toFixed(2));
+              $('#total_value_iso').val(t_selling_cost.toFixed(2));
+              $('#total_cost_iso').val(t_unit_cost.toFixed(2));
+              
+
+          }
+           // Attach the event listeners
+          $('#em_percentage, #bg_percentage, #pg_percentage, #em_duration, #bg_duration, #pg_duration, #payment_term, #advance_percentage, #sales_promo').on('keyup change', final_gp);
+
+          final_gp();
       });
   
 </script>

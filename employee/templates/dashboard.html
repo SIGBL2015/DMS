@@ -331,7 +331,6 @@
     }
   });
   var totalAmount = {{ quarterly|safe }};
-  console.log(typeof(totalAmount))
   var ctx = document.getElementById("myChart3").getContext('2d');
   var myChart = new Chart(ctx, {
     type: 'bar',

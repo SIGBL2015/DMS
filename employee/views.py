@@ -37,7 +37,7 @@ def emp(request):
     designs = Designation.objects.filter(status=1).values('id', 'design_name')
     branches = Branch.objects.filter(status=1).values('id', 'branch_name')
 
-     # GET request — prefill next emp_id
+    # GET request — prefill next emp_id
     employees = Employee.objects.annotate(
         num_part=Cast(Substr('eid', 5), IntegerField())
     ).order_by('-num_part')
