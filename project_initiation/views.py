@@ -1,3 +1,4 @@
+from collections import defaultdict
 import json
 from django.forms import  ValidationError
 from django.http import JsonResponse
@@ -10,7 +11,7 @@ from employee.validator import validate_allowed_file_type
 from employee.models import Client, Department, Employee
 from finance.models import Currency
 from project_initiation.forms import TaxForm, TendorForm, UnitForm, CategoryForm, ItemForm, HeadingForm, Sub_headingForm, Boq_itemsForm, Iso_masterForm, Iso_detailForm
-from project_initiation.models import Setting, Tax, Tendor, Unit, Category, Item, Heading, Sub_heading, Boq_items, Iso_master, Iso_detail
+from project_initiation.models import Item_spec_values, Setting, Tax, Tendor, Unit, Category, Item, Heading, Sub_heading, Boq_items, Iso_master, Iso_detail, Component, Specs, Spec_values
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db.models import Q
 from django.contrib import messages
@@ -385,7 +386,7 @@ def add_item(request):
                 return render(request,'item/add_item.html',{'form':form, 'units':units, 'categories':categories})  
             else:
                 try:  
-                    form.save()  
+                    form.save()
                     messages.success(request, "Data added successfully!") 
                     return redirect('show_item')  
                 except Exception as e:  
@@ -412,6 +413,59 @@ def e_item(request, id):
     units = Unit.objects.filter(status=1).values('id','name')
     categories = Category.objects.filter(status=1).values('id','title')
     return render(request,'item/e_item.html', {'item':item, 'units':units, 'categories':categories})  
+
+@login_required  
+@permission_required('project_initiation.change_item', raise_exception=True)
+def add_specs(request, id):  
+    item = Item.objects.get(id=id)
+    if request.method == "POST":
+        data = defaultdict(dict)
+
+        for key, value in request.POST.items():
+            if key.startswith('spec_'):
+                # Expect key format: spec_<spec_id>
+                spec_id = key.split('_')[1]
+                spec = Specs.objects.get(id=spec_id)
+                component_name = spec.component.comp_title  # assuming FK to Component
+
+                data[component_name][spec.specs_name] = value
+        json_data = json.dumps(dict(data))
+        Item_spec_values.objects.create(
+                    item_id=item.id,
+                    specifications=json_data,  # Save directly as text
+                )
+        messages.success(request, "Data added successfully!") 
+        return redirect('show_item')
+    else:
+        unit = Unit.objects.get(id=item.unit_id)
+        category = Category.objects.get(id=item.category_id)
+        components_data = []
+        components = Component.objects.filter(category_id=item.category_id)
+
+        for component in components:
+            specs_data = []
+            specs = Specs.objects.filter(component=component)
+            for spec in specs:
+                values = list(Spec_values.objects.filter(specs_id=spec).values_list('spec_value', flat=True)) if spec.data_type == 'select' else []
+                specs_data.append({
+                    'id': spec.id,
+                    'name': spec.specs_name,
+                    'datatype': spec.data_type,
+                    'values': values
+                })
+            components_data.append({
+                'component': component.comp_title,
+                'specs': specs_data
+            })
+        specs = Item_spec_values.objects.filter(item_id=item.id)
+        specs_list = list(specs.values('id','specifications'))
+        # Parse specifications JSON string into dict
+        for spec in specs_list:
+            try:
+                spec['specifications'] = json.loads(spec['specifications'])
+            except Exception:
+                spec['specifications'] = {}
+        return render(request,'item/add_specs.html', {'item':item, 'unit':unit.name, 'category':category.title, 'components_data': components_data, 'specs':specs_list})  
 
 @login_required  
 def u_item(request, id):  
@@ -683,7 +737,6 @@ def add_iso(request):
     if request.method == "POST":  
         # Parse incoming JSON data
         data = json.loads(request.body)
-        print(data['formFields'])
         # Retrieve Tendor instance based on the provided ID
         tendor_id = data['formFields'].get('tendor')
         try:
@@ -748,6 +801,14 @@ def add_iso(request):
                     item['sales_tax_category'] = tax_instance  # Assign the Tax instance to 'sales_tax_category'
                 except Tax.DoesNotExist:
                     return JsonResponse({'error': f'Tax with ID {tax_id} does not exist'}, status=400)
+            
+            spec_id = item.get('item_spec_values')
+            if spec_id:
+                try:
+                    spec_instance = Item_spec_values.objects.get(id=spec_id)
+                    item['item_spec_values'] = spec_instance  # Assign the Tax instance to 'sales_tax_category'
+                except Tax.DoesNotExist:
+                    return JsonResponse({'error': f'Spec with ID {spec_id} does not exist'}, status=400)
 
             Iso_detail.objects.create(**item)  # Pass the rest of the item as **item
 
@@ -910,7 +971,10 @@ def load_tax(request):
 def load_category(request):
     item = request.GET.get('item')
     cat = Item.objects.get(id=item)
-    return JsonResponse({ 'title':cat.category.title}, safe=False)
+    specs = Item_spec_values.objects.filter(item_id=item)
+    specs_list = list(specs.values('id','specifications'))  # Convert queryset to list of dicts
+    return JsonResponse({ 'title':cat.category.title,'specs':specs_list}, safe=False)
+
 
 # SELECT 
 #         id, unit_price, quantity, total_amount, tendor_id, parent_id

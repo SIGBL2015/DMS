@@ -39,7 +39,7 @@ urlpatterns = [
     path('e_item/<int:id>', views.e_item, name="e_item"),  
     path('u_item/<int:id>', views.u_item, name="u_item"),  
     path('d_item/<int:id>', views.d_item, name="d_item"),
-
+    path('add_specs/<int:id>', views.add_specs, name="add_specs"),
 
     #heading
     path('save_heading', views.add_heading, name="save_heading"),  

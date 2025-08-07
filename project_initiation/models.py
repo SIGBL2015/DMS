@@ -55,18 +55,36 @@ class Category(models.Model):
     class Meta:  
         db_table = "category"
 
-class Item_specification(models.Model): 
-    name = models.CharField(max_length=255, null=True)
-    short_name = models.CharField(max_length=50, null=True)
-    description = models.CharField(max_length=1000, null=True)
-    unit = models.ForeignKey(Unit, on_delete=models.CASCADE,null=True)
+class Component(models.Model): 
+    comp_title = models.CharField(max_length=255, null=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE,null=True, blank=True)
     created_at = models.DateField(auto_now_add=True, null=True)
     updated_at = models.DateField(auto_now=True, null=True)
     deleted_at = models.DateField(null=True, blank=True)
     status = models.IntegerField(default=1) 
     class Meta:  
-        db_table = "item_specification"
+        db_table = "component"
+
+class Specs(models.Model): 
+    specs_name = models.CharField(max_length=255, null=True)
+    data_type = models.CharField(max_length=255, null=True)
+    component = models.ForeignKey(Component, on_delete=models.CASCADE,null=True, blank=True)
+    created_at = models.DateField(auto_now_add=True, null=True)
+    updated_at = models.DateField(auto_now=True, null=True)
+    deleted_at = models.DateField(null=True, blank=True)
+    status = models.IntegerField(default=1) 
+    class Meta:  
+        db_table = "specs"
+
+class Spec_values(models.Model): 
+    spec_value = models.CharField(max_length=255)
+    specs = models.ForeignKey(Specs, on_delete=models.CASCADE,null=True, blank=True)
+    created_at = models.DateField(auto_now_add=True, null=True)
+    updated_at = models.DateField(auto_now=True, null=True)
+    deleted_at = models.DateField(null=True, blank=True)
+    status = models.IntegerField(default=1) 
+    class Meta:  
+        db_table = "spec_values"
 
 class Item(models.Model): 
     name = models.CharField(max_length=255, null=True)
@@ -82,6 +100,16 @@ class Item(models.Model):
     status = models.IntegerField(default=1) 
     class Meta:  
         db_table = "item"
+
+class Item_spec_values(models.Model): 
+    item = models.ForeignKey(Item, on_delete=models.CASCADE,null=True)
+    specifications = models.CharField(max_length=1000, null=True)
+    created_at = models.DateField(auto_now_add=True, null=True)
+    updated_at = models.DateField(auto_now=True, null=True)
+    deleted_at = models.DateField(null=True, blank=True)
+    status = models.IntegerField(default=1) 
+    class Meta:  
+        db_table = "item_spec_values"
 
 class Heading(models.Model): 
     title = models.CharField(max_length=255, null=True)
@@ -200,6 +228,7 @@ class Iso_master(models.Model):
 class Iso_detail(models.Model): 
     iso_master = models.ForeignKey(Iso_master, on_delete=models.CASCADE)
     item = models.ForeignKey(Item, on_delete=models.CASCADE)
+    item_spec_values = models.ForeignKey(Item_spec_values, on_delete=models.CASCADE,null=True)
     delivery_type = models.CharField(max_length=50,null=True, blank=True)
     sales_tax_category = models.ForeignKey(Tax, on_delete=models.CASCADE)
     gst_percentage = models.FloatField(null=True, blank=True)
@@ -228,6 +257,7 @@ class Iso_detail(models.Model):
     updated_at = models.DateField(auto_now=True, null=True)
     deleted_at = models.DateField(null=True, blank=True)
     status = models.IntegerField(default=1) 
+    remarks = models.CharField(max_length=1000,null=True, blank=True)
     class Meta:  
         db_table = "iso_detail"
 

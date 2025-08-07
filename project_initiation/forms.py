@@ -24,7 +24,7 @@ class CategoryForm(forms.ModelForm):
 class ItemForm(forms.ModelForm):  
     class Meta:  
         model = Item  
-        fields = ('id','name', 'short_name', 'description', 'unit', 'category')
+        fields = ('id','name', 'short_name', 'description', 'unit', 'category', 'maker', 'model')
 
 class HeadingForm(forms.ModelForm):  
     class Meta:  
@@ -49,4 +49,4 @@ class Iso_masterForm(forms.ModelForm):
 class Iso_detailForm(forms.ModelForm):  
     class Meta:  
         model = Iso_detail  
-        fields = ('id','iso_master','item', 'delivery_type', 'sales_tax_category', 'gst_percentage', 'import_factor', 'currency', 'currency_rate', 'unit', 'unit_cost', 'unit_cost_exchange_rate', 'total_without_import', 'total_with_import', 'gp_calculation', 'unit_selling_pkr', 'delivery_charges', 'total_selling_price', 'gst_amount', 'total_with_gst', 'tax_adjusment_amt', 'gp_percentage', 'gp_amount')
+        fields = ('id','iso_master','item', 'delivery_type', 'sales_tax_category', 'gst_percentage', 'import_factor', 'currency', 'currency_rate', 'unit', 'unit_cost', 'unit_cost_exchange_rate', 'total_without_import', 'total_with_import', 'gp_calculation', 'unit_selling_pkr', 'delivery_charges', 'total_selling_price', 'gst_amount', 'total_with_gst', 'tax_adjusment_amt', 'gp_percentage', 'gp_amount','remarks')
