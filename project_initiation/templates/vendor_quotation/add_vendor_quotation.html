@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+{% include 'layout/style.html' %}
+
+<body>
+    <div id="app">
+        <div class="main-wrapper">
+            {% include 'layout/header.html' %}
+            {% include 'layout/sidebar.html' %}
+            <div class="main-content">
+                <section class="section">
+                    <h1 class="section-header">
+                        <div>Add Quotation</div>
+                    </h1>
+                    {% include 'layout/status.html' %}
+                    <div class="col-md-12">
+                        <div class="card card-primary">
+                            <div class="card-header">
+                                <h4>Add</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="form-group col-md-6">
+                                        <label for="frist_name">Ref No</label>
+                                        <input id="ref_no" type="text" class="form-control" name="ref_no" readonly>
+                                    </div>
+                                </div>
+                               <div class="row">
+                                    <!-- Tendor Dropdown -->
+                                    <div class="form-group col-md-3">
+                                        <label for="tendor">Select Tendor</label>
+                                        <select id="tendor" class="form-control select2">
+                                        <option value="">-- Select Tendor --</option>
+                                        {% for tendor in tendors %}
+                                            <option value="{{ tendor.id }}">{{ tendor.title }}</option>
+                                        {% endfor %}
+                                        </select>
+                                    </div>
+                                    <!-- Item Dropdown -->
+                                    <div class="form-group col-md-3">
+                                        <label for="item">Select Item</label>
+                                        <select id="item" class="form-control select2">
+                                        <option value="">-- Select Item --</option>
+                                        {% for item in items %}
+                                            <option value="{{ item.id }}">{{ item.name }}</option>
+                                        {% endfor %}
+                                        </select>
+                                    </div>
+                                    <!-- Specs Dropdown -->
+                                    <div class="form-group col-md-4">
+                                        <label for="spec">Select Specifications</label>
+                                        <select id="spec" class="form-control select2">
+                                        <option value="">-- Select Specification --</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row"> 
+                                    <div class="form-group col-md-3">
+                                        <label for="spec">Qty</label>
+                                        <input id="quantity" type="number" class="form-control" name="quantity">
+                                    </div>
+                                </div>
+                                <!-- Add Button -->
+                                <div class="form-group mt-4">
+                                    <button id="addItem" class="btn btn-primary">Add Item</button>
+                                </div>
+                                <div class="row mt-5">
+                                    <div class="form-group col-md-12">
+                                         <!-- DataTable -->
+                                        <table id="itemTable" class="table table-bordered mt-3">
+                                            <thead>
+                                            <tr>
+                                                <th>S.No</th>
+                                                <th>Item</th>
+                                                <th>Qty</th>
+                                                <th>Specifications</th>
+                                                <th>Action</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div class="row mt-5">
+                                    <!-- Vendors Dropdown -->
+                                    <div class="form-group col-md-3">
+                                        <label for="vendors">Select Vendors</label>
+                                        <select id="vendors" class="form-control select2" multiple>
+                                        {% for vendor in vendors %}
+                                            <option value="{{ vendor.id }}">{{ vendor.vendor_name }}</option>
+                                        {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <button id="saveTendor" class="btn btn-success">Save</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div> {% include 'layout/footer.html' %}
+        </div>
+    </div> 
+    {% include 'layout/script.html' %}
+
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+             $.get("generate_quotation_refno", function(data, status){
+                $('#ref_no').val(data.generated_code);
+            });
+            // Enable searchable dropdowns
+            $('.select2').select2();
+
+            let itemTable = $('#itemTable').DataTable();
+            let counter = 1;
+
+            // Load item specs when item is selected
+            $("#item").on('change',function() {
+                let itemId = $(this).val();
+                $("#spec").empty().append('<option value="">-- Select Specification --</option>');
+                if (itemId) {
+                $.get(`{{ HOST }}/initiation/get_specs_by_item/${itemId}`, function(data) {
+                    data.specs.forEach(spec => {
+                    let specsJson = JSON.parse(spec.specifications);
+                    let readable = Object.entries(specsJson)
+                        .map(([key, value]) => {
+                        if (typeof value === 'object') {
+                            return `${key}: ${Object.entries(value).map(([k,v]) => `${k}: ${v}`).join(", ")}`;
+                        } else {
+                            return `${key}: ${value}`;
+                        }
+                        })
+                        .join(" | ");
+                    $("#spec").append(`<option value="${spec.id}">${readable}</option>`);
+                    });
+                });
+                }
+            });
+
+            // Add Item to DataTable
+            $('#addItem').on('click', function () {
+                let itemText = $('#item option:selected').text();
+                let itemId = $('#item').val();
+                let specText = $('#spec option:selected').text();
+                let specId = $('#spec').val();
+                let qty = $('#quantity').val();
+
+                if (!itemId || !specId) {
+                    alert("Please select item and specification");
+                    return;
+                }
+
+                const actionHtml = `<button type="button" class="btn btn-danger btn-sm removeRow">Remove</button>`;
+
+                // Add the row via DataTables API. We add an empty placeholder for S.No (col 0).
+                const addedRow = itemTable.row.add([counter++, itemText, qty, specText, actionHtml]).draw(false).node();
+
+                // Attach metadata to the <tr> so you can collect item/spec ids later
+                $(addedRow).attr('data-item-id', itemId).attr('data-spec-id', specId).attr('data-qty', qty);
+
+                // Trigger draw to update serial numbers (optional: draw(false) already called above, but ensure numbering)
+                itemTable.draw(false);
+            });
+
+            // Remove row
+            $('#itemTable tbody').on('click', '.removeRow', function () {
+                itemTable.row($(this).parents('tr')).remove().draw();
+            });
+
+            // Save Tendor with items + vendors
+            $('#saveTendor').on('click', function () {
+                let tendorId = $('#tendor').val();
+                let vendors = $('#vendors').val();
+                let ref_no = $('#ref_no').val();
+                let items = [];
+
+                $('#itemTable tbody tr').each(function() {
+                    const itemId = $(this).data('item-id');
+                    const specId = $(this).data('spec-id');
+                    const qty = $(this).data('qty');
+                    console.log("qty--------",qty)
+                    if (itemId && specId) {
+                        items.push({ item_id: itemId, spec_id: specId, quantity: qty });
+                    }
+                });
+
+                $.ajax({
+                    url: '/initiation/save_vendor_quotation',
+                    method: 'POST',
+                    data: 
+                    {
+                        csrfmiddlewaretoken: '{{ csrf_token }}',
+                        tendor: tendorId,
+                        ref_no:ref_no,
+                        vendors: JSON.stringify(vendors),
+                        items: JSON.stringify(items)
+                    },
+                    success: function (response) {
+                        alert("Tendor saved successfully!");
+                        location.reload();
+                    }
+                });
+            });
+        });
+
+    </script>
+</body>
+</html>

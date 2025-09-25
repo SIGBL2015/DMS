@@ -1,5 +1,5 @@
 from django.db import models
-from employee.models import Client, Department, Employee
+from employee.models import Client, Department, Employee, Vendor
 from finance.models import Currency
 
 # Create your models here.
@@ -266,9 +266,50 @@ class Setting(models.Model):
     em_fc_ratio = models.FloatField(null=True, blank=True) 
     bg_fc_ratio = models.FloatField(null=True, blank=True) 
     per_kg_rate = models.FloatField(null=True, blank=True) 
+    logo = models.CharField(max_length=100,null=True, blank=True)
+    header = models.CharField(max_length=1000,null=True, blank=True)
+    footer = models.CharField(max_length=1000,null=True, blank=True)
     created_at = models.DateField(auto_now_add=True, null=True)
     updated_at = models.DateField(auto_now=True, null=True)
     deleted_at = models.DateField(null=True, blank=True)
     status = models.IntegerField(default=1) 
     class Meta:  
         db_table = "setting"    
+
+class Vendor_quotation_master(models.Model): 
+    tendor = models.ForeignKey(Tendor, on_delete=models.CASCADE)
+    date = models.DateField(null=True, blank=True)
+    ref_no = models.CharField(max_length=50,null=True, blank=True)
+    created_at = models.DateField(auto_now_add=True, null=True)
+    updated_at = models.DateField(auto_now=True, null=True)
+    deleted_at = models.DateField(null=True, blank=True)
+    status = models.IntegerField(default=1) 
+    class Meta:  
+        db_table = "vendor_quotation_master"
+
+class Vendor_quotation_detail(models.Model): 
+    vendor_quotation_master = models.ForeignKey(Vendor_quotation_master, on_delete=models.CASCADE,null=True)
+    item = models.ForeignKey(Item, on_delete=models.CASCADE,null=True, blank=True)
+    item_spec_values = models.ForeignKey(Item_spec_values, on_delete=models.CASCADE,null=True, blank=True)
+    quantity = models.IntegerField(null=True, blank=True) 
+    created_at = models.DateField(auto_now_add=True, null=True)
+    updated_at = models.DateField(auto_now=True, null=True)
+    deleted_at = models.DateField(null=True, blank=True)
+    status = models.IntegerField(default=1) 
+    class Meta:  
+        db_table = "vendor_quotation_detail"
+
+class Quotation_vendor_list(models.Model): 
+    vendor_quotation_master = models.ForeignKey(Vendor_quotation_master, on_delete=models.CASCADE,null=True)
+    vendor = models.ForeignKey(Vendor, on_delete=models.CASCADE,null=True, blank=True)
+    current_status = models.CharField(max_length=10,null=True, blank=True)
+    amount = models.FloatField(null=True, blank=True)
+    without_tax_amount = models.FloatField(null=True, blank=True)
+    with_tax_amount = models.FloatField(null=True, blank=True)
+    attached_file = models.CharField(max_length=255, null=True)
+    created_at = models.DateField(auto_now_add=True, null=True)
+    updated_at = models.DateField(auto_now=True, null=True)
+    deleted_at = models.DateField(null=True, blank=True)
+    status = models.IntegerField(default=1) 
+    class Meta:  
+        db_table = "quotation_vendor_list"

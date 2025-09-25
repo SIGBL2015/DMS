@@ -3555,8 +3555,9 @@ def add_company_document(request):
 @login_required   
 @permission_required('employee.view_company_document', raise_exception=True) 
 def show_company_document(request):  
+    current_date = timezone.now().date()
     company_documents = Company_document.objects.filter(status=1)  
-    return render(request,"company_document/show_company_document.html",{'company_documents':company_documents})  
+    return render(request,"company_document/show_company_document.html",{'company_documents':company_documents, 'current_date': current_date})  
 
 @login_required  
 @permission_required('employee.change_company_document', raise_exception=True)

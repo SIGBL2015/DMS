@@ -153,7 +153,7 @@ MEDIA_URL = '/media/'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-HOST = 'http://0.0.0.0:8080'
+HOST = 'http://127.0.0.1:8080'
 
 LOGGING = {
     'version': 1,

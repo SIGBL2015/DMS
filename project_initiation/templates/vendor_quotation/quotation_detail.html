@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+{% include 'layout/style.html' %}
+
+<body>
+    <div id="app">
+        <div class="main-wrapper">
+            {% include 'layout/header.html' %}
+            {% include 'layout/sidebar.html' %}
+            <div class="main-content">
+                <section class="section">
+                    <h1 class="section-header">
+                        <div>Quotation Details</div>
+                    </h1>
+                    {% include 'layout/status.html' %}
+                    <div class="col-md-12">
+                        <div class="card card-primary">
+                            <div class="card-header">
+                                <h4>Edit</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="form-group col-md-6">
+                                        <label for="frist_name">Ref No</label>
+                                        <input id="ref_no" type="text" class="form-control" name="ref_no" value="{{master.ref_no}}" disabled>
+                                    </div>
+                                </div>
+                               <div class="row">
+                                    <!-- Tendor Dropdown -->
+                                    <div class="form-group col-md-3">
+                                        <input id="master" type="hidden" class="form-control" name="master" value="{{master.id}}">
+                                        <label for="tendor">Tendor</label>
+                                        <select id="tendor" class="form-control" readonly>
+                                            <option value="{{ master.tendor.id }}">{{ master.tendor.title }}</option>
+                                        </select>
+                                    </div>
+                                    <!-- Item Dropdown -->
+                                    <div class="form-group col-md-3">
+                                        <label for="item">Select Item</label>
+                                        <select id="item" class="form-control select2">
+                                        <option value="">-- Select Item --</option>
+                                        {% for item in items %}
+                                            <option value="{{ item.id }}">{{ item.name }}</option>
+                                        {% endfor %}
+                                        </select>
+                                    </div>
+                                    <!-- Specs Dropdown -->
+                                    <div class="form-group col-md-4">
+                                        <label for="spec">Select Specifications</label>
+                                        <select id="spec" class="form-control select2">
+                                        <option value="">-- Select Specification --</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="form-group col-md-3">
+                                        <label for="spec">Qty</label>
+                                        <input id="quantity" type="number" class="form-control" name="quantity">
+                                    </div>
+                                </div>
+                                <!-- Add Button -->
+                                <div class="form-group mt-4">
+                                    <button id="additem" class="btn btn-primary">Add Item</button>
+                                </div>
+                                <div class="row mt-5">
+                                    <div class="form-group col-md-12">
+                                         <!-- DataTable -->
+                                        <table id="example1" class="table table-bordered mt-3">
+                                            <thead>
+                                            <tr>
+                                                <th>S.No</th>
+                                                <th>Item</th>
+                                                <th>Qty</th>
+                                                <th>Specifications</th>
+                                                <th>Action</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            {% for d in details %}  
+                                                <tr>  
+                                                    <td>{{ forloop.counter }}</td>  
+                                                    <td>{{ d.item.name }}</td> 
+                                                     <td>{{ d.quantity }}</td> 
+                                                    <td>{{ d.item_spec_values.specifications }}</td>  
+                                                    <td> 
+                                                        <a href="/initiation/d_quotation_detail/{{ d.id }}" onclick="return confirm('Are you sure you want to delete this?')"><span class="ion-ios-trash" ></span></a>  
+                                                    </td>  
+                                                </tr>  
+                                            {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div class="row mt-5">
+                                    <!-- Vendors Dropdown -->
+                                    <div class="form-group col-md-3">
+                                        <label for="vendors">Select Vendors</label>
+                                        <select id="vendors" class="form-control select2">
+                                        <option value="">-- Select Vendor --</option>
+                                        {% for vendor in vendors %}
+                                            <option value="{{ vendor.id }}">{{ vendor.vendor_name }}</option>
+                                        {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                 <div class="form-group">
+                                    <button id="saveTendor" class="btn btn-success">Add Vendor</button>
+                                </div>
+                                 <div class="row mt-5">
+                                    <div class="form-group col-md-12">
+                                         <!-- DataTable -->
+                                        <table id="example2" class="table table-bordered mt-3">
+                                            <thead>
+                                            <tr>
+                                                <th>S.No</th>
+                                                <th>Vendor</th>
+                                                <th>Action</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            {% for v in vendors_list %}  
+                                                <tr>  
+                                                    <td>{{ forloop.counter }}</td>  
+                                                    <td>{{ v.vendor.vendor_name }}</td>
+                                                    <td> 
+                                                      
+                                                        <a href="{% url 'view_single_vendor_quotation' v.vendor_quotation_master_id v.vendor_id  %}" class="btn btn-primary btn-sm" target="_blank">
+                                                        <i class="bi bi-eye"></i> View PDF
+                                                        </a>
+
+                                                        <a href="{% url 'download_single_vendor_quotation' v.vendor_quotation_master_id v.vendor_id %}" class="btn btn-success btn-sm">
+                                                        <i class="bi bi-download"></i> Download PDF
+                                                        </a>
+                                                        
+                                                        <a href="/initiation/d_quotation_vendor/{{ v.id }}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this?')">
+                                                            <span class="ion-ios-trash" ></span>
+                                                        </a>  
+                                                    </td>  
+                                                </tr>  
+                                            {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div> {% include 'layout/footer.html' %}
+        </div>
+    </div> 
+    {% include 'layout/script.html' %}
+
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            // Enable searchable dropdowns
+            $('.select2').select2(); 
+
+            // Load item specs when item is selected
+            $("#item").on('change',function() {
+                let itemId = $(this).val();
+                $("#spec").empty().append('<option value="">-- Select Specification --</option>');
+                if (itemId) {
+                $.get(`{{ HOST }}/initiation/get_specs_by_item/${itemId}`, function(data) {
+                    data.specs.forEach(spec => {
+                    let specsJson = JSON.parse(spec.specifications);
+                    let readable = Object.entries(specsJson)
+                        .map(([key, value]) => {
+                        if (typeof value === 'object') {
+                            return `${key}: ${Object.entries(value).map(([k,v]) => `${k}: ${v}`).join(", ")}`;
+                        } else {
+                            return `${key}: ${value}`;
+                        }
+                        })
+                        .join(" | ");
+                        $("#spec").append(`<option value="${spec.id}">${readable}</option>`);
+                    });
+                    let existingPairs = {{ existing_pairs|safe }};
+                    $('#spec option').each(function() {
+                        let specId = $(this).val();
+                        let found = existingPairs.some(p => p.spec == specId);
+                        if (found) {
+                            $(this).prop('disabled', true).text($(this).text() + " (Already Added)");
+                        }
+                    });
+                });
+                }
+            });
+
+            
+            let existingVendors = {{ existing_vendor_ids|safe }};
+            // Disable items/specs already used
+            // $('#item option').each(function() {
+            //     let itemId = $(this).val();
+            //     let found = existingPairs.some(p => p.item == itemId);
+            //     if (found) {
+            //         $(this).prop('disabled', true).text($(this).text() + " (Already Added)");
+            //     }
+            // });
+
+           
+
+            $('#vendors option').each(function() {
+                let vendorId = parseInt($(this).val());
+                if (existingVendors.includes(vendorId)) {
+                    $(this).prop('disabled', true).text($(this).text() + " (Already Added)");
+                }
+            });
+            // Save Tendor with items + vendors
+            $('#additem').on('click', function () {
+                let master = $('#master').val();
+                let item = $('#item').val();
+                let spec = $('#spec').val();
+                let qty = $('#quantity').val();
+
+                $.ajax({
+                    url: '/initiation/add_vendor_quotation_detail',
+                    method: 'POST',
+                    data: 
+                    {
+                        csrfmiddlewaretoken: '{{ csrf_token }}',
+                        master: master,
+                        item: item,
+                        spec: spec,
+                        quantity: qty,
+                    },
+                    success: function (response) {
+                        if (response.status === 'success') {
+                            alert("Item add successfully in quotation!");
+                        }
+                        else{
+                            alert(response.message);
+                        }
+                    }
+                });
+            });
+
+            // Save Tendor with items + vendors
+            $('#saveTendor').on('click', function () {
+                let master = $('#master').val();
+                let vendors = $('#vendors').val();
+
+                $.ajax({
+                    url: '/initiation/add_vendor_quotation_list',
+                    method: 'POST',
+                    data: 
+                    {
+                        csrfmiddlewaretoken: '{{ csrf_token }}',
+                        master: master,
+                        vendors: vendors,
+                    },
+                    success: function (response) {
+                        if (response.status === 'success') {
+                            alert("Vendor add successfully in quotation!");
+                        }
+                        else{
+                            alert(response.message);
+                        }
+                        
+                    },
+                    error: function(response) {
+                        // console.log(response.responseJSON.message)
+                        // alert(response.responseJSON.message);
+                    }
+                });
+            });
+        });
+
+    </script>
+</body>
+</html>

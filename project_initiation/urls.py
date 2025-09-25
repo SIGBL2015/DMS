@@ -66,7 +66,7 @@ urlpatterns = [
     path('load_boq_items', views.load_boq_items, name="load_boq_items"),
     path('test', views.test, name="test"),
 
-     #iso
+    #iso
     path('save_iso', views.add_iso, name="save_iso"),
     path('save_iso_detail', views.add_iso_detail, name="save_iso_detail"),  
     path('show_iso', views.show_iso, name="show_iso"),  
@@ -77,5 +77,21 @@ urlpatterns = [
     path('load_category', views.load_category, name="load_category"),
     path('show_iso_detail/<int:id>', views.show_iso_detail, name="show_iso_detail"), 
     path('iso_det_delete/<int:id>/', views.delete_iso_detail, name='delete_iso_detail'),
+
+    #vendor_quotation
+    path('save_vendor_quotation', views.add_vendor_quotation, name="save_vendor_quotation"), 
+    path('show_vendor_quotation', views.show_vendor_quotation, name="show_vendor_quotation"),
+    path('get_specs_by_item/<int:id>', views.get_specs_by_item, name="get_specs_by_item"),
+    path("quotation/<int:master_id>/view/", views.view_vendor_quotation, name="view_vendor_quotation"),
+    path("quotation/<int:master_id>/download/", views.download_vendor_quotation, name="download_vendor_quotation"),
+    path("view_quotation_detail/<int:id>", views.view_quotation_detail, name="view_quotation_detail"),
+    path('add_vendor_quotation_list', views.add_vendor_quotation_list, name="add_vendor_quotation_list"), 
+    path('add_vendor_quotation_detail', views.add_vendor_quotation_detail, name="add_vendor_quotation_detail"), 
+    path('d_quotation_detail/<int:id>', views.d_quotation_detail, name="d_quotation_detail"),
+    path('d_quotation_vendor/<int:id>', views.d_quotation_vendor, name="d_quotation_vendor"),
+    path('generate_quotation_refno', views.generate_quotation_refno, name="generate_quotation_refno"),
+    path("vendor_quotation/<int:master_id>/<int:vendor_id>/view/", views.view_single_vendor_quotation, name="view_single_vendor_quotation"),
+    path("vendor_quotation/<int:master_id>/<int:vendor_id>/download/", views.download_single_vendor_quotation, name="download_single_vendor_quotation"),
+
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

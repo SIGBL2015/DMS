@@ -1,17 +1,18 @@
 from collections import defaultdict
 import json
 from django.forms import  ValidationError
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from datetime import datetime
 from django.utils import timezone
 import os
 from django.conf import settings
+import qrcode
 from employee.validator import validate_allowed_file_type
-from employee.models import Client, Department, Employee
+from employee.models import Client, Department, Employee, Vendor
 from finance.models import Currency
 from project_initiation.forms import TaxForm, TendorForm, UnitForm, CategoryForm, ItemForm, HeadingForm, Sub_headingForm, Boq_itemsForm, Iso_masterForm, Iso_detailForm
-from project_initiation.models import Item_spec_values, Setting, Tax, Tendor, Unit, Category, Item, Heading, Sub_heading, Boq_items, Iso_master, Iso_detail, Component, Specs, Spec_values
+from project_initiation.models import Item_spec_values, Quotation_vendor_list, Setting, Tax, Tendor, Unit, Category, Item, Heading, Sub_heading, Boq_items, Iso_master, Iso_detail, Component, Specs, Spec_values, Vendor_quotation_detail, Vendor_quotation_master
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db.models import Q
 from django.contrib import messages
@@ -20,6 +21,11 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import User
 from django.db.models.functions import Substr, Cast
 from django.db.models import IntegerField
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Image,Spacer
+from reportlab.lib.pagesizes import A4
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+import io
 
 # Create your views here.
 # tendor
@@ -975,6 +981,13 @@ def load_category(request):
     specs_list = list(specs.values('id','specifications'))  # Convert queryset to list of dicts
     return JsonResponse({ 'title':cat.category.title,'specs':specs_list}, safe=False)
 
+def get_specs_by_item(request, id):
+    item = id
+    cat = Item.objects.get(id=item)
+    specs = Item_spec_values.objects.filter(item_id=item)
+    specs_list = list(specs.values('id','specifications'))  # Convert queryset to list of dicts
+    return JsonResponse({ 'specs':specs_list}, safe=False)
+
 
 # SELECT 
 #         id, unit_price, quantity, total_amount, tendor_id, parent_id
@@ -983,3 +996,461 @@ def load_category(request):
 #     WHERE 
 #         id >= (SELECT MIN(id) FROM boq_items WHERE tendor_id = 2) 
 #     ORDER BY id,parent_id;
+
+# Item
+@login_required 
+@permission_required('project_initiation.add_vendor_quotation', raise_exception=True)
+def add_vendor_quotation(request): 
+    tendors = Tendor.objects.filter(status=1).values('id','title')
+    items = Item.objects.filter(status=1).values('id','name')
+    vendors = Vendor.objects.filter(status=1).values('id','vendor_name')
+    if request.method == "POST":  
+        tender_id = request.POST.get("tendor")
+        ref_no = request.POST.get("ref_no")
+        vendor_ids = json.loads(request.POST.get("vendors"))
+        details = json.loads(request.POST.get("items"))
+
+        # 1. Master record
+        master = Vendor_quotation_master.objects.create(
+            tendor_id=tender_id,
+            ref_no=ref_no,
+            date= datetime.now().strftime('%Y%m%d')
+        )
+
+        # 2. Detail records (item + spec)
+        for d in details:
+            item = Item.objects.get(id=d["item_id"])
+            spec = Item_spec_values.objects.get(id=d["spec_id"])
+            Vendor_quotation_detail.objects.create(
+                vendor_quotation_master=master,
+                item=item,
+                item_spec_values=spec,
+                quantity=d["quantity"]
+            )
+
+        # 3. Vendor list
+        for vendor_id in vendor_ids:
+            vendor = Vendor.objects.get(id=vendor_id)
+            Quotation_vendor_list.objects.create(
+                vendor_quotation_master=master,
+                vendor=vendor,
+                current_status = 'pending'
+            )
+
+        return JsonResponse({"status": "success", "master_id": master.id})
+    else:  
+        return render(request,'vendor_quotation/add_vendor_quotation.html',{ 'tendors':tendors, 'items':items, 'vendors':vendors})  
+
+@login_required    
+@permission_required('project_initiation.view_vendor_quotation', raise_exception=True)
+def show_vendor_quotation(request):  
+    vendor_quotations = Vendor_quotation_master.objects.filter(status=1)  
+    return render(request,"vendor_quotation/show_vendor_quotation.html",{'vendor_quotations':vendor_quotations})
+
+
+styles = getSampleStyleSheet()
+normal_style = styles["Normal"]
+heading_style1 = styles["Heading1"]
+heading_style2 = styles["Heading2"]
+heading_style3 = styles["Heading3"]
+
+def header_footer(canvas, doc):
+    # Save current state
+    canvas.saveState()
+    get_setting = Setting.objects.get(status=1)
+    # --- Header ---
+    # if company.logo:
+    logo_path = settings.HOST + get_setting.logo
+    canvas.drawImage(logo_path, x=40, y=A4[1] - 80, width=200, height=50, preserveAspectRatio=True, mask='auto')
+
+    # canvas.setFont("Helvetica-Bold", 12)
+    # canvas.drawString(200, A4[1] - 50, company.name)
+
+    # --- Footer ---
+    # canvas.setFont("Helvetica", 9)
+    # y = 50
+    # canvas.drawCentredString(A4[0] / 2, y + 20, f"The Plaza, 3rd Floor, Office # 311, KDA Scheme # 5, Near II Talwar Clifton Karachi")
+    # canvas.drawCentredString(A4[0] / 2, y + 10, f"Phone: 021-35308701-2")
+    # canvas.drawCentredString(A4[0] / 2, y, f"Email: info@sigbl.com")
+    lines = get_setting.footer.split("\n")
+    canvas.setFont("Helvetica", 9)
+    y = 30
+    for i, line in enumerate(reversed(lines)):  # print bottom-up
+        canvas.drawCentredString(A4[0] / 2, y + (i * 12), line)
+
+    # Restore state
+    canvas.restoreState()
+
+# ✅ Helper: format specifications JSON into table rows
+def format_specs(details):
+    rows = []
+    counter = 1
+    # Table header
+    rows.append([
+        Paragraph("<b>S.No</b>", heading_style2),
+        Paragraph("<b>Description</b>", heading_style2),
+        Paragraph("<b>Qty</b>", heading_style2),
+        Paragraph("<b>Amt</b>", heading_style2),
+        Paragraph("<b>Amt With Tax</b>", heading_style2),
+    ])
+
+    for d in details:
+        try:
+            spec_data = json.loads(d.item_spec_values.specifications)
+        except Exception:
+            spec_data = {}
+
+        # Item row (bold)
+        rows.append([
+            counter,
+            Paragraph(f"<b>{d.item.name}</b>", heading_style3),
+            Paragraph(f"<b>{d.quantity}</b>", heading_style3),
+            d.amount if hasattr(d, "amount") else "",
+            d.amount_with_tax if hasattr(d, "amount_with_tax") else "",
+        ])
+
+        # Component + specs
+        for component, specs in spec_data.items():
+            # Component row (centered across all columns → span later)
+            rows.append(["", Paragraph(f"<b>{component}</b>", normal_style), "", "", ""])
+
+            # Spec rows
+            for k, v in specs.items():
+                rows.append([
+                    "",
+                    Paragraph(f"{k}: {v}", normal_style),
+                    "",
+                    "",
+                    "",
+                ])
+        counter += 1
+    return rows
+
+
+def generate_vendor_quotation_pdf(master_id, download=False):
+    master = Vendor_quotation_master.objects.get(id=master_id)
+    details = Vendor_quotation_detail.objects.filter(vendor_quotation_master=master, status=1)
+    vendors = Quotation_vendor_list.objects.filter(vendor_quotation_master=master, status=1)
+
+    # Create buffer
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=20, leftMargin=20, topMargin=100, bottomMargin=80)
+    story = []
+
+    # Title
+    story.append(Paragraph(f"<b>Quotation #{master.id}</b>", styles["Title"]))
+    story.append(Spacer(1, 12))
+
+   # ✅ Generate QR code
+    qr_img = qrcode.make(master.ref_no)  # or master.id
+    qr_buffer = io.BytesIO()
+    qr_img.save(qr_buffer, format="PNG")
+    qr_buffer.seek(0)
+    qr_rl_img = Image(qr_buffer, width=80, height=80)
+
+    # Smaller text style for ref_no
+    small_text = ParagraphStyle(
+        "small_text",
+        parent=normal_style,
+        fontSize=8,    # 👈 decrease font size
+        alignment=1    # center
+    )
+
+    # ✅ QR with reference number below
+    qr_with_text = Table(
+        [
+            [qr_rl_img],
+            [Paragraph(f"<b>{master.ref_no}</b>", small_text)]
+        ],
+        colWidths=[100]  # width same as QR code
+    )
+    qr_with_text.setStyle(TableStyle([
+        ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+        ("TOPPADDING", (0, 1), (-1, 1), -2),
+        ("BOTTOMPADDING", (0, 0), (-1, 0), 0), # remove extra padding under QR
+    ]))
+    # ✅ Side-by-side layout: Vendors | QR code
+    vendors_qr_table = Table(
+        [['', qr_with_text]],
+        colWidths=[400, 100]
+    )
+    vendors_qr_table.setStyle(TableStyle([
+        ("VALIGN", (0, 0), (-1, -1), "TOP"),
+    ]))
+
+    story.append(vendors_qr_table)
+    story.append(Spacer(1, 20))
+
+    # Specification table
+    spec_rows = format_specs(details)
+    table = Table(spec_rows, colWidths=[50, 300, 50, 50, 70])
+
+    style = TableStyle([
+        ("BOX", (0, 0), (-1, -1), 0.5, colors.black),
+        ("INNERGRID", (0, 0), (-1, -1), 0.25, colors.grey),
+        ("ALIGN", (0, 0), (-1, -1), "LEFT"),
+        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+        ("BACKGROUND", (0, 0), (-1, 0), colors.lightgrey),  # header bg
+    ])
+
+    # ✅ Center align component rows
+    for i, row in enumerate(spec_rows):
+        if len(row) == 5 and row[1].getPlainText().startswith("<b>") and not ":" in row[1].getPlainText():
+            style.add("SPAN", (1, i), (4, i))  # span description across columns
+            style.add("ALIGN", (1, i), (4, i), "CENTER")
+            style.add("BACKGROUND", (1, i), (4, i), colors.whitesmoke)
+
+    table.setStyle(style)
+    story.append(table)
+
+    # Build PDF
+    doc.build(story, onFirstPage=lambda c, d: header_footer(c, d),
+              onLaterPages=lambda c, d: header_footer(c, d))
+    pdf = buffer.getvalue()
+    buffer.close()
+
+    # Return as response
+    response = HttpResponse(content_type="application/pdf")
+    if download:
+        response["Content-Disposition"] = f'attachment; filename="quotation_{master.id}.pdf"'
+    else:
+        response["Content-Disposition"] = "inline; filename=quotation.pdf"
+    response.write(pdf)
+    return response
+
+
+@login_required 
+def view_vendor_quotation(request, master_id):
+    return generate_vendor_quotation_pdf(master_id, download=False)
+
+@login_required 
+def download_vendor_quotation(request, master_id):
+    return generate_vendor_quotation_pdf(master_id, download=True)
+
+def generate_single_vendor_quotation_pdf(master_id, vendor_id, download=False):
+    master = Vendor_quotation_master.objects.get(id=master_id)
+    details = Vendor_quotation_detail.objects.filter(vendor_quotation_master=master, status=1)
+    vendors = Quotation_vendor_list.objects.filter(vendor_quotation_master=master,vendor_id=vendor_id, status=1)
+
+    # Create buffer
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=20, leftMargin=40, topMargin=100, bottomMargin=80)
+    story = []
+
+    # Title
+    story.append(Paragraph(f"<b>Quotation #{master.id}</b>", styles["Title"]))
+    story.append(Spacer(1, 12))
+
+    # ✅ Generate QR code
+    qr_img = qrcode.make(master.ref_no)  # or master.id
+    qr_buffer = io.BytesIO()
+    qr_img.save(qr_buffer, format="PNG")
+    qr_buffer.seek(0)
+    qr_rl_img = Image(qr_buffer, width=80, height=80)
+
+    # Smaller text style for ref_no
+    small_text = ParagraphStyle(
+        "small_text",
+        parent=normal_style,
+        fontSize=8,    # 👈 decrease font size
+        alignment=1    # center
+    )
+
+    # ✅ QR with reference number below
+    qr_with_text = Table(
+        [
+            [qr_rl_img],
+            [Paragraph(f"<b>{master.ref_no}</b>", small_text)]
+        ],
+        colWidths=[100]  # width same as QR code
+    )
+    qr_with_text.setStyle(TableStyle([
+        ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+        ("TOPPADDING", (0, 1), (-1, 1), -2),
+        ("BOTTOMPADDING", (0, 0), (-1, 0), 0), # remove extra padding under QR
+    ]))
+
+    # Vendor info
+    # story.append(Paragraph("<b>Vendors:</b>", heading_style1))
+    # for v in vendors:
+    #     story.append(Paragraph(f"<b>{v.vendor.vendor_name}</b>", normal_style))
+    #     story.append(Paragraph(f"<b>{v.vendor.email}</b>", normal_style))
+    #     story.append(Paragraph(f"<b>{v.vendor.phone}</b>", normal_style))
+    #     story.append(Paragraph(f"<b>{v.vendor.address}</b>", normal_style))
+    # story.append(Spacer(1, 12))
+
+    # ✅ Vendors list (on left side)
+    vendor_paras = [Paragraph("<b>Vendors:</b>", heading_style1)]
+    for v in vendors:
+        vendor_paras.append(Paragraph(f"<b>{v.vendor.vendor_name}</b>", normal_style))
+        vendor_paras.append(Paragraph(f"<b>{v.vendor.email}</b>", normal_style))
+        vendor_paras.append(Paragraph(f"<b>{v.vendor.phone}</b>", normal_style))
+        vendor_paras.append(Paragraph(f"<b>{v.vendor.address}</b>", normal_style))
+
+    # ✅ Side-by-side layout: Vendors | QR code
+    vendors_qr_table = Table(
+        [[vendor_paras, qr_with_text]],
+        colWidths=[400, 100]
+    )
+    vendors_qr_table.setStyle(TableStyle([
+        ("VALIGN", (0, 0), (-1, -1), "TOP"),
+    ]))
+
+    story.append(vendors_qr_table)
+    story.append(Spacer(1, 20))
+
+    # Specification table
+    spec_rows = format_specs(details)
+    table = Table(spec_rows, colWidths=[50, 300, 50, 50, 70])
+
+    style = TableStyle([
+        ("BOX", (0, 0), (-1, -1), 0.5, colors.black),
+        ("INNERGRID", (0, 0), (-1, -1), 0.25, colors.grey),
+        ("ALIGN", (0, 0), (-1, -1), "LEFT"),
+        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+        ("BACKGROUND", (0, 0), (-1, 0), colors.lightgrey),  # header bg
+    ])
+
+    # ✅ Center align component rows
+    for i, row in enumerate(spec_rows):
+        if len(row) == 5 and row[1].getPlainText().startswith("<b>") and not ":" in row[1].getPlainText():
+            style.add("SPAN", (1, i), (4, i))  # span description across columns
+            style.add("ALIGN", (1, i), (4, i), "CENTER")
+            style.add("BACKGROUND", (1, i), (4, i), colors.whitesmoke)
+
+    table.setStyle(style)
+    story.append(table)
+
+    # Build PDF
+    # doc.build(story)
+    doc.build(story, onFirstPage=lambda c, d: header_footer(c, d),
+              onLaterPages=lambda c, d: header_footer(c, d))
+    pdf = buffer.getvalue()
+    buffer.close()
+
+    # Return as response
+    response = HttpResponse(content_type="application/pdf")
+    if download:
+        response["Content-Disposition"] = f'attachment; filename="quotation_{master.id}.pdf"'
+    else:
+        response["Content-Disposition"] = "inline; filename=quotation.pdf"
+    response.write(pdf)
+    return response
+
+@login_required 
+def view_single_vendor_quotation(request, master_id, vendor_id):
+    return generate_single_vendor_quotation_pdf(master_id, vendor_id, download=False)
+
+@login_required 
+def download_single_vendor_quotation(request, master_id, vendor_id):
+    return generate_single_vendor_quotation_pdf(master_id, vendor_id, download=True)
+
+@login_required  
+@permission_required('project_initiation.change_iso', raise_exception=True)
+def view_quotation_detail(request, id):  
+    master = Vendor_quotation_master.objects.get(id=id)
+    details = Vendor_quotation_detail.objects.filter(vendor_quotation_master=master, status=1)
+    vendors_list = Quotation_vendor_list.objects.filter(vendor_quotation_master=master, status=1)
+    items = Item.objects.filter(status=1).values('id','name')
+    vendors = Vendor.objects.filter(status=1).values('id','vendor_name')
+    # Already saved item+specs in details
+    existing_details = Vendor_quotation_detail.objects.filter(
+        vendor_quotation_master=master,
+        status=1
+    ).values_list("item_id", "item_spec_values_id", flat=False)
+
+    existing_vendor_ids = list(
+        Quotation_vendor_list.objects.filter(
+            vendor_quotation_master=master,
+            status=1
+        ).values_list("vendor_id", flat=True)
+    )
+
+    existing_pairs = [{"item": i, "spec": s} for i, s in existing_details]
+
+    return render(request,'vendor_quotation/quotation_detail.html', {'master':master, 'details':details, 'vendors':vendors, 'vendors_list':vendors_list, 'items':items, "existing_pairs": existing_pairs, "existing_vendor_ids":existing_vendor_ids})
+
+@login_required 
+@permission_required('project_initiation.add_vendor_quotation', raise_exception=True)
+def add_vendor_quotation_list(request):   
+    mas = request.POST.get("master")
+    master = Vendor_quotation_master.objects.get(id=mas)
+    vendor_ids = json.loads(request.POST.get("vendors"))
+
+
+    vendor = Vendor.objects.get(id=vendor_ids)
+    data = Quotation_vendor_list.objects.filter(vendor_quotation_master=master, vendor=vendor, status=1)
+    print(data)
+    if data.exists():
+        return JsonResponse({"status": "error", "message": "Data Already Exist"})
+    else:
+        Quotation_vendor_list.objects.create(
+            vendor_quotation_master=master,
+            vendor=vendor,
+            current_status = 'pending'
+        )
+        return JsonResponse({"status": "success", "master_id": master.id})
+
+@login_required 
+@permission_required('project_initiation.add_vendor_quotation', raise_exception=True)
+def add_vendor_quotation_detail(request):   
+    mas = request.POST.get("master")
+    itm = request.POST.get("item")
+    spec = request.POST.get("spec")
+    master = Vendor_quotation_master.objects.get(id=mas)
+    item = Item.objects.get(id=itm)
+    specs = Item_spec_values.objects.get(id=spec)
+    data = Vendor_quotation_detail.objects.filter(vendor_quotation_master=master, item=item, item_spec_values=spec, status=1)
+    if data.exists():
+        return JsonResponse({"status": "error", "message": "Data Already Exist"})
+    else:
+        Vendor_quotation_detail.objects.create(
+            vendor_quotation_master=master,
+            item=item,
+            item_spec_values=specs,
+            quantity=request.POST.get("quantity")
+        )
+        return JsonResponse({"status": "success","master_id": master.id})
+
+@login_required  
+@permission_required('project_initiation.delete_vendor_quotation', raise_exception=True)
+def d_quotation_vendor(request, id):  
+    vendorlist = Quotation_vendor_list.objects.get(id=id)  
+    vendorlist.status=0  
+    vendorlist.save()
+    return redirect(f'../view_quotation_detail/{vendorlist.vendor_quotation_master_id}')
+
+@login_required  
+@permission_required('project_initiation.delete_vendor_quotation', raise_exception=True)
+def d_quotation_detail(request, id):  
+    detail = Vendor_quotation_detail.objects.get(id=id)  
+    detail.status=0  
+    detail.save()
+    return redirect(f'../view_quotation_detail/{detail.vendor_quotation_master_id}')
+
+@login_required
+def generate_quotation_refno(request):
+    ref = Vendor_quotation_master.objects.filter(status=1).values('ref_no').last()
+    # Get the current date in 'YYYYMMDD' format
+    current_date = datetime.now().strftime('%Y%m%d')
+    if(ref != None):
+
+        last=ref['ref_no']
+        
+        # Split the input string by '-'
+        parts =last.split('-')
+        
+        # The last part (e.g., '001') needs to be incremented
+        last_ref = parts[-1]
+        
+        # Convert the last part to an integer, increment it by 1
+        incremented_ref = str(int(last_ref) + 1).zfill(3)  # zfill(3) ensures it's always 3 digits
+        
+        # Reconstruct the string by joining the parts with '-'
+        new_string = '-'.join(['SIGBL',current_date,incremented_ref])
+    else:
+        # Reconstruct the string by joining the parts with '-'
+        new_string = '-'.join(['SIGBL',current_date,'001'])
+    return JsonResponse({'generated_code': new_string})

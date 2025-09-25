@@ -53,7 +53,13 @@
                                   {% endif %}
                                 </td>
                                 <td>{{ company_document.issuance_date }}</td> 
-                                <td>{{ company_document.expire_date }}</td>
+                                <td>
+                                  {% if company_document.expire_date >= current_date %}
+                                    <span class="badge badge-success">{{ company_document.expire_date }}</span>
+                                  {% else %}
+                                    <span class="badge badge-danger">{{ company_document.expire_date }}</span>
+                                  {% endif %}
+                                </td>
                                 {% if company_document.status == 1 %}
                                   <td>Active</td>  
                                 {% else %}
